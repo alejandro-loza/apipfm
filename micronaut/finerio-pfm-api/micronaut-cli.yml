@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: mx.finerio.pfm.api
+---
+testFramework: spock
+sourceLanguage: groovy

@@ -1,0 +1,612 @@
+openapi: 3.0.0
+info:
+  title: Finerio PFM API
+  description: Description of Finerio PFM API.
+  version: 0.0.1
+servers:
+ - url: https://pfm.finerio.mx
+   description: Production server
+tags:
+  - name: Users
+  - name: Financial entities
+  - name: Accounts
+paths:
+  /users:
+    post:
+      tags:
+      - Users
+      summary: Creates a user.
+      description: Creates a user. Any kind of name with a size up to 100 characters is allowed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '200':
+          description: A user created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          
+        '500':
+          description: Something in the server was wrong.
+    get:
+      tags:
+      - Users
+      summary: Fetches a list of users.
+      description: Fetches a list of users, sorted by ID in descending order. The API is able to fetch up to 100 users. If a cursor is specified, the list starts with the item that has that ID.
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the user where the list starts.
+      responses:
+        '200':
+          description: An array of users.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Users'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
+  /users/{id}:
+    get:
+      tags:
+      - Users
+      summary: Fetches a user.
+      description: Fetches the information of a user.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the user to request.
+      responses:
+        '200':
+          description: The information of the user requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The user ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    put:
+      tags:
+      - Users
+      summary: Updates a user.
+      description: Updates a user. Any kind of name with a size up to 100 characters is allowed.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the user to request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '200':
+          description: A user created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The user ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    delete:
+      tags:
+      - Users
+      summary: Deletes a user.
+      description: Deletes a user and all its information.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the user to request.
+      responses:
+        '204':
+          description: The user has been deleted successfully.
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The user ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+  /financialEntities:
+    post:
+      tags:
+      - Financial entities
+      summary: Creates a financial entity.
+      description: Creates an financial entity. A previosuly created user is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '200':
+          description: A financial entity created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          
+        '500':
+          description: Something in the server was wrong.
+    get:
+      tags:
+      - Financial entities
+      summary: Fetches a list of accounts.
+      description: Fetches a list of accounts, sorted by ID in descending order. The API is able to fetch up to 100 accounts. If a cursor is specified, the list starts with the item that has that ID.
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the user where the list starts.
+      responses:
+        '200':
+          description: An array of accounts.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Accounts'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
+  /financialEntities/{id}:
+    get:
+      tags:
+      - Financial entities
+      summary: Fetches an account.
+      description: Fetches the information of an account.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the account to request.
+      responses:
+        '200':
+          description: The information of the account requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The account ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    put:
+      tags:
+      - Financial entities
+      summary: Updates an account.
+      description: Updates an account.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the account to request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccount'
+      responses:
+        '200':
+          description: A user updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The account ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    delete:
+      tags:
+      - Financial entities
+      summary: Deletes an account.
+      description: Deletes an account and all its information.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the account to request.
+      responses:
+        '204':
+          description: The account has been deleted successfully.
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The account ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+  /accounts:
+    post:
+      tags:
+      - Accounts
+      summary: Creates an account.
+      description: Creates an account. A previosuly created user is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccount'
+      responses:
+        '200':
+          description: An account created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          
+        '500':
+          description: Something in the server was wrong.
+    get:
+      tags:
+      - Accounts
+      summary: Fetches a list of accounts.
+      description: Fetches a list of accounts, sorted by ID in descending order. The API is able to fetch up to 100 accounts. If a cursor is specified, the list starts with the item that has that ID.
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the user where the list starts.
+      responses:
+        '200':
+          description: An array of accounts.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Accounts'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
+  /accounts/{id}:
+    get:
+      tags:
+      - Accounts
+      summary: Fetches an account.
+      description: Fetches the information of an account.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the account to request.
+      responses:
+        '200':
+          description: The information of the account requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The account ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    put:
+      tags:
+      - Accounts
+      summary: Updates an account.
+      description: Updates an account.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the account to request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccount'
+      responses:
+        '200':
+          description: A user updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The account ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    delete:
+      tags:
+      - Accounts
+      summary: Deletes an account.
+      description: Deletes an account and all its information.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the account to request.
+      responses:
+        '204':
+          description: The account has been deleted successfully.
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The account ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+components:
+  schemas:
+    CreateUser:
+      description: A representation of the data neccesary for creating a user.
+      required: 
+        - name
+      properties:
+        name:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "user@email.com"
+    User:
+      description: A representation of a user.
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 123
+        name:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "user@email.com"
+        dateCreated:
+          type: number
+          example: 1587567125458
+    Users:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        nextCursor:
+          type: integer
+          example: 123
+    CreateAccount:
+      description: A representation of the data neccesary for creating an account.
+      required:
+        - userId
+        - nature
+        - name
+        - number
+        - balance
+      properties:
+        userId:
+          type: number
+          example: 123
+        financialEntityId:
+          type: number
+          example: 123
+        nature:
+          $ref: '#/components/schemas/AccountNature'
+        name:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "Premium Account"
+        number:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "XXX-1234"
+        balance:
+          type: number
+          example: 1234.56
+    UpdateAccount:
+      description: A representation of the data neccesary for creating an account.
+      required:
+        - nature
+        - name
+        - number
+        - balance
+      properties:
+        nature:
+          $ref: '#/components/schemas/AccountNature'
+        name:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "Premium Account"
+        number:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "XXX-1234"
+        balance:
+          type: number
+          example: 1234.56
+    Account:
+      description: A representation of an account.
+      properties:
+        id:
+          type: integer
+          example: 123
+        nature:
+          $ref: '#/components/schemas/AccountNature'
+        name:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "Premium Account"
+        number:
+          type: string
+          minimum: 3
+          maximum: 100
+          example: "XXX-1234"
+        balance:
+          type: number
+          example: 1234.56
+        dateCreated:
+          type: number
+          example: 1587567125458
+        lastUpdated:
+          type: number
+          example: 1587567125458
+    Accounts:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+        nextCursor:
+          type: integer
+          example: 123
+    AccountNature:
+      type: string
+      enum:
+        - Debit
+        - Credit card
+        - Credit
+        - Investment
+        - Mortgage
+    Errors:
+      description: An array of errors
+      properties:
+        schema:
+          $ref: '#/components/schemas/Error'
+    Error:
+      description: A detailed description of an error
+      properties:
+        title:
+          type: string
+          example: "User name is null"
+        code:
+          type: string
+          example: "user.name.null"
+        detail:
+          type: string
+          example: "The name of the user you provided was null. Please provide a valid one."
+    
