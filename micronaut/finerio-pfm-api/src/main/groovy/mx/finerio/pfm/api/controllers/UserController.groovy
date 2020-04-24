@@ -21,7 +21,7 @@ class UserController {
     }
 
     @Post("/")
-    Single<User> save(UserCreateCommand cmd){
+    Single<User> save(@Body @Valid UserCreateCommand cmd){
         Single.just(new UserDto(userService.save(new User(cmd))))
     }
 
