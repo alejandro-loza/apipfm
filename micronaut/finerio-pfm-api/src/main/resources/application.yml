@@ -7,8 +7,9 @@ hibernate:
     auto: update
     cache:
       queries: false
-      use_second_level_cache: true
+      use_second_level_cache: false
       use_query_cache: false
+      region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
 datasources:
   default:
     url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
