@@ -1,8 +1,11 @@
 package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.pogos.UserCreateCommand
+import grails.gorm.services.Service
+import groovy.transform.CompileStatic
 
+@Service(User)
+@CompileStatic
 interface UserService {
-    User create(UserCreateCommand cmd)
+    User save(User user)
 }

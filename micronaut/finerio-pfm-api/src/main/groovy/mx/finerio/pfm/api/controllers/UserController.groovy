@@ -4,6 +4,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import io.reactivex.Single
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.pogos.UserCreateCommand
 import mx.finerio.pfm.api.services.UserService
@@ -19,19 +20,8 @@ class UserController {
     }
 
     @Post("/")
-    HttpResponse<User> save(@Body @Valid UserCreateCommand cmd) {
-        User user = userService.create(cmd);
-        HttpResponse
-                .created(user)
-                .headers({ headers -> headers.location(location(user.id)) })
-    }
-
-    protected static URI location(Long id) {
-        URI.create("/genres/" + id)
-    }
-
-    protected static URI location(User user) {
-        location(user.id)
+    Single<User> save(User user){
+        Single.just(userService.save(user))
     }
 
 }

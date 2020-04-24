@@ -2,6 +2,9 @@ micronaut:
   application:
     name: finerio-pfm-api
     max: 50
+hibernate:
+  hbm2ddl:
+    auto: validate
 datasources:
   default:
     url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
@@ -11,9 +14,17 @@ datasources:
 jpa:
   default:
     packages-to-scan:
-      - 'mx.finerio.pfm.api.domain.domain'
+      - 'mx.finerio.pfm.api.domain'
     properties:
       hibernate:
         hbm2ddl:
-          auto: update
+          auto: none
         show_sql: true
+liquibase:
+  datasources:
+    default:
+      change-log: 'classpath:db/liquibase-changelog.groovy'
+endpoints:
+  liquibase:
+    enabled: true
+    sensitive: false
