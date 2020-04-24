@@ -4,7 +4,11 @@ micronaut:
     max: 50
 hibernate:
   hbm2ddl:
-    auto: validate
+    auto: update
+    cache:
+      queries: false
+      use_second_level_cache: true
+      use_query_cache: false
 datasources:
   default:
     url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
@@ -18,7 +22,7 @@ jpa:
     properties:
       hibernate:
         hbm2ddl:
-          auto: none
+          auto: update
         show_sql: true
 liquibase:
   datasources:
