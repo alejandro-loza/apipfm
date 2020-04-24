@@ -4,8 +4,6 @@ plugins {
     id "application"
 }
 
-
-
 version "0.1"
 group "mx.finerio.pfm.api"
 
@@ -24,11 +22,16 @@ dependencies {
     compileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
     compileOnly "io.micronaut:micronaut-inject-groovy"
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
-    implementation "io.micronaut:micronaut-runtime-groovy"
+    compile "io.micronaut:micronaut-runtime-groovy"
+    compile 'io.micronaut:micronaut-function-groovy'
+
     implementation "io.micronaut:micronaut-validation"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
+    implementation "io.micronaut.configuration:micronaut-hibernate-jpa"
+    implementation "io.micronaut.configuration:micronaut-jdbc-hikari"
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+    runtime "com.h2database:h2"
     testCompileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation("org.spockframework:spock-core") {
