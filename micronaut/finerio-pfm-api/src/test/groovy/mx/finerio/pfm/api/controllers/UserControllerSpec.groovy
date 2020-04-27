@@ -8,6 +8,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.pogos.UserCreateCommand
@@ -35,10 +36,22 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST('/users', cmd)
 
         when:
-        HttpResponse rsp = client.toBlocking().exchange(request)
+        def rsp = client.toBlocking().exchange(request)
 
         then:
         rsp.status == HttpStatus.OK
 
+    }
+
+    def "Should not create an user an return 400"(){
+        given:'an user'
+
+        HttpRequest request = HttpRequest.POST('/users',  new UserCreateCommand())
+
+        when:
+        client.toBlocking().exchange(request)
+
+        then:
+        thrown HttpClientResponseException
     }
 }
