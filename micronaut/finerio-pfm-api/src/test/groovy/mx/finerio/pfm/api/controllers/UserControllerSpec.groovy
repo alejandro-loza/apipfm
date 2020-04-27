@@ -5,6 +5,7 @@ import io.micronaut.context.ApplicationContext
 import io.micronaut.context.annotation.Property
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.runtime.server.EmbeddedServer
@@ -19,21 +20,19 @@ import spock.lang.Specification
 
 import javax.inject.Inject
 
-@Rollback
+@Property(name = 'spec.name', value = 'userontroller')
 @MicronautTest(application = Application.class)
 class UserControllerSpec extends Specification {
 
+    @Shared
+    @Inject
+    ApplicationContext applicationContext
 
     @Shared
-    @AutoCleanup
-    EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
+    @Inject
+    @Client("/")
+    RxHttpClient client
 
-    @Shared
-    @AutoCleanup
-    RxHttpClient client = embeddedServer.applicationContext.createBean(RxHttpClient, embeddedServer.getURL())
-
-    def cleanup() {
-    }
 
 
     def "Should create an user"(){
@@ -48,11 +47,16 @@ class UserControllerSpec extends Specification {
             userStatus = 1
         }
 
+        HttpRequest request = HttpRequest.POST('/users', cmd)
+
+
         when:
-        client.toBlocking().exchange(HttpRequest.POST("/users", cmd))
+        HttpResponse rsp = client.toBlocking().exchange(request)
+
 
         then:
-        client.toBlocking().retrieve("/users", List)*.username == ["TEST_TITLE"]
+        rsp.status == HttpStatus.OK
+
 
     }
 }
