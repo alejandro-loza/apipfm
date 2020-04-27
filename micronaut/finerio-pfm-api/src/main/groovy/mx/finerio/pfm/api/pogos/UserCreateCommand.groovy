@@ -15,25 +15,6 @@ class UserCreateCommand {
 
     @NotNull
     @NotBlank
-    String username
+    String name
 
-    @NotNull
-    @NotBlank
-    String firstName
-
-    @NotNull
-    @NotBlank
-    String lastName
-
-    @NotNull
-    @NotBlank
-    @Email
-    String email
-
-    @NotNull
-    @NotBlank
-    Long phone
-
-    @NotNull
-    int userStatus
 }
