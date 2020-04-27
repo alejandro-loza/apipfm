@@ -19,7 +19,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: name
-                  type: varchar(50)
+                  type: varchar(100)
                   constraints:
                     nullable: false
               - column:

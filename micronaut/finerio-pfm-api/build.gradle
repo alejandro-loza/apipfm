@@ -23,10 +23,9 @@ dependencies {
     compileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
     compileOnly "io.micronaut:micronaut-inject-groovy"
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
-    compile "io.micronaut:micronaut-runtime-groovy"
-    compile 'io.micronaut:micronaut-function-groovy'
-    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
-
+    implementation  "io.micronaut:micronaut-runtime-groovy"
+    implementation  'io.micronaut:micronaut-function-groovy'
+    implementation  "io.micronaut.configuration:micronaut-hibernate-gorm"
     implementation "io.micronaut:micronaut-validation"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
@@ -36,12 +35,12 @@ dependencies {
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
     runtime "com.h2database:h2"
     runtime "org.apache.tomcat:tomcat-jdbc:8.5.0"
-    testCompileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
     }
-    testCompileOnly "io.micronaut:micronaut-inject-groovy"
+    testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "io.micronaut.test:micronaut-test-spock"
     testImplementation "io.micronaut.test:micronaut-test-junit5"
     testImplementation "io.micronaut:micronaut-http-client"
