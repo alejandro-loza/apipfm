@@ -10,18 +10,16 @@ import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.pogos.UserCreateCommand
 import mx.finerio.pfm.api.services.UserService
 
+import javax.inject.Inject
 import javax.validation.Valid
 
 @Controller("/users")
 class UserController {
-    protected final UserService userService
-
-    UserController(UserService userService) {
-        this.userService = userService
-    }
+    @Inject
+    UserService userService
 
     @Post("/")
-    Single<User> save(@Body @Valid UserCreateCommand cmd){
+    Single<UserDto> save(@Body @Valid UserCreateCommand cmd){
         Single.just(new UserDto(userService.save(new User(cmd))))
     }
 

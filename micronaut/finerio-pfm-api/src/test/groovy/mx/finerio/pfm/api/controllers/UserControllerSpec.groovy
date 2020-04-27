@@ -9,6 +9,7 @@ import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.pogos.UserCreateCommand
 import mx.finerio.pfm.api.services.UserService
@@ -19,7 +20,7 @@ import spock.lang.Specification
 import javax.inject.Inject
 
 @Rollback
-@MicronautTest
+@MicronautTest(application = Application.class)
 class UserControllerSpec extends Specification {
 
 
@@ -32,7 +33,6 @@ class UserControllerSpec extends Specification {
     RxHttpClient client = embeddedServer.applicationContext.createBean(RxHttpClient, embeddedServer.getURL())
 
     def cleanup() {
-        deleteAllTodo()
     }
 
 
