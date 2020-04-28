@@ -2,9 +2,8 @@ plugins {
     id "groovy"
     id "com.github.johnrengelman.shadow" version "5.2.0"
     id "application"
+    id 'org.liquibase.gradle' version '2.0.1'
 }
-
-
 
 version "0.1"
 group "mx.finerio.pfm.api"
@@ -24,12 +23,19 @@ dependencies {
     compileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
     compileOnly "io.micronaut:micronaut-inject-groovy"
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
-    implementation "io.micronaut:micronaut-runtime-groovy"
+    implementation  "io.micronaut:micronaut-runtime-groovy"
+    implementation  'io.micronaut:micronaut-function-groovy'
+    implementation  "io.micronaut.configuration:micronaut-hibernate-gorm"
     implementation "io.micronaut:micronaut-validation"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
+    implementation 'io.micronaut.configuration:micronaut-liquibase'
+    implementation 'org.liquibase:liquibase-groovy-dsl:2.0.3'
+
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-    testCompileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
+    runtime "com.h2database:h2"
+    runtime "org.apache.tomcat:tomcat-jdbc:8.5.0"
+    testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
@@ -37,6 +43,8 @@ dependencies {
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "io.micronaut.test:micronaut-test-spock"
     testImplementation "io.micronaut.test:micronaut-test-junit5"
+    testImplementation "io.micronaut:micronaut-http-client"
+
 }
 
 test.classpath += configurations.developmentOnly
@@ -53,4 +61,8 @@ shadowJar {
 tasks.withType(JavaExec) {
     classpath += configurations.developmentOnly
     jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+}
+
+tasks.withType(GroovyCompile) {
+    groovyOptions.forkOptions.jvmArgs.add('-Dgroovy.parameters=true')
 }
