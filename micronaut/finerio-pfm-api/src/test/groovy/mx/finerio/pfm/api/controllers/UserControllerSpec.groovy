@@ -52,6 +52,7 @@ class UserControllerSpec extends Specification {
         client.toBlocking().exchange(request)
 
         then:
-        thrown HttpClientResponseException
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
     }
 }

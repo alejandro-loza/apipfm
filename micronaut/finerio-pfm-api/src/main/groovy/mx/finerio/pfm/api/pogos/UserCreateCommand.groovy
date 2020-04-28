@@ -13,8 +13,8 @@ import javax.validation.constraints.NotNull
 @CompileStatic
 class UserCreateCommand {
 
-    @NotNull
-    @NotBlank
+    @NotNull(message= "User name is null")
+    @NotBlank(message= "User name is blank")
     String name
 
 }
