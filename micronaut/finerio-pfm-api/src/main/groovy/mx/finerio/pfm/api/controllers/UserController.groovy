@@ -13,7 +13,7 @@ import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.pogos.UserCreateCommand
+import mx.finerio.pfm.api.validation.UserCreateCommand
 import mx.finerio.pfm.api.services.UserService
 
 import javax.inject.Inject
@@ -34,11 +34,10 @@ class UserController {
     }
 
     @Error
-    HttpResponse<JsonError> jsonError(HttpRequest request, ConstraintViolationException jsonParseException) {
-        JsonError error = new JsonError("Invalid JSON: " + jsonParseException.getMessage())
-                .link(Link.SELF, Link.of(request.uri))
+    HttpResponse<JsonError> jsonError(HttpRequest request, ConstraintViolationException constraintViolationException) {
+        JsonError error = new JsonError(constraintViolationException.message)
 
-        HttpResponse.<JsonError> status(HttpStatus.BAD_REQUEST, "Fix Your JSON").body(error)
+        HttpResponse.<JsonError> status(HttpStatus.BAD_REQUEST, "Invalid JSON").body(error)
     }
 
     @Error(status = HttpStatus.BAD_REQUEST)
