@@ -594,9 +594,9 @@ components:
         - Mortgage
     Errors:
       description: An array of errors
-      properties:
-        schema:
-          $ref: '#/components/schemas/Error'
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
     Error:
       description: A detailed description of an error
       properties:
