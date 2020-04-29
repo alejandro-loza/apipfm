@@ -18,7 +18,6 @@ class UserErrorDto {
 
 
     private String getPropertyMessage(String code) {
-        println code
         messageSource.getMessage(getFixedPropertyName(code), MessageSource.MessageContext.DEFAULT).orElse(null)
     }
 
