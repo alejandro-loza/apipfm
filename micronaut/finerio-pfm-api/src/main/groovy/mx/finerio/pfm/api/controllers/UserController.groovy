@@ -40,9 +40,11 @@ class UserController {
     }
 
     @Error
-    HttpResponse<UserErrorDto> jsonError(HttpRequest request, ConstraintViolationException constraintViolationException) {
-        HttpResponse.<UserErrorDto> status(HttpStatus.BAD_REQUEST, "Invalid JSON").body(
-                new UserErrorDto(constraintViolationException.message, messageSource)
+    HttpResponse<List<UserErrorDto>> jsonError(HttpRequest request, ConstraintViolationException constraintViolationException) {
+        HttpResponse.<List<UserErrorDto>> status(HttpStatus.BAD_REQUEST, "Invalid JSON").body(
+                constraintViolationException.constraintViolations.collect {
+                    new UserErrorDto(it.message, messageSource)
+                }
         )
     }
 

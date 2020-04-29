@@ -15,7 +15,7 @@ class UserErrorDtoSpec extends Specification {
 
     def "Should return an user error message "(){
         given:
-        UserErrorDto dto = new UserErrorDto('user.name.null', messageSource)
+        UserErrorDto dto = new UserErrorDto('save.cmd.name: user.name.null', messageSource)
 
         expect:
         dto.with {
