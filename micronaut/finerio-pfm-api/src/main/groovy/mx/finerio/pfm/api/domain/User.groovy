@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.pogos.UserCreateCommand
+import mx.finerio.pfm.api.validation.UserCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
