@@ -38,6 +38,13 @@ class UserControllerSpec extends Specification {
         then:
         rsp.status == HttpStatus.OK
 
+        HttpRequest getReq = HttpRequest.GET('/users/1')
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq)
+
+        then:
+        rspGET.status == HttpStatus.OK
     }
 
     def "Should not create an user an return 400"(){
@@ -52,4 +59,5 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
     }
+
 }

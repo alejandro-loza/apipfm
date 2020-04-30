@@ -6,4 +6,5 @@ import grails.gorm.services.Service
 @Service(User)
 interface UserService {
     User save(User user)
+    User getById(Long id)
 }
