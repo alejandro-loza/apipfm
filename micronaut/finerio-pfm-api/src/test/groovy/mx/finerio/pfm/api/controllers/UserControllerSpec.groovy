@@ -23,7 +23,7 @@ class UserControllerSpec extends Specification {
     @Client("/")
     RxHttpClient client
 
-    def "Should create an user"(){
+    def "Should create and get user"(){
         given:'an user'
         UserCreateCommand cmd = new UserCreateCommand()
         cmd.with {
