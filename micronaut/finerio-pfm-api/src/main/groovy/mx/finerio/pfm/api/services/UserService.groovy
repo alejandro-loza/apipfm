@@ -7,4 +7,6 @@ import grails.gorm.services.Service
 interface UserService {
     User save(User user)
     User getById(Long id)
+    List<User> findAll()
+    void delete(Long id)
 }

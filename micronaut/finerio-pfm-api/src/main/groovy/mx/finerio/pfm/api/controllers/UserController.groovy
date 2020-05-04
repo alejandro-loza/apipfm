@@ -4,10 +4,11 @@ package mx.finerio.pfm.api.controllers
 import io.micronaut.context.MessageSource
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Error
-
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.hateoas.JsonError
 import io.micronaut.validation.Validated
 import io.reactivex.Single
@@ -22,6 +23,8 @@ import javax.inject.Inject
 import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 import io.micronaut.http.*
+
+import javax.validation.constraints.NotNull
 
 @Validated
 @Controller("/users")
@@ -39,10 +42,36 @@ class UserController {
     }
 
     @Get("/{id}")
-    Single<UserDto> show(Long id) {
-        Single.just(new UserDto(Optional.ofNullable(userService.getById(id))
-                .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })))
+    Single<UserDto> show(@NotNull Long id) {
+        Single.just(new UserDto(getUser(id)))
     }
+
+    @Get()
+    Single<List<UserDto>> showAll() {
+        Single.just(userService.findAll().collect{ new UserDto(it)})
+    }
+
+    @Put("/{id}")
+    Single<UserDto> edit(@Body @Valid UserCreateCommand cmd, @NotNull Long id ) {
+        User user = getUser(id)
+        user.with {
+            name = cmd.name
+        }
+        Single.just(new UserDto(user))
+    }
+
+    @Delete("/{id}")
+    HttpResponse delete(@NotNull Long id) {
+        getUser(id)
+        userService.delete(id)
+        return HttpResponse.noContent()
+    }
+
+    private User getUser(long id) {
+        Optional.ofNullable(userService.getById(id))
+                .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
+    }
+
 
     @Error
     HttpResponse<List<UserErrorDto>> jsonError(ConstraintViolationException constraintViolationException) {

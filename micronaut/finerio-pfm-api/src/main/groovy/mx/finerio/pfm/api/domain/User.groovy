@@ -6,6 +6,7 @@ import org.grails.datastore.gorm.GormEntity
 @Entity
 class User  implements GormEntity<User> {
 
+    Long id
     String name
     Date dateCreated
 

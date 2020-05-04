@@ -8,6 +8,8 @@ class UserDto {
     String name
     Date dateCreated
 
+    UserDto() {}
+
     UserDto(User user) {
         this.id = user.id
         this.name = user.name
