@@ -57,7 +57,7 @@ class UserController {
         user.with {
             name = cmd.name
         }
-        Single.just(new UserDto(user))
+        Single.just(new UserDto(userService.save(user)))
     }
 
     @Delete("/{id}")
