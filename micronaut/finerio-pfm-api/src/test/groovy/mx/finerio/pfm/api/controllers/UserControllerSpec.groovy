@@ -61,16 +61,22 @@ class UserControllerSpec extends Specification {
         then:
         rsp.status == HttpStatus.OK
         rsp.body().name == cmd.name
+    }
+
+    def "Should get an user"(){
+        given:'a saved user'
+        User user = new User('no awesome name')
+        userService.save(user)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users/${rsp.body().id}")
+        HttpRequest getReq = HttpRequest.GET("/users/${user.id}")
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, UserDto)
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().name == cmd.name
+        rspGET.body().name == user.name
         rspGET.body().dateCreated
         rspGET.body().id
 
