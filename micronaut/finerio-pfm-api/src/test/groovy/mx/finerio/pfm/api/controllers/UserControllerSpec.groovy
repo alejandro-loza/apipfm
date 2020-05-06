@@ -199,14 +199,48 @@ class UserControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("/users")
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(UserDto))
+        def rspGET = client.toBlocking().exchange(getReq, Map)
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().size() > 0
-        rspGET.body().first().class.name == "mx.finerio.pfm.api.dtos.UserDto"
-
+        Map body = rspGET.getBody(Map).get()
+        List<UserDto> users= body.get("users") as List<UserDto>
+        assert users.size() > 0
+        String href= body.get("nextPage")["href"]
+        assert href.split('=').first() == '/users?offset'
     }
+
+    def "Should get a list of users in a offset point"(){
+
+        given:'a saved user'
+        User user = new User('no awesome')
+        userService.save(user)
+
+        User user2 = new User('awesome')
+        userService.save(user2)
+
+        User user3 = new User('more awesome')
+        userService.save(user3)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("/users?offset=${user.id}")
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<UserDto> users= body.get("users") as List<UserDto>
+        users.first().with {
+            assert id == user2.id
+            assert name == user2.name
+            assert dateCreated
+        }
+    }
+
+
+
 
     def "Should throw not found exception on delete no found user"(){
         given:
