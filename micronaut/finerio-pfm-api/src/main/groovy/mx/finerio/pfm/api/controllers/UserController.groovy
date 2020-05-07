@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull
 @Validated
 class UserController {
 
-    public static final int MAX_ROWS = 5
+    public static final int MAX_ROWS = 100
 
     @Inject
     UserService userService
