@@ -209,7 +209,7 @@ class UserControllerSpec extends Specification {
         assert body.get("nextCursor") == users.last().id
     }
 
-    def "Should get a list of users in a offset point"(){
+    def "Should get a list of users in a cursor point"() {
 
         given:'a saved user'
         User user = new User('no awesome')
@@ -222,7 +222,7 @@ class UserControllerSpec extends Specification {
         userService.save(user3)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users?offset=${user.id}")
+        HttpRequest getReq = HttpRequest.GET("/users?cursor=${user2.id}")
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)

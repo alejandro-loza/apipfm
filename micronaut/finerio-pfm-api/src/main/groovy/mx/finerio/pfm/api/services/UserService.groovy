@@ -8,5 +8,6 @@ interface UserService {
     User save(User user)
     User getById(Long id)
     List<User> findAll(Map args)
+    List<User> findByIdLessThanEquals(Long id, Map args)
     void delete(Long id)
 }

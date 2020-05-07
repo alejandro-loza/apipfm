@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull
 @Validated
 class UserController {
 
-    public static final int MAX_ROWS = 100
+    public static final int MAX_ROWS = 5
 
     @Inject
     UserService userService
@@ -45,9 +45,9 @@ class UserController {
         Single.just(new UserDto(getUser(id)))
     }
 
-    @Get("{?offset}")
-    Single<Map> showAll(@Nullable String offset) {
-        List<UserDto> users = userService.findAll([offset: offset, max: MAX_ROWS]).collect { new UserDto(it) }
+    @Get("{?cursor}")
+    Single<Map> showAll(@Nullable Long cursor) {
+        List<UserDto> users = cursor ? findAllByCursor(cursor) : findAll()
         Single.just(users.isEmpty() ? [] :  new UsersDto(users)) as Single<Map>
     }
 
@@ -70,6 +70,14 @@ class UserController {
     private User getUser(long id) {
         Optional.ofNullable(userService.getById(id))
                 .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
+    }
+
+    private List<UserDto> findAll() {
+        userService.findAll([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
+    }
+
+    private List<UserDto> findAllByCursor(long cursor) {
+        userService.findByIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
     }
 
     @Error
