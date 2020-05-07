@@ -1,6 +1,8 @@
 package mx.finerio.pfm.api.controllers
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import io.micronaut.context.MessageSource
+import io.micronaut.core.bind.exceptions.UnsatisfiedArgumentException
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -90,7 +92,6 @@ class UserController {
         )
     }
 
-
     private Optional<String> messageBuilder(String code) {
         messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
     }
@@ -99,4 +100,10 @@ class UserController {
     HttpResponse<JsonError> notFound(UserNotFoundException ex) {
         HttpResponse.<JsonError>notFound().body(new JsonError(ex.message))
     }
+
+    @Error(exception = JsonProcessingException)
+    HttpResponse<ErrorDto> badRequest(JsonProcessingException ex) {
+        HttpResponse.<ErrorDto>badRequest().body(new ErrorDto('request.body.invalid', this.messageSource))
+    }
+
 }
