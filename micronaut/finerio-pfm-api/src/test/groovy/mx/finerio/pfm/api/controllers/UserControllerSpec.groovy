@@ -204,7 +204,7 @@ class UserControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<UserDto> users= body.get("users") as List<UserDto>
+        List<UserDto> users= body.get("data") as List<UserDto>
         assert users.size() > 0
         assert body.get("nextCursor") == users.last().id
     }
@@ -230,7 +230,7 @@ class UserControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<UserDto> users= body.get("users") as List<UserDto>
+        List<UserDto> users= body.get("data") as List<UserDto>
         users.first().with {
             assert id == user2.id
             assert name == user2.name

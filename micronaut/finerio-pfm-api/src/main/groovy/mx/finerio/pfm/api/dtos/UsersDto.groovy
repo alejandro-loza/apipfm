@@ -2,12 +2,12 @@ package mx.finerio.pfm.api.dtos
 
 class UsersDto {
 
-    List<UserDto> users
+    List<UserDto> data
     int nextCursor
 
-    UsersDto(List<UserDto> users) {
-        this.users = users
-        this.nextCursor = users?.last()?.id?.intValue()
+    UsersDto(List<UserDto> data) {
+        this.data = data
+        this.nextCursor = data?.last()?.id?.intValue()
     }
 
 }

@@ -64,7 +64,7 @@ class UserController {
     HttpResponse delete(@NotNull Long id) {
         getUser(id)
         userService.delete(id)
-        return HttpResponse.noContent()
+        HttpResponse.noContent()
     }
 
     private User getUser(long id) {
