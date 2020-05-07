@@ -206,8 +206,7 @@ class UserControllerSpec extends Specification {
         Map body = rspGET.getBody(Map).get()
         List<UserDto> users= body.get("users") as List<UserDto>
         assert users.size() > 0
-        String href= body.get("nextPage")["href"]
-        assert href.split('=').first() == '/users?offset'
+        assert body.get("nextCursor") == users.last().id
     }
 
     def "Should get a list of users in a offset point"(){

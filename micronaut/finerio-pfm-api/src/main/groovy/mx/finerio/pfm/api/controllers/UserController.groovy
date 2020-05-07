@@ -48,9 +48,9 @@ class UserController {
     }
 
     @Get("{?offset}")
-    Single<Map> showAll(@Nullable String offset, HttpRequest request) {
+    Single<Map> showAll(@Nullable String offset) {
         List<UserDto> users = userService.findAll([offset: offset, max: MAX_ROWS]).collect { new UserDto(it) }
-        Single.just(users.isEmpty() ? [] :  new UsersDto(users, request.uri.path )) as Single<Map>
+        Single.just(users.isEmpty() ? [] :  new UsersDto(users)) as Single<Map>
     }
 
     @Put("/{id}")

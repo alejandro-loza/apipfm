@@ -1,15 +1,13 @@
 package mx.finerio.pfm.api.dtos
 
-import io.micronaut.http.hateoas.Link
-
 class UsersDto {
 
     List<UserDto> users
-    Link nextPage
+    int nextCursor
 
-    UsersDto(List<UserDto> users, String uri) {
+    UsersDto(List<UserDto> users) {
         this.users = users
-        this.nextPage = Link.of(uri + "?offset=${users?.last()?.id}")
+        this.nextCursor = users?.last()?.id?.intValue()
     }
 
 }
