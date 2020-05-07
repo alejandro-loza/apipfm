@@ -238,9 +238,6 @@ class UserControllerSpec extends Specification {
         }
     }
 
-
-
-
     def "Should throw not found exception on delete no found user"(){
         given:
         HttpRequest request = HttpRequest.DELETE("/users/666")

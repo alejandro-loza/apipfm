@@ -2,14 +2,14 @@ package mx.finerio.pfm.api.dtos
 
 import io.micronaut.context.MessageSource
 
-class UserErrorDto {
+class ErrorDto {
 
     String code
     String title
     String detail
     private MessageSource messageSource
 
-    UserErrorDto(String code, MessageSource messageSource) {
+    ErrorDto(String code, MessageSource messageSource) {
         this.messageSource = messageSource
         this.code = getFixedPropertyName(code)
         this.title = getPropertyMessage(code)

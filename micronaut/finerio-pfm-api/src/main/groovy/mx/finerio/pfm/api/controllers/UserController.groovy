@@ -5,13 +5,13 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.*
+import io.micronaut.http.codec.CodecException
 import io.micronaut.http.hateoas.JsonError
-import io.micronaut.http.hateoas.Link
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.dtos.UserErrorDto
+import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UsersDto
 import mx.finerio.pfm.api.exeptions.UserNotFoundException
 import mx.finerio.pfm.api.services.UserService
@@ -75,20 +75,21 @@ class UserController {
     }
 
     @Error
-    HttpResponse<List<UserErrorDto>> jsonError(ConstraintViolationException constraintViolationException) {
-        HttpResponse.<List<UserErrorDto>> status(HttpStatus.BAD_REQUEST,
-                messageBuilder("system.json.invalid").get()).body(
+    HttpResponse<List<ErrorDto>> jsonError(ConstraintViolationException constraintViolationException) {
+        HttpResponse.<List<ErrorDto>> status(HttpStatus.BAD_REQUEST,
+                messageBuilder("request.body.invalid.title").get()).body(
                 constraintViolationException.constraintViolations.collect {
-                    new UserErrorDto(it.message, messageSource)
+                    new ErrorDto(it.message, messageSource)
                 })
     }
 
     @Error(status = HttpStatus.BAD_REQUEST)
-    HttpResponse<JsonError> badRequest(HttpRequest request) {
-        HttpResponse.<JsonError>badRequest().body(
-                new JsonError(messageBuilder("user.malformed.message").orElse('Bad Request'))
+    HttpResponse<ErrorDto> badRequest(HttpRequest request) {
+        HttpResponse.<ErrorDto>badRequest().body(
+                new ErrorDto('request.body.invalid', this.messageSource)
         )
     }
+
 
     private Optional<String> messageBuilder(String code) {
         messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
