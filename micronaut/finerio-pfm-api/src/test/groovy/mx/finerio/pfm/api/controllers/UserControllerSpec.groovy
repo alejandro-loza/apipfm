@@ -3,6 +3,7 @@ package mx.finerio.pfm.api.controllers
 import io.micronaut.context.annotation.Property
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
@@ -110,13 +111,6 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
-
     }
 
     def "Should update an user"(){
@@ -178,13 +172,6 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
-
     }
 
     def "Should get a list of users"(){
@@ -206,7 +193,7 @@ class UserControllerSpec extends Specification {
         Map body = rspGET.getBody(Map).get()
         List<UserDto> users= body.get("data") as List<UserDto>
         assert users.size() > 0
-        assert body.get("nextCursor") == users.last().id
+        assert !body.get("nextCursor")
     }
 
     def "Should get a list of users in a cursor point"() {
@@ -249,12 +236,6 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
     }
 
     def "Should delete an user"() {
@@ -281,13 +262,6 @@ class UserControllerSpec extends Specification {
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
-
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
 
     }
 

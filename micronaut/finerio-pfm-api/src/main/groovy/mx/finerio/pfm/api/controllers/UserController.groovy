@@ -2,11 +2,12 @@ package mx.finerio.pfm.api.controllers
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import io.micronaut.context.MessageSource
+import io.micronaut.core.convert.exceptions.ConversionErrorException
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
-import io.micronaut.http.hateoas.JsonError
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.User
@@ -67,19 +68,6 @@ class UserController {
         HttpResponse.noContent()
     }
 
-    private User getUser(long id) {
-        Optional.ofNullable(userService.getById(id))
-                .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
-    }
-
-    private List<UserDto> findAll() {
-        userService.findAll([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
-    }
-
-    private List<UserDto> findAllByCursor(long cursor) {
-        userService.findByIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
-    }
-
     @Error
     HttpResponse<List<ErrorDto>> jsonError(ConstraintViolationException constraintViolationException) {
         HttpResponse.<List<ErrorDto>> status(HttpStatus.BAD_REQUEST,
@@ -96,18 +84,40 @@ class UserController {
         )
     }
 
-    private Optional<String> messageBuilder(String code) {
-        messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
-    }
-
     @Error(exception = UserNotFoundException)
-    HttpResponse<JsonError> notFound(UserNotFoundException ex) {
-        HttpResponse.<JsonError>notFound().body(new JsonError(ex.message))
+    HttpResponse notFound(UserNotFoundException ex) {
+        HttpResponse.notFound().body(ex.message)
     }
 
     @Error(exception = JsonProcessingException)
     HttpResponse<ErrorDto> badRequest(JsonProcessingException ex) {
-        HttpResponse.<ErrorDto>badRequest().body(new ErrorDto('request.body.invalid', this.messageSource))
+        badRequestResponse()
+    }
+
+    @Error(exception = ConversionErrorException)
+    HttpResponse<ErrorDto> badRequest(ConversionErrorException ex) {
+        badRequestResponse()
+    }
+
+    private MutableHttpResponse<ErrorDto> badRequestResponse() {
+        HttpResponse.<ErrorDto> badRequest().body(new ErrorDto('request.body.invalid', this.messageSource))
+    }
+
+    private Optional<String> messageBuilder(String code) {
+        messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
+    }
+
+    private User getUser(long id) {
+        Optional.ofNullable(userService.getById(id))
+                .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
+    }
+
+    private List<UserDto> findAll() {
+        userService.findAll([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
+    }
+
+    private List<UserDto> findAllByCursor(long cursor) {
+        userService.findByIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
     }
 
 }
