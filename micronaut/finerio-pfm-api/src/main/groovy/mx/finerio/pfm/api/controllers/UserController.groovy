@@ -6,13 +6,12 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.*
 import io.micronaut.http.hateoas.JsonError
-import io.micronaut.http.hateoas.Link
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.dtos.UserErrorDto
-import mx.finerio.pfm.api.dtos.UsersDto
+import mx.finerio.pfm.api.dtos.ResourcesResponseDto
 import mx.finerio.pfm.api.exeptions.UserNotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.UserCreateCommand
@@ -50,7 +49,7 @@ class UserController {
     @Get("{?offset}")
     Single<Map> showAll(@Nullable String offset) {
         List<UserDto> users = userService.findAll([offset: offset, max: MAX_ROWS]).collect { new UserDto(it) }
-        Single.just(users.isEmpty() ? [] :  new UsersDto(users)) as Single<Map>
+        Single.just(users.isEmpty() ? [] :  new ResourcesResponseDto(users)) as Single<Map>
     }
 
     @Put("/{id}")
