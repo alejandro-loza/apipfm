@@ -15,6 +15,8 @@ class Account  implements GormEntity<Account> {
     float balance
     Date dateCreated
     Date lastUpdated
+    Date dateDeleted
+
 
     static constraints = {
         name nullable: false, blank:false

@@ -11,16 +11,13 @@ import io.micronaut.http.annotation.*
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
-import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.dtos.ResourcesResponseDto
 import mx.finerio.pfm.api.exeptions.AccountNotFoundException
-import mx.finerio.pfm.api.exeptions.UserNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.validation.AccountCommand
-import mx.finerio.pfm.api.validation.UserCreateCommand
+
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.validation.ConstraintViolationException
