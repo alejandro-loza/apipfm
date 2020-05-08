@@ -24,7 +24,6 @@ import javax.inject.Inject
 @MicronautTest(application = Application.class)
 class UserControllerSpec extends Specification {
 
-    public static final String USER_NOT_FOUND_MESSAGE = 'The user ID you requested was not found.'
     @Shared
     @Inject
     @Client("/")
@@ -252,6 +251,7 @@ class UserControllerSpec extends Specification {
 
         then:
         response.status == HttpStatus.NO_CONTENT
+        assert userService.findById(user.id).dateDeleted
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users/${id}")

@@ -17,7 +17,6 @@ import mx.finerio.pfm.api.dtos.UsersDto
 import mx.finerio.pfm.api.exeptions.UserNotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.UserCreateCommand
-
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.validation.ConstraintViolationException
@@ -63,8 +62,9 @@ class UserController {
 
     @Delete("/{id}")
     HttpResponse delete(@NotNull Long id) {
-        getUser(id)
-        userService.delete(id)
+        User user = getUser(id)
+        user.dateDeleted = new Date()
+        userService.save(user)
         HttpResponse.noContent()
     }
 
@@ -108,7 +108,7 @@ class UserController {
     }
 
     private User getUser(long id) {
-        Optional.ofNullable(userService.getById(id))
+        Optional.ofNullable(userService.findByIdAndDateDeletedIsNull(id))
                 .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
     }
 
