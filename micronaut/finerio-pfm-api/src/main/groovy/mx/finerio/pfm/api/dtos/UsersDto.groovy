@@ -7,7 +7,11 @@ class UsersDto {
 
     UsersDto(List<UserDto> data) {
         this.data = data
-        this.nextCursor = data?.last()?.id != 1? data?.last()?.id -1 : null
+        this.nextCursor = !data.isEmpty() ? calculateNextCursor(data?.last()?.id) : null
+    }
+
+    private Long calculateNextCursor(Long id) {
+        id > 1 ? id - 1 : null
     }
 
 }
