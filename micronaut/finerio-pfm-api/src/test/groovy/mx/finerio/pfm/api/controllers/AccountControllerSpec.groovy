@@ -9,10 +9,15 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.exceptions.UserNotFoundException
+import mx.finerio.pfm.api.services.gorm.AccountService
 import mx.finerio.pfm.api.services.gorm.UserServiceRepository
+import mx.finerio.pfm.api.validation.AccountCommand
 import mx.finerio.pfm.api.validation.UserCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
@@ -21,52 +26,108 @@ import javax.inject.Inject
 
 @Property(name = 'spec.name', value = 'usercontroller')
 @MicronautTest(application = Application.class)
-class UserControllerSpec extends Specification {
+class AccountControllerSpec extends Specification {
 
+    public static final String ACCOUNT_ROOT = "/accounts"
     public static final String USER_NOT_FOUND_MESSAGE = 'The user ID you requested was not found.'
+
     @Shared
     @Inject
     @Client("/")
     RxStreamingHttpClient client
 
     @Inject
+    AccountService accountService
+
+    @Inject
     UserServiceRepository userService
 
-    def "Should get a empty list of users"(){
+    def "Should get a empty list of accounts"(){
 
         given:'a client'
-        HttpRequest getReq = HttpRequest.GET("/users")
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(UserDto))
+        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(AccountDto))
 
         then:
         rspGET.status == HttpStatus.OK
         rspGET.body().isEmpty()
-
     }
 
-    def "Should create and get user"(){
-        given:'an user'
-        UserCreateCommand cmd = new UserCreateCommand()
+    def "Should create an account"(){
+        given:'an account request body'
+        User user = new User('awesome user')
+        user = userService.save(user)
+        AccountCommand cmd = new AccountCommand()
         cmd.with {
-            name = 'username'
+            userId = user.id
+            financialEntityId = 666
+            nature ='DEBIT'
+            name = 'awesome account'
+            number = 1234123412341234
+            balance = 0.1
         }
 
-        HttpRequest request = HttpRequest.POST('/users', cmd)
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
 
         when:
-        def rsp = client.toBlocking().exchange(request, UserDto)
+        def rsp = client.toBlocking().exchange(request, AccountDto)
 
         then:
         rsp.status == HttpStatus.OK
-        rsp.body().name == cmd.name
+        rsp.body().with {
+            id
+            user.id == cmd.userId
+            financialEntityId == cmd.financialEntityId
+            nature == cmd.nature
+            name == cmd.name
+            number == cmd.number
+            balance == cmd.balance
+            dateCreated
+        }
+
+        when:
+        Account account = accountService.getById(rsp.body().id)
+
+        then:'verify'
+        !account.dateDeleted
+    }
+
+    def "Should not create an account and throw not found exception on user not found"(){
+        given:'an account request body with no found user id'
+
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId = 666
+            financialEntityId = 666
+            nature ='DEBIT'
+            name = 'awesome account'
+            number = 1234123412341234
+            balance = 0.1
+        }
+
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<UserNotFoundException> jsonError = e.response.getBody(NotFoundException)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().message == USER_NOT_FOUND_MESSAGE
     }
 
     def "Should get an user"(){
         given:'a saved user'
         User user = new User('no awesome name')
-        userService.save(user)
+        accountService.save(user)
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users/${user.id}")
@@ -122,7 +183,7 @@ class UserControllerSpec extends Specification {
     def "Should update an user"(){
         given:'a saved user'
         User user = new User('no awesome name')
-        userService.save(user)
+        accountService.save(user)
 
         and:'an user command to update data'
         UserCreateCommand cmd = new UserCreateCommand()
@@ -145,7 +206,7 @@ class UserControllerSpec extends Specification {
     def "Should not update an user on band parameters and return Bad Request"(){
         given:'a saved user'
         User user = new User('no awesome name')
-        userService.save(user)
+        accountService.save(user)
 
         and:'a client'
         HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCreateCommand())
@@ -191,12 +252,12 @@ class UserControllerSpec extends Specification {
 
          given:'a saved user'
          User user = new User('no awesome')
-         userService.save(user)
+         accountService.save(user)
 
          User user2 = new User('awesome')
-         userService.save(user2)
+         accountService.save(user2)
         and:
-        HttpRequest getReq = HttpRequest.GET("/users")
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -213,13 +274,13 @@ class UserControllerSpec extends Specification {
 
         given:'a saved user'
         User user = new User('no awesome')
-        userService.save(user)
+        accountService.save(user)
 
         User user2 = new User('awesome')
-        userService.save(user2)
+        accountService.save(user2)
 
         User user3 = new User('more awesome')
-        userService.save(user3)
+        accountService.save(user3)
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users?offset=${user.id}")
@@ -263,7 +324,7 @@ class UserControllerSpec extends Specification {
     def "Should delete an user"() {
         given:'a saved user'
         User user = new User('i will die soon cause i have covid-19')
-        userService.save(user)
+        accountService.save(user)
         Long id = user.id
 
         and:'a client request'

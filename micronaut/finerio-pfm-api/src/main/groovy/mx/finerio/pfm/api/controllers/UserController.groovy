@@ -12,8 +12,9 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.dtos.UserErrorDto
 import mx.finerio.pfm.api.dtos.ResourcesResponseDto
-import mx.finerio.pfm.api.exeptions.UserNotFoundException
+import mx.finerio.pfm.api.exceptions.UserNotFoundException
 import mx.finerio.pfm.api.services.UserService
+import mx.finerio.pfm.api.services.gorm.UserServiceRepository
 import mx.finerio.pfm.api.validation.UserCreateCommand
 
 import javax.annotation.Nullable
@@ -31,6 +32,9 @@ class UserController {
     public static final int MAX_ROWS = 100
 
     @Inject
+    UserServiceRepository userServiceRepository
+
+    @Inject
     UserService userService
 
     @Inject
@@ -38,40 +42,37 @@ class UserController {
 
     @Post("/")
     Single<UserDto> save(@Body @Valid UserCreateCommand cmd){
-        Single.just(new UserDto(userService.save(new User(cmd.name))))
+        Single.just(new UserDto(userServiceRepository.save(new User(cmd.name))))
     }
 
     @Get("/{id}")
     Single<UserDto> show(@NotNull Long id) {
-        Single.just(new UserDto(getUser(id)))
+        Single.just(new UserDto(userService.getUser(id)))
     }
 
     @Get("{?offset}")
     Single<Map> showAll(@Nullable String offset) {
-        List<UserDto> users = userService.findAll([offset: offset, max: MAX_ROWS]).collect { new UserDto(it) }
+        List<UserDto> users = userServiceRepository.findAll([offset: offset, max: MAX_ROWS]).collect { new UserDto(it) }
         Single.just(users.isEmpty() ? [] :  new ResourcesResponseDto(users)) as Single<Map>
     }
 
     @Put("/{id}")
     Single<UserDto> edit(@Body @Valid UserCreateCommand cmd, @NotNull Long id ) {
-        User user = getUser(id)
+        User user = userService.getUser(id)
         user.with {
             name = cmd.name
         }
-        Single.just(new UserDto(userService.save(user)))
+        Single.just(new UserDto(userServiceRepository.save(user)))
     }
 
     @Delete("/{id}")
     HttpResponse delete(@NotNull Long id) {
-        getUser(id)
-        userService.delete(id)
+        userService.getUser(id)
+        userServiceRepository.delete(id)
         return HttpResponse.noContent()
     }
 
-    private User getUser(long id) {
-        Optional.ofNullable(userService.getById(id))
-                .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
-    }
+
 
     @Error
     HttpResponse<List<UserErrorDto>> jsonError(ConstraintViolationException constraintViolationException) {

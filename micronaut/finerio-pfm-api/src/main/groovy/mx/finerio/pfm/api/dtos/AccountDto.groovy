@@ -5,7 +5,7 @@ import mx.finerio.pfm.api.domain.User
 
 class AccountDto {
     Long id
-    User user
+    Long user
     Long financialEntityId
     String nature
     String name

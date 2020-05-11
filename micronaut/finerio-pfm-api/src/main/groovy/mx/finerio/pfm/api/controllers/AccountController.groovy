@@ -14,8 +14,11 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.ResourcesResponseDto
-import mx.finerio.pfm.api.exeptions.AccountNotFoundException
-import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.exceptions.AccountNotFoundException
+import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.services.UserService
+import mx.finerio.pfm.api.services.gorm.AccountService
+import mx.finerio.pfm.api.services.gorm.UserServiceRepository
 import mx.finerio.pfm.api.validation.AccountCommand
 
 import javax.annotation.Nullable
@@ -24,7 +27,7 @@ import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
-@Controller("/account")
+@Controller("/accounts")
 @Validated
 class AccountController {
 
@@ -34,11 +37,15 @@ class AccountController {
     AccountService accountService
 
     @Inject
+    UserService userService
+
+    @Inject
     MessageSource messageSource
 
     @Post("/")
     Single<AccountDto> save(@Body @Valid AccountCommand cmd){
-        Single.just(new AccountDto(accountService.save(new Account(cmd))))
+        def user = userService.getUser(cmd.userId)
+        Single.just(new AccountDto(accountService.save(new Account(cmd, user))))
     }
 
     @Get("/{id}")
@@ -90,8 +97,8 @@ class AccountController {
         )
     }
 
-    @Error(exception = AccountNotFoundException)
-    HttpResponse notFound(AccountNotFoundException ex) {
+    @Error(exception = NotFoundException)
+    HttpResponse notFound(NotFoundException ex) {
         HttpResponse.notFound().body(ex.message)
     }
 
