@@ -1,21 +1,25 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.UserCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
 class User  implements GormEntity<User> {
 
+    Long id
     String name
     Date dateCreated
+    Date dateDeleted
 
-    User(UserCreateCommand cmd) {
-        this.name = cmd.name
+    User(String name) {
+        this.name = name
     }
+
+    User() {}
 
     static constraints = {
         name nullable: false, blank:false
+        dateDeleted nullable:true
     }
 
     static mapping = {
