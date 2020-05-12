@@ -8,14 +8,14 @@ import spock.lang.Specification
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
-class UserErrorDtoSpec extends Specification {
+class ErrorDtoSpec extends Specification {
 
     @Inject
     MessageSource messageSource
 
     def "Should return an user error message "(){
         given:
-        UserErrorDto dto = new UserErrorDto('save.cmd.name: user.name.null', messageSource)
+        ErrorDto dto = new ErrorDto('save.cmd.name: user.name.null', messageSource)
 
         expect:
         dto.with {

@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.controllers
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import grails.gorm.transactions.Transactional
 import io.micronaut.context.MessageSource
 import io.micronaut.core.convert.exceptions.ConversionErrorException
 import io.micronaut.http.HttpRequest
@@ -13,12 +14,11 @@ import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ResourcesResponseDto
+import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.exceptions.AccountNotFoundException
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.AccountService
-import mx.finerio.pfm.api.services.gorm.UserServiceRepository
 import mx.finerio.pfm.api.validation.AccountCommand
 
 import javax.annotation.Nullable
@@ -44,36 +44,38 @@ class AccountController {
 
     @Post("/")
     Single<AccountDto> save(@Body @Valid AccountCommand cmd){
-        def user = userService.getUser(cmd.userId)
-        Single.just(new AccountDto(accountService.save(new Account(cmd, user))))
+        Single.just(new AccountDto(accountService.save(new Account(cmd, userService.getUser(cmd.userId)))))
     }
 
     @Get("/{id}")
+    @Transactional
     Single<AccountDto> show(@NotNull Long id) {
         Single.just(new AccountDto(getAccount(id)))
     }
 
     @Get("{?cursor}")
+    @Transactional
     Single<Map> showAll(@Nullable Long cursor) {
         List<AccountDto> accounts = cursor ? findAllByCursor(cursor) : findAll()
-        Single.just(accounts.isEmpty() ? [] :  new ResourcesResponseDto(accounts)) as Single<Map>
+        Single.just(accounts.isEmpty() ? [] :  new ResourcesDto(accounts)) as Single<Map>
     }
 
     @Put("/{id}")
     Single<AccountDto> edit(@Body @Valid AccountCommand cmd, @NotNull Long id ) {
         Account account = getAccount(id)
         account.with {
-            user = cmd.user
+            user = userService.getUser(cmd.userId)
             financialEntityId = cmd.financialEntityId
             nature = cmd.nature
             name = cmd.name
-            number = cmd.number
+            number = Long.valueOf(cmd.number)
             balance = cmd.balance
         }
         Single.just(new AccountDto(accountService.save(account)))
     }
 
     @Delete("/{id}")
+    @Transactional
     HttpResponse delete(@NotNull Long id) {
         Account account = getAccount(id)
         account.dateDeleted = new Date()
@@ -121,7 +123,7 @@ class AccountController {
     }
 
     private Account getAccount(long id) {
-        Optional.ofNullable(accountService.getById(id))
+        Optional.ofNullable(accountService.findByIdAndDateDeletedIsNull(id))
                 .orElseThrow({ -> new AccountNotFoundException('The account ID you requested was not found.') })
     }
 

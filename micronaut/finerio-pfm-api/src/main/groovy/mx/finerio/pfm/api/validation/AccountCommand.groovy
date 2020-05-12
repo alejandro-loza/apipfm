@@ -12,11 +12,9 @@ import javax.validation.constraints.Size
 class AccountCommand {
 
     @NotNull(message= 'account.userID.null')
-    @NotBlank(message= 'account.userID.blank')
     Long userId
 
     @NotNull(message= 'account.financialEntityId.null')
-    @NotBlank(message= 'account.financialEntityId.blank')
     Long financialEntityId
 
     @NotNull(message= 'account.nature.null')
@@ -28,9 +26,8 @@ class AccountCommand {
     String name
 
     @NotNull(message= 'account.number.null')
-    @NotBlank(message= 'account.number.blank')
     @Size(min = 13, max =16, message= 'account.number.size')
-    Long number
+    String number
 
     float balance
 }

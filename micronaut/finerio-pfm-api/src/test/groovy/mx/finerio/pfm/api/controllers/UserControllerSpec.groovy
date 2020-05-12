@@ -3,6 +3,7 @@ package mx.finerio.pfm.api.controllers
 import io.micronaut.context.annotation.Property
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
@@ -11,6 +12,7 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.exceptions.UserNotFoundException
 import mx.finerio.pfm.api.services.gorm.UserServiceRepository
 import mx.finerio.pfm.api.validation.UserCreateCommand
@@ -23,7 +25,6 @@ import javax.inject.Inject
 @MicronautTest(application = Application.class)
 class UserControllerSpec extends Specification {
 
-    public static final String USER_NOT_FOUND_MESSAGE = 'The user ID you requested was not found.'
     @Shared
     @Inject
     @Client("/")
@@ -110,13 +111,6 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
-
     }
 
     def "Should update an user"(){
@@ -178,13 +172,6 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
-
     }
 
     def "Should get a list of users"(){
@@ -204,12 +191,12 @@ class UserControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<UserDto> users= body.get("users") as List<UserDto>
+        List<UserDto> users= body.get("data") as List<UserDto>
         assert users.size() > 0
-        assert body.get("nextCursor") == users.last().id
+        assert !body.get("nextCursor")
     }
 
-    def "Should get a list of users in a offset point"(){
+    def "Should get a list of users in a cursor point"() {
 
         given:'a saved user'
         User user = new User('no awesome')
@@ -222,7 +209,7 @@ class UserControllerSpec extends Specification {
         userService.save(user3)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users?offset=${user.id}")
+        HttpRequest getReq = HttpRequest.GET("/users?cursor=${user2.id}")
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -230,16 +217,13 @@ class UserControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<UserDto> users= body.get("users") as List<UserDto>
+        List<UserDto> users= body.get("data") as List<UserDto>
         users.first().with {
             assert id == user2.id
             assert name == user2.name
             assert dateCreated
         }
     }
-
-
-
 
     def "Should throw not found exception on delete no found user"(){
         given:
@@ -252,12 +236,6 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
     }
 
     def "Should delete an user"() {
@@ -274,23 +252,17 @@ class UserControllerSpec extends Specification {
 
         then:
         response.status == HttpStatus.NO_CONTENT
+        assert userService.findById(user.id).dateDeleted
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users/${id}")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
-
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
 
     }
 

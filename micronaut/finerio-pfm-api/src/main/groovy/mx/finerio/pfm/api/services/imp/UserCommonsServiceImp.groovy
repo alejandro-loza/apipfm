@@ -16,7 +16,7 @@ class UserCommonsServiceImp implements UserService {
 
     @Override
     User getUser(long id) {
-        Optional.ofNullable(userService.getById(id))
+        Optional.ofNullable(userService.findByIdAndDateDeletedIsNull(id))
                 .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
     }
 }

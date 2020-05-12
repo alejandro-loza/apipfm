@@ -1,7 +1,6 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.validation.AccountCommand
 import org.grails.datastore.gorm.GormEntity
 
@@ -24,7 +23,7 @@ class Account  implements GormEntity<Account> {
         this.financialEntityId = accountCommand.financialEntityId
         this.nature = accountCommand.nature
         this.name = accountCommand.name
-        this.number = accountCommand.number
+        this.number = Long.valueOf(accountCommand.number)
         this.balance = accountCommand.balance
     }
 

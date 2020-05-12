@@ -18,18 +18,16 @@ import mx.finerio.pfm.api.exceptions.UserNotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountService
 import mx.finerio.pfm.api.services.gorm.UserServiceRepository
 import mx.finerio.pfm.api.validation.AccountCommand
-import mx.finerio.pfm.api.validation.UserCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Inject
 
-@Property(name = 'spec.name', value = 'usercontroller')
+@Property(name = 'spec.name', value = 'account controller')
 @MicronautTest(application = Application.class)
 class AccountControllerSpec extends Specification {
 
     public static final String ACCOUNT_ROOT = "/accounts"
-    public static final String USER_NOT_FOUND_MESSAGE = 'The user ID you requested was not found.'
 
     @Shared
     @Inject
@@ -66,7 +64,6 @@ class AccountControllerSpec extends Specification {
             nature ='DEBIT'
             name = 'awesome account'
             number = 1234123412341234
-            balance = 0.1
         }
 
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
@@ -94,6 +91,19 @@ class AccountControllerSpec extends Specification {
         !account.dateDeleted
     }
 
+    def "Should not create an account and throw bad request on wrong params"(){
+        given:'an account request body with empty body'
+
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  new AccountCommand())
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(UserNotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+    }
+
     def "Should not create an account and throw not found exception on user not found"(){
         given:'an account request body with no found user id'
 
@@ -110,109 +120,141 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
 
         when:
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(UserNotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+/*
+        when:
+        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().message == USER_NOT_FOUND_MESSAGE
+ */
+    }
+
+    def "Should get an account"(){
+        given:'a saved user'
+        User user = new User('no awesome name')
+        userService.save(user)
+
+        and:'a account request command body'
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId  = user.id
+            financialEntityId = 666
+            nature = 'DEBIT'
+            name = 'awesome name'
+            number = 1234123412341234
+        }
+
+        and:'a saved account'
+        Account account = new Account(cmd, user)
+        accountService.save(account)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT+"/${account.id}")
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, AccountDto)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        rspGET.body().with {
+            assert userId == cmd.userId
+            assert financialEntityId == cmd.financialEntityId
+            assert nature == cmd.nature
+            assert name == cmd.name
+            assert number == Long.valueOf(cmd.number)
+            assert balance == cmd.balance
+            assert dateCreated == account.dateCreated
+            assert lastUpdated == account.lastUpdated
+        }
+        !account.dateDeleted
+
+    }
+
+    def "Should not get an account and throw 404"(){
+        given:'a not found id request'
+
+        HttpRequest request = HttpRequest.GET("/accounts/0000")
+
+        when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(NotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
     }
 
-    def "Should get an user"(){
-        given:'a saved user'
-        User user = new User('no awesome name')
-        accountService.save(user)
+    def "Should not get an account and throw 400"(){
+        given:'a not found id request'
 
-        and:
-        HttpRequest getReq = HttpRequest.GET("/users/${user.id}")
+        HttpRequest request = HttpRequest.GET("/accounts/abc")
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, UserDto)
-
-        then:
-        rspGET.status == HttpStatus.OK
-        rspGET.body().name == user.name
-        rspGET.body().dateCreated
-        rspGET.body().id
-
-    }
-
-    def "Should not create an user an return 400"(){
-        given:'an user'
-
-        HttpRequest request = HttpRequest.POST('/users',  new UserCreateCommand())
-
-        when:
-        client.toBlocking().exchange(request,UserDto)
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
-    }
-
-    def "Should throw not found exception on no found user"(){
-        given:'a not found if'
-
-        def notFoundId = 666
-
-        and:'a client'
-        HttpRequest request = HttpRequest.GET("/users/${notFoundId}")
-
-        when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(UserNotFoundException))
-
-        then:
-        def  e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.NOT_FOUND
-
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
 
     }
 
-    def "Should update an user"(){
+    def "Should update an account"(){
         given:'a saved user'
-        User user = new User('no awesome name')
-        accountService.save(user)
+        User user1 = new User('no awesome name')
+        userService.save(user1)
 
-        and:'an user command to update data'
-        UserCreateCommand cmd = new UserCreateCommand()
+        and:'a saved account'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntityId = 123
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountService.save(account)
+
+        and:'an account command to update data'
+        AccountCommand cmd = new AccountCommand()
         cmd.with {
-            name = 'awesome name'
+            userId = user1.id
+            financialEntityId = 123
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
         }
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  cmd)
+        HttpRequest request = HttpRequest.PUT("/accounts/${user1.id}",  cmd)
 
         when:
-        def resp = client.toBlocking().exchange(request, UserDto)
+        def resp = client.toBlocking().exchange(request, AccountDto)
 
         then:
         resp.status == HttpStatus.OK
-        resp.body().name == cmd.name
+        resp.body().with {
+            name == cmd.name
+            nature == cmd.nature
+            balance == cmd.balance
+        }
 
     }
 
-    def "Should not update an user on band parameters and return Bad Request"(){
+    def "Should not update an account on band parameters and return Bad Request"(){
         given:'a saved user'
-        User user = new User('no awesome name')
-        accountService.save(user)
 
-        and:'a client'
-        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCreateCommand())
+        HttpRequest request = HttpRequest.PUT("/accounts/666",  new AccountCommand())
 
         when:
-        client.toBlocking().exchange(request,UserDto)
+        client.toBlocking().exchange(request,AccountDto)
 
         then:
         def  e = thrown HttpClientResponseException
@@ -220,42 +262,60 @@ class AccountControllerSpec extends Specification {
 
     }
 
-    def "Should not update an user and throw not found exception"(){
-        given:'an user commando to update data'
-        UserCreateCommand cmd = new UserCreateCommand()
+    def "Should not update an account and throw not found exception"(){
+        given:
+        AccountCommand cmd = new AccountCommand()
         cmd.with {
-            name = 'awesome name'
+            userId = 1
+            financialEntityId = 123
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
         }
 
         def notFoundId = 666
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/users/${notFoundId}",  cmd)
+        HttpRequest request = HttpRequest.PUT("/accounts/${notFoundId}",  cmd)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
-
     }
 
-    def "Should get a list of users"(){
+    def "Should get a list of accounts"(){
 
-         given:'a saved user'
-         User user = new User('no awesome')
-         accountService.save(user)
+        given:'a saved user'
+        User user1 = new User('no awesome')
+        userService.save(user1)
 
-         User user2 = new User('awesome')
-         accountService.save(user2)
+        and:'account list'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntityId = 123
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountService.save(account)
+
+        Account account2 = new Account()
+        account2.with {
+            user = user1
+            financialEntityId = 123
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountService.save(account2)
         and:
         HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT)
 
@@ -265,25 +325,53 @@ class AccountControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<UserDto> users= body.get("users") as List<UserDto>
-        assert users.size() > 0
-        assert body.get("nextCursor") == users.last().id
+        List<AccountDto> accounts = body.get("data") as List<AccountDto>
+        assert accounts.size() > 0
+        assert !body.get("nextCursor")
     }
 
-    def "Should get a list of users in a offset point"(){
+    def "Should get a list of accounts in a cursor point"(){
 
         given:'a saved user'
-        User user = new User('no awesome')
-        accountService.save(user)
+        User user1 = new User('no awesome')
+        userService.save(user1)
 
-        User user2 = new User('awesome')
-        accountService.save(user2)
+        and:'a list of accounts'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntityId = 123
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountService.save(account)
 
-        User user3 = new User('more awesome')
-        accountService.save(user3)
+        Account account2 = new Account()
+        account2.with {
+            user = user1
+            financialEntityId = 123
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountService.save(account2)
+
+        Account account3 = new Account()
+        account3.with {
+            user = user1
+            financialEntityId = 123
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountService.save(account3)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users?offset=${user.id}")
+        HttpRequest getReq = HttpRequest.GET("/accounts?cursor=${account2.id}")
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -291,44 +379,43 @@ class AccountControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<UserDto> users= body.get("users") as List<UserDto>
-        users.first().with {
-            assert id == user2.id
-            assert name == user2.name
-            assert dateCreated
-        }
+        List<AccountDto> accounts = body.get("data") as List<AccountDto>
+
+        assert accounts.first().id == account2.id
     }
-
-
-
 
     def "Should throw not found exception on delete no found user"(){
         given:
-        HttpRequest request = HttpRequest.DELETE("/users/666")
+        HttpRequest request = HttpRequest.DELETE("/accounts/666")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
     }
 
-    def "Should delete an user"() {
+    def "Should delete an account"() {
         given:'a saved user'
-        User user = new User('i will die soon cause i have covid-19')
-        accountService.save(user)
-        Long id = user.id
+        User user1 = new User('i will die soon cause i have covid-19')
+        userService.save(user1)
+
+        and:'a saved account'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntityId = 123
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountService.save(account)
 
         and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("/users/${id}")
+        HttpRequest request = HttpRequest.DELETE("/accounts/${account.id}")
 
         when:
         def response = client.toBlocking().exchange(request, UserDto)
@@ -337,21 +424,15 @@ class AccountControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users/${id}")
+        HttpRequest.GET("/accounts/${account.id}")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
-
-        then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
 
     }
 

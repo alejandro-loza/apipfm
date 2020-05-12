@@ -9,6 +9,7 @@ class User  implements GormEntity<User> {
     Long id
     String name
     Date dateCreated
+    Date dateDeleted
 
     User(String name) {
         this.name = name
@@ -18,6 +19,7 @@ class User  implements GormEntity<User> {
 
     static constraints = {
         name nullable: false, blank:false
+        dateDeleted nullable:true
     }
 
     static mapping = {
