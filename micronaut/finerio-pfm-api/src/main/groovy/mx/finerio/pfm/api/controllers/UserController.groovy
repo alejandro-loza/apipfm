@@ -101,5 +101,4 @@ class UserController {
         messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
     }
 
-
 }

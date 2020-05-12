@@ -6,7 +6,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.User
 
 @Service(Account)
-interface AccountService {
+interface AccountGormService {
     Account save(Account account)
     Account getById(Long id)
     List<Account> findAll(Map args)

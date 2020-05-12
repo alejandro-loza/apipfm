@@ -11,14 +11,12 @@ import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
-import mx.finerio.pfm.api.exceptions.AccountNotFoundException
 import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.UserService
-import mx.finerio.pfm.api.services.gorm.AccountService
 import mx.finerio.pfm.api.validation.AccountCommand
 
 import javax.annotation.Nullable
@@ -31,55 +29,39 @@ import javax.validation.constraints.NotNull
 @Validated
 class AccountController {
 
-    public static final int MAX_ROWS = 100
-
     @Inject
     AccountService accountService
-
-    @Inject
-    UserService userService
 
     @Inject
     MessageSource messageSource
 
     @Post("/")
     Single<AccountDto> save(@Body @Valid AccountCommand cmd){
-        Single.just(new AccountDto(accountService.save(new Account(cmd, userService.getUser(cmd.userId)))))
+        Single.just(new AccountDto(accountService.create(cmd)))
     }
 
     @Get("/{id}")
     @Transactional
     Single<AccountDto> show(@NotNull Long id) {
-        Single.just(new AccountDto(getAccount(id)))
+        Single.just(new AccountDto(accountService.getAccount(id)))
     }
 
     @Get("{?cursor}")
     @Transactional
     Single<Map> showAll(@Nullable Long cursor) {
-        List<AccountDto> accounts = cursor ? findAllByCursor(cursor) : findAll()
+        List<AccountDto> accounts = cursor ? accountService.findAllByCursor(cursor) : accountService.getAll()
         Single.just(accounts.isEmpty() ? [] :  new ResourcesDto(accounts)) as Single<Map>
     }
 
     @Put("/{id}")
     Single<AccountDto> edit(@Body @Valid AccountCommand cmd, @NotNull Long id ) {
-        Account account = getAccount(id)
-        account.with {
-            user = userService.getUser(cmd.userId)
-            financialEntityId = cmd.financialEntityId
-            nature = cmd.nature
-            name = cmd.name
-            number = Long.valueOf(cmd.number)
-            balance = cmd.balance
-        }
-        Single.just(new AccountDto(accountService.save(account)))
+        Single.just(new AccountDto(accountService.update(cmd, id)))
     }
 
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
-        Account account = getAccount(id)
-        account.dateDeleted = new Date()
-        accountService.save(account)
+        accountService.delete(id)
         HttpResponse.noContent()
     }
 
@@ -120,19 +102,6 @@ class AccountController {
 
     private Optional<String> messageBuilder(String code) {
         messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
-    }
-
-    private Account getAccount(long id) {
-        Optional.ofNullable(accountService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new AccountNotFoundException('The account ID you requested was not found.') })
-    }
-
-    private List<AccountDto> findAll() {
-        accountService.findAll([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
-    }
-
-    private List<AccountDto> findAllByCursor(long cursor) {
-        accountService.findByIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
     }
 
 }
