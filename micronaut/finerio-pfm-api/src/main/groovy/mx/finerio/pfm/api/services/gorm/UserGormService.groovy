@@ -5,7 +5,7 @@ import mx.finerio.pfm.api.domain.User
 import grails.gorm.services.Service
 
 @Service(User)
-interface UserServiceRepository {
+interface UserGormService {
 
     User save(User user)
 

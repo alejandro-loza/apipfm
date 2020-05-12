@@ -3,7 +3,6 @@ package mx.finerio.pfm.api.controllers
 import io.micronaut.context.annotation.Property
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
@@ -14,7 +13,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.exceptions.UserNotFoundException
-import mx.finerio.pfm.api.services.gorm.UserServiceRepository
+import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
@@ -31,7 +30,7 @@ class UserControllerSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
-    UserServiceRepository userService
+    UserGormService userService
 
     def "Should get a empty list of users"(){
 

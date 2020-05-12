@@ -10,14 +10,13 @@ import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.UserNotFoundException
 import mx.finerio.pfm.api.services.UserService
-import mx.finerio.pfm.api.services.gorm.UserServiceRepository
 import mx.finerio.pfm.api.validation.UserCreateCommand
+
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.validation.ConstraintViolationException
@@ -30,11 +29,6 @@ import static io.reactivex.Single.just
 @Validated
 class UserController {
 
-    public static final int MAX_ROWS = 100
-
-    @Inject
-    UserServiceRepository userServiceRepository
-
     @Inject
     UserService userService
 
@@ -43,7 +37,7 @@ class UserController {
 
     @Post("/")
     Single<UserDto> save(@Body @Valid UserCreateCommand cmd){
-        just(new UserDto(userServiceRepository.save(new User(cmd.name))))
+        just(new UserDto(userService.create(cmd)))
     }
 
     @Get("/{id}")
@@ -53,24 +47,18 @@ class UserController {
 
     @Get("{?cursor}")
     Single<Map> showAll(@Nullable Long cursor) {
-        List<UserDto> users = cursor ? findAllByCursor(cursor) : findAll()
+        List<UserDto> users = cursor ? userService.findAllByCursor(cursor) : userService.getAll()
         just(users.isEmpty() ? [] :  new ResourcesDto(users)) as Single<Map>
     }
 
     @Put("/{id}")
     Single<UserDto> edit(@Body @Valid UserCreateCommand cmd, @NotNull Long id ) {
-        User user = userService.getUser(id)
-        user.with {
-            name = cmd.name
-        }
-        just(new UserDto(userServiceRepository.save(user)))
+        just(new UserDto(userService.update(cmd,id)))
     }
 
     @Delete("/{id}")
     HttpResponse delete(@NotNull Long id) {
-        User user = userService.getUser(id)
-        user.dateDeleted = new Date()
-        userServiceRepository.save(user)//todo put it on service
+        userService.delete(id)
         HttpResponse.noContent()
     }
 
@@ -113,12 +101,5 @@ class UserController {
         messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
     }
 
-    private List<UserDto> findAll() {
-        userServiceRepository.findAll([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
-    }
-
-    private List<UserDto> findAllByCursor(long cursor) {
-        userServiceRepository.findByIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
-    }
 
 }

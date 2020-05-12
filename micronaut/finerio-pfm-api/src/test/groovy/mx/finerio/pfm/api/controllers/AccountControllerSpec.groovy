@@ -16,7 +16,7 @@ import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.exceptions.UserNotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountService
-import mx.finerio.pfm.api.services.gorm.UserServiceRepository
+import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.AccountCommand
 import spock.lang.Shared
 import spock.lang.Specification
@@ -38,7 +38,7 @@ class AccountControllerSpec extends Specification {
     AccountService accountService
 
     @Inject
-    UserServiceRepository userService
+    UserGormService userService
 
     def "Should get a empty list of accounts"(){
 
