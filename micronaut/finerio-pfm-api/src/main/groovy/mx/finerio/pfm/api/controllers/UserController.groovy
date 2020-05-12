@@ -2,7 +2,6 @@ package mx.finerio.pfm.api.controllers
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import io.micronaut.context.MessageSource
-import io.micronaut.core.convert.exceptions.ConversionErrorException
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -85,11 +84,6 @@ class UserController {
 
     @Error(exception = JsonProcessingException)
     HttpResponse<ErrorDto> badRequest(JsonProcessingException ex) {
-        badRequestResponse()
-    }
-
-    @Error(exception = ConversionErrorException)
-    HttpResponse<ErrorDto> badRequest(ConversionErrorException ex) {
         badRequestResponse()
     }
 

@@ -92,10 +92,6 @@ class AccountController {
     }
 
     @Error(exception = ConversionErrorException)
-    HttpResponse<ErrorDto> badRequest(ConversionErrorException ex) {
-        badRequestResponse()
-    }
-
     private MutableHttpResponse<ErrorDto> badRequestResponse() {
         HttpResponse.<ErrorDto> badRequest().body(new ErrorDto('request.body.invalid', this.messageSource))
     }
