@@ -104,6 +104,19 @@ class AccountControllerSpec extends Specification {
         e.response.status == HttpStatus.BAD_REQUEST
     }
 
+    def "Should not create an account and throw bad request on wrong body"(){
+        given:'an account request body with empty body'
+
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  'asd')
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(UserNotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+    }
+
     def "Should not create an account and throw not found exception on user not found"(){
         given:'an account request body with no found user id'
 
