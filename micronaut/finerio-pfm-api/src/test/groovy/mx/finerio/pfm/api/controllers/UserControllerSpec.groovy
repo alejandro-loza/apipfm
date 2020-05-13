@@ -10,6 +10,7 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.exceptions.UserNotFoundException
@@ -88,7 +89,22 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST('/users',  new UserCreateCommand())
 
         when:
-        client.toBlocking().exchange(request,UserDto)
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
+                Argument.of(ErrorDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+    }
+
+    def "Should not create an user with wrong body an return 400"(){
+        given:'an user'
+
+        HttpRequest request = HttpRequest.POST('/users',  'qwe')
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
+                Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException

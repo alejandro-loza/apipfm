@@ -18,7 +18,6 @@ import mx.finerio.pfm.api.validation.UserCreateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
-import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
@@ -61,38 +60,9 @@ class UserController {
         HttpResponse.noContent()
     }
 
-    @Error
-    HttpResponse<List<ErrorDto>> jsonError(ConstraintViolationException constraintViolationException) {
-        HttpResponse.<List<ErrorDto>> status(HttpStatus.BAD_REQUEST,
-                messageBuilder("request.body.invalid.title").get()).body(
-                constraintViolationException.constraintViolations.collect {
-                    new ErrorDto(it.message, messageSource)
-                })
-    }
-
-    @Error(status = HttpStatus.BAD_REQUEST)
-    HttpResponse<ErrorDto> badRequest(HttpRequest request) {
-        HttpResponse.<ErrorDto>badRequest().body(
-                new ErrorDto('request.body.invalid', this.messageSource)
-        )
-    }
-
     @Error(exception = UserNotFoundException)
     HttpResponse notFound(UserNotFoundException ex) {
         HttpResponse.notFound().body(ex.message)
-    }
-
-    @Error(exception = JsonProcessingException)
-    HttpResponse<ErrorDto> badRequest(JsonProcessingException ex) {
-        badRequestResponse()
-    }
-
-    private MutableHttpResponse<ErrorDto> badRequestResponse() {
-        HttpResponse.<ErrorDto> badRequest().body(new ErrorDto('request.body.invalid', this.messageSource))
-    }
-
-    private Optional<String> messageBuilder(String code) {
-        messageSource.getMessage(code, MessageSource.MessageContext.DEFAULT)
     }
 
 }
