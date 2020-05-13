@@ -8,11 +8,8 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Produces
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
-import mx.finerio.pfm.api.dtos.Error
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.MessageService
 
-import javax.inject.Inject
 import javax.inject.Singleton
 
 @Produces

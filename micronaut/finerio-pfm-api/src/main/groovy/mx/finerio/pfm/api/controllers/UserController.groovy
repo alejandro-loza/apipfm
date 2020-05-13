@@ -1,15 +1,12 @@
 package mx.finerio.pfm.api.controllers
 
-import com.fasterxml.jackson.core.JsonProcessingException
+
 import io.micronaut.context.MessageSource
-import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.HttpStatus
-import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.dtos.ErrorDto
+
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.UserNotFoundException

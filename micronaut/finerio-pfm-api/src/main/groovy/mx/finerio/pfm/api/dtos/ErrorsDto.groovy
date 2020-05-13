@@ -4,5 +4,5 @@ import groovy.transform.ToString
 
 @ToString(includeNames = true, includePackage = false)
 class ErrorsDto {
-    List<Error> errors
+    List<ErrorDto> errors
 }

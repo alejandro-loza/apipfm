@@ -7,7 +7,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.server.exceptions.ExceptionHandler
 
 import io.micronaut.http.server.exceptions.ConversionErrorHandler
-import mx.finerio.pfm.api.dtos.Error
+import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.services.MessageService
 
@@ -25,7 +25,7 @@ class ConversionErrorExceptionHandler
     @Override
     HttpResponse handle( HttpRequest request, ConversionErrorException e ) {
         String message = 'request.body.invalid'
-        Error error = new Error()
+        ErrorDto error = new ErrorDto()
         error.with {
             code = message
             title = messageService.getMessage(message)
