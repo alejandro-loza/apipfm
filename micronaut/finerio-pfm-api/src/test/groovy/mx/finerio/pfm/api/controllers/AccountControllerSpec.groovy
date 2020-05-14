@@ -10,12 +10,15 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
+import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.exceptions.UserNotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountGormService
+import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.AccountCommand
 import spock.lang.Shared
@@ -40,6 +43,9 @@ class AccountControllerSpec extends Specification {
     @Inject
     UserGormService userService
 
+    @Inject
+    FinancialEntityGormService financialEntityService
+
     def "Should get a empty list of accounts"(){
 
         given:'a client'
@@ -54,13 +60,22 @@ class AccountControllerSpec extends Specification {
     }
 
     def "Should create an account"(){
-        given:'an account request body'
+        given:'an saved user and financial entity'
         User user = new User('awesome user')
         user = userService.save(user)
+
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        entity = financialEntityService.save(entity)
+
+        and:'a command request body'
         AccountCommand cmd = new AccountCommand()
         cmd.with {
             userId = user.id
-            financialEntityId = 666
+            financialEntityId = entity.id
             nature ='DEBIT'
             name = 'awesome account'
             number = 1234123412341234
@@ -75,7 +90,7 @@ class AccountControllerSpec extends Specification {
         rsp.status == HttpStatus.OK
         rsp.body().with {
             id
-            user.id == cmd.userId
+            userId == cmd.userId
             financialEntityId == cmd.financialEntityId
             nature == cmd.nature
             name == cmd.name
@@ -133,19 +148,36 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
-/*
+    }
+
+    def "Should not create an account and throw not found exception on financial entity not found"(){
+        given:'an saved user and financial entity'
+        User user = new User('awesome user')
+        user = userService.save(user)
+
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId = user.id
+            financialEntityId = 666
+            nature ='DEBIT'
+            name = 'awesome account'
+            number = 1234123412341234
+            balance = 0.1
+        }
+
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
+
         when:
-        Optional<UserNotFoundException> jsonError = e.response.getBody(UserNotFoundException)
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
 
         then:
-        jsonError.isPresent()
-        jsonError.get().message == USER_NOT_FOUND_MESSAGE
- */
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
     }
 
     def "Should get an account"(){
@@ -153,18 +185,22 @@ class AccountControllerSpec extends Specification {
         User user = new User('no awesome name')
         userService.save(user)
 
+        and: 'a financial entity'
+
+        FinancialEntity entity = getSavedFinancialEntity()
+
         and:'a account request command body'
         AccountCommand cmd = new AccountCommand()
         cmd.with {
             userId  = user.id
-            financialEntityId = 666
+            financialEntityId = entity.id
             nature = 'DEBIT'
             name = 'awesome name'
             number = 1234123412341234
         }
 
         and:'a saved account'
-        Account account = new Account(cmd, user)
+        Account account = new Account(cmd, user, entity)
         accountService.save(account)
 
         and:
@@ -187,6 +223,16 @@ class AccountControllerSpec extends Specification {
         }
         !account.dateDeleted
 
+    }
+
+    private FinancialEntity getSavedFinancialEntity() {
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        entity = financialEntityService.save(entity)
+        entity
     }
 
     def "Should not get an account and throw 404"(){
@@ -219,14 +265,22 @@ class AccountControllerSpec extends Specification {
 
     def "Should update an account"(){
         given:'a saved user'
-        User user1 = new User('no awesome name')
-        userService.save(user1)
+        User awesomeUser = new User('no awesome name')
+        awesomeUser = userService.save(awesomeUser)
+
+        and:'a saved entity'
+        FinancialEntity entity1 = new FinancialEntity()
+        entity1.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        entity1 = financialEntityService.save(entity1)
 
         and:'a saved account'
         Account account = new Account()
         account.with {
-            user = user1
-            financialEntityId = 123
+            user = awesomeUser
+            financialEntity = entity1
             nature = 'test'
             name = 'test'
             number = 1234123412341234
@@ -237,8 +291,8 @@ class AccountControllerSpec extends Specification {
         and:'an account command to update data'
         AccountCommand cmd = new AccountCommand()
         cmd.with {
-            userId = user1.id
-            financialEntityId = 123
+            userId = awesomeUser.id
+            financialEntityId = entity1.id
             nature = 'No test'
             name = 'no test'
             number = 1234123412341234
@@ -246,7 +300,7 @@ class AccountControllerSpec extends Specification {
         }
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/accounts/${user1.id}",  cmd)
+        HttpRequest request = HttpRequest.PUT("/accounts/${account.id}",  cmd)
 
         when:
         def resp = client.toBlocking().exchange(request, AccountDto)
@@ -307,11 +361,19 @@ class AccountControllerSpec extends Specification {
         User user1 = new User('no awesome')
         userService.save(user1)
 
+        and:'a saved entity'
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        entity = financialEntityService.save(entity)
+
         and:'account list'
         Account account = new Account()
         account.with {
             user = user1
-            financialEntityId = 123
+            financialEntity = entity
             nature = 'test'
             name = 'test'
             number = 1234123412341234
@@ -322,7 +384,7 @@ class AccountControllerSpec extends Specification {
         Account account2 = new Account()
         account2.with {
             user = user1
-            financialEntityId = 123
+            financialEntity = entity
             nature = 'test'
             name = 'test'
             number = 1234123412341234
@@ -349,11 +411,19 @@ class AccountControllerSpec extends Specification {
         User user1 = new User('no awesome')
         userService.save(user1)
 
+        and:'a saved entity'
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        entity = financialEntityService.save(entity)
+
         and:'a list of accounts'
         Account account = new Account()
         account.with {
             user = user1
-            financialEntityId = 123
+            financialEntity = entity
             nature = 'test'
             name = 'test'
             number = 1234123412341234
@@ -364,7 +434,7 @@ class AccountControllerSpec extends Specification {
         Account account2 = new Account()
         account2.with {
             user = user1
-            financialEntityId = 123
+            financialEntity = entity
             nature = 'test'
             name = 'test'
             number = 1234123412341234
@@ -375,7 +445,7 @@ class AccountControllerSpec extends Specification {
         Account account3 = new Account()
         account3.with {
             user = user1
-            financialEntityId = 123
+            financialEntity = entity
             nature = 'test'
             name = 'test'
             number = 1234123412341234
@@ -415,11 +485,19 @@ class AccountControllerSpec extends Specification {
         User user1 = new User('i will die soon cause i have covid-19')
         userService.save(user1)
 
+        and:'a saved entity'
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        entity = financialEntityService.save(entity)
+
         and:'a saved account'
         Account account = new Account()
         account.with {
             user = user1
-            financialEntityId = 123
+            financialEntity = entity
             nature = 'test'
             name = 'test'
             number = 1234123412341234

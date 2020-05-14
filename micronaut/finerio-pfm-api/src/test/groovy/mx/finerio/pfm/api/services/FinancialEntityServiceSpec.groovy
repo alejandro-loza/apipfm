@@ -67,7 +67,7 @@ class FinancialEntityServiceSpec extends Specification {
 
     def "Should get all financial entities " () {
         when:
-        1 * financialEntityService.financialEntityGormService.findAll(_ as Map) >> [new FinancialEntity()]
+        1 * financialEntityService.financialEntityGormService.findAllByDateDeletedIsNull(_ as Map) >> [new FinancialEntity()]
         def response = financialEntityService.getAll()
 
         then:
@@ -76,7 +76,7 @@ class FinancialEntityServiceSpec extends Specification {
 
     def "Should not get all financial entities " () {
         when:
-        1 * financialEntityService.financialEntityGormService.findAll(_ as Map) >> []
+        1 * financialEntityService.financialEntityGormService.findAllByDateDeletedIsNull(_ as Map) >> []
         def response = financialEntityService.getAll()
 
         then:

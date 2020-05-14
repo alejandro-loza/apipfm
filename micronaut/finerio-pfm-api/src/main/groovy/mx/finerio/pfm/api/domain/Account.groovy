@@ -9,7 +9,7 @@ class Account  implements GormEntity<Account> {
 
     Long id
     User user
-    Long financialEntityId
+    FinancialEntity financialEntity
     String nature
     String name
     Long number
@@ -18,9 +18,9 @@ class Account  implements GormEntity<Account> {
     Date lastUpdated
     Date dateDeleted
 
-    Account(AccountCommand accountCommand, User user) {
+    Account(AccountCommand accountCommand, User user, FinancialEntity financialEntity) {
         this.user = user
-        this.financialEntityId = accountCommand.financialEntityId
+        this.financialEntity = financialEntity
         this.nature = accountCommand.nature
         this.name = accountCommand.name
         this.number = Long.valueOf(accountCommand.number)
@@ -31,7 +31,7 @@ class Account  implements GormEntity<Account> {
 
     static constraints = {
         name nullable: false, blank:false
-        financialEntityId nullable: false
+        financialEntity nullable: false
         nature  nullable: false, blank:false
         number nullable: false, blank:false
         balance nullable: false, blank:false

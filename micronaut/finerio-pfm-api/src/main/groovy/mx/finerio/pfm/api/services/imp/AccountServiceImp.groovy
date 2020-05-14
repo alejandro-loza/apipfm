@@ -4,6 +4,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.exceptions.AccountNotFoundException
 import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.validation.AccountCommand
@@ -20,9 +21,13 @@ class AccountServiceImp implements AccountService {
     @Inject
     UserService userService
 
+    @Inject
+    FinancialEntityService financialEntityService
+
     @Override
     Account create(AccountCommand cmd){
-        accountGormService.save(new Account(cmd, userService.getUser(cmd.userId)))
+        accountGormService.save( new Account(cmd, userService.getUser(cmd.userId),
+                        financialEntityService.getById(cmd.financialEntityId)))
     }
 
     @Override
@@ -36,7 +41,7 @@ class AccountServiceImp implements AccountService {
         Account account = getAccount(id)
         account.with {
             user = userService.getUser(cmd.userId)
-            financialEntityId = cmd.financialEntityId
+            financialEntity = financialEntityService.getById(cmd.financialEntityId)
             nature = cmd.nature
             name = cmd.name
             number = Long.valueOf(cmd.number)

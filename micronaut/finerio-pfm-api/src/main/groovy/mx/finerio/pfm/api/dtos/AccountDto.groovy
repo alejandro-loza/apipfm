@@ -15,7 +15,7 @@ class AccountDto  extends ResourceDto{
     AccountDto(Account account) {
         this.id = account.id
         this.userId = account.user.id
-        this.financialEntityId = account.financialEntityId
+        this.financialEntityId = account.financialEntity.id
         this.nature = account.nature
         this.name = account.name
         this.number = account.number
