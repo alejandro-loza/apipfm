@@ -40,7 +40,7 @@ class FinancialEntityServiceSpec extends Specification {
         then:
         IllegalArgumentException e = thrown()
         e.message ==
-                'callbackService.create.createCallbackDto.null'
+                'request.body.invalid'
     }
 
     def "Should get an financial entity"(){
@@ -64,5 +64,34 @@ class FinancialEntityServiceSpec extends Specification {
         FinancialEntityNotFoundException e = thrown()
         e.message == 'financialEntity.exist'
     }
+
+    def "Should get all financial entities " () {
+        when:
+        1 * financialEntityService.financialEntityGormService.findAll(_ as Map) >> [new FinancialEntity()]
+        def response = financialEntityService.getAll()
+
+        then:
+        response instanceof  List<FinancialEntity>
+    }
+
+    def "Should not get all financial entities " () {
+        when:
+        1 * financialEntityService.financialEntityGormService.findAll(_ as Map) >> []
+        def response = financialEntityService.getAll()
+
+        then:
+        response instanceof  List<FinancialEntity>
+        response.isEmpty()
+    }
+
+    def "Should get  financial entities by a cursor " () {
+        when:
+        1 * financialEntityService.financialEntityGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(_ as Long, _ as Map) >> [new FinancialEntity()]
+        def response = financialEntityService.findAllByCursor(2)
+
+        then:
+        response instanceof  List<FinancialEntity>
+    }
+
 
 }

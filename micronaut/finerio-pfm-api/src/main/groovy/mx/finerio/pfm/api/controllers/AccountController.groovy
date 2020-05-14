@@ -25,9 +25,6 @@ class AccountController {
     @Inject
     AccountService accountService
 
-    @Inject
-    MessageSource messageSource
-
     @Post("/")
     Single<AccountDto> save(@Body @Valid AccountCommand cmd){
         Single.just(new AccountDto(accountService.create(cmd)))

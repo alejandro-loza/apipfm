@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.exceptions.FinancialEntityNotFoundException
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
@@ -19,7 +20,7 @@ class FinancialEntityServiceImp implements FinancialEntityService {
     FinancialEntity create(FinancialEntityCommand cmd) {
         if ( !cmd  ) {
             throw new IllegalArgumentException(
-                    'callbackService.create.createCallbackDto.null' )
+                    'request.body.invalid' )
         }
         financialEntityGormService.save(new FinancialEntity(cmd))
     }
@@ -29,4 +30,36 @@ class FinancialEntityServiceImp implements FinancialEntityService {
         Optional.ofNullable(financialEntityGormService.findByIdAndDateDeletedIsNull(id))
                 .orElseThrow({ -> new FinancialEntityNotFoundException() })
     }
+
+    @Override
+    FinancialEntity update(FinancialEntityCommand cmd, Long id) {
+        if ( !cmd || !id ) {
+            throw new IllegalArgumentException(
+                    'request.body.invalid' )
+        }
+        FinancialEntity financialEntity = getById(id)
+        financialEntity.with {
+            name = cmd.name
+            code = cmd.code
+        }
+        financialEntityGormService.save(financialEntity)
+    }
+
+    @Override
+    List<FinancialEntity> getAll() {
+        financialEntityGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+    }
+
+    @Override
+    List<FinancialEntity> findAllByCursor(Long cursor) {
+        financialEntityGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+    }
+
+    @Override
+    void delete(Long id){
+        FinancialEntity entity = getById(id)
+        entity.dateDeleted = new Date()
+        financialEntityGormService.save(entity)
+    }
+
 }

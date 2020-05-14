@@ -12,6 +12,6 @@ interface UserGormService {
     @Query("from ${User u} where $u.id = $id and u.dateDeleted is Null")
     User findByIdAndDateDeletedIsNull(Long id)
     User findById(Long id)
-    List<User> findAll(Map args)
+    List<User> findAll(Map args)//todo should not include deleted ones
     List<User> findByIdLessThanEquals(Long id, Map args)
 }
