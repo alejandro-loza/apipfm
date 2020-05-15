@@ -59,12 +59,12 @@ class AccountServiceImp implements AccountService {
 
     @Override
     List<AccountDto> getAll() {
-        accountGormService.findAll([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
+        accountGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
     }
 
     @Override
     List<AccountDto> findAllByCursor(Long cursor) {
-        accountGormService.findByIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
+        accountGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
     }
 
 }

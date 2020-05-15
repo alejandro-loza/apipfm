@@ -379,6 +379,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
             balance = 0.0
         }
+        account.dateDeleted = new Date()
         accountService.save(account)
 
         Account account2 = new Account()
@@ -391,6 +392,7 @@ class AccountControllerSpec extends Specification {
             balance = 0.0
         }
         accountService.save(account2)
+
         and:
         HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT)
 
@@ -401,8 +403,7 @@ class AccountControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<AccountDto> accounts = body.get("data") as List<AccountDto>
-        assert accounts.size() > 0
-        assert !body.get("nextCursor")
+        assert !(account.id in accounts.id)
     }
 
     def "Should get a list of accounts in a cursor point"(){
