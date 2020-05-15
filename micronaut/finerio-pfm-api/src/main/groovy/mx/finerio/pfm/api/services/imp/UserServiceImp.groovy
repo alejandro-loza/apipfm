@@ -47,11 +47,13 @@ class UserServiceImp implements UserService {
 
     @Override
     List<UserDto> getAll() {
-        userGormService.findAll([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
+        userGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{user -> new UserDto(user)}
     }
 
     @Override
     List<UserDto> findAllByCursor(long cursor) {
-        userGormService.findByIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new UserDto(it)}
+        userGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new UserDto(it)}
     }
 }

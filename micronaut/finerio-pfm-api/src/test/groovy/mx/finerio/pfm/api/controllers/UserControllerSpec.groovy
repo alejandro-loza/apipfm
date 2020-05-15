@@ -193,6 +193,7 @@ class UserControllerSpec extends Specification {
 
          given:'a saved user'
          User user = new User('no awesome')
+         user.dateDeleted = new Date()
          userService.save(user)
 
          User user2 = new User('awesome')
@@ -208,7 +209,8 @@ class UserControllerSpec extends Specification {
         Map body = rspGET.getBody(Map).get()
         List<UserDto> users= body.get("data") as List<UserDto>
         assert users.size() > 0
-        assert !body.get("nextCursor")
+        assert !(user.id in users.id)
+
     }
 
     def "Should get a list of users in a cursor point"() {
