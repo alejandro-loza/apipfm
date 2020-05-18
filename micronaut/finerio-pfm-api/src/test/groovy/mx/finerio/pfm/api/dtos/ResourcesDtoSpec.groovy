@@ -4,12 +4,12 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 
 @MicronautTest(application = Application.class)
-class UsersDtoSpec extends spock.lang.Specification {
+class ResourcesDtoSpec extends spock.lang.Specification {
 
     def "should get null on empty list"(){
         setup:'an users dto'
         List<UserDto> users = []
-        UsersDto userDto = new UsersDto(users)
+        ResourcesDto userDto = new ResourcesDto(users)
 
         expect:
         !userDto.nextCursor
@@ -21,7 +21,7 @@ class UsersDtoSpec extends spock.lang.Specification {
         userDto1.id = 1
 
         List<UserDto> users = [userDto1]
-        UsersDto usersDto = new UsersDto(users)
+        ResourcesDto usersDto = new ResourcesDto(users)
 
         expect:
         !usersDto.nextCursor
@@ -36,7 +36,7 @@ class UsersDtoSpec extends spock.lang.Specification {
         userDto2.id = 2
 
         List<UserDto> users = [userDto3,userDto2]
-        UsersDto usersDto = new UsersDto(users)
+        ResourcesDto usersDto = new ResourcesDto(users)
 
         expect:
         usersDto.nextCursor == 1

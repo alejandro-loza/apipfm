@@ -2,11 +2,9 @@ package mx.finerio.pfm.api.dtos
 
 import mx.finerio.pfm.api.domain.User
 
-class UserDto {
+class UserDto extends ResourceDto {
 
-    Long id
     String name
-    Date dateCreated
 
     UserDto() {}
 

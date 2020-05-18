@@ -3,7 +3,6 @@ package mx.finerio.pfm.api.controllers
 import io.micronaut.context.annotation.Property
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
@@ -11,9 +10,11 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.exeptions.UserNotFoundException
-import mx.finerio.pfm.api.services.UserService
+import mx.finerio.pfm.api.exceptions.NotFoundException
+
+import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
@@ -30,7 +31,7 @@ class UserControllerSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
-    UserService userService
+    UserGormService userService
 
     def "Should get a empty list of users"(){
 
@@ -88,7 +89,22 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST('/users',  new UserCreateCommand())
 
         when:
-        client.toBlocking().exchange(request,UserDto)
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
+                Argument.of(ErrorDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+    }
+
+    def "Should not create an user with wrong body an return 400"(){
+        given:'an user'
+
+        HttpRequest request = HttpRequest.POST('/users',  'qwe')
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
+                Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -104,7 +120,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("/users/${notFoundId}")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -165,7 +181,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.PUT("/users/${notFoundId}",  cmd)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -177,6 +193,7 @@ class UserControllerSpec extends Specification {
 
          given:'a saved user'
          User user = new User('no awesome')
+         user.dateDeleted = new Date()
          userService.save(user)
 
          User user2 = new User('awesome')
@@ -192,7 +209,8 @@ class UserControllerSpec extends Specification {
         Map body = rspGET.getBody(Map).get()
         List<UserDto> users= body.get("data") as List<UserDto>
         assert users.size() > 0
-        assert !body.get("nextCursor")
+        assert !(user.id in users.id)
+
     }
 
     def "Should get a list of users in a cursor point"() {
@@ -229,7 +247,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("/users/666")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -257,7 +275,7 @@ class UserControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("/users/${id}")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException

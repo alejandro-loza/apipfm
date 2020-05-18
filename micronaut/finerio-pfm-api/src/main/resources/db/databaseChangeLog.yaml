@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: migrations/user.yaml
+  - include:
+      file: migrations/account.yaml
