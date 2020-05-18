@@ -1,8 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.FinancialEntity
-import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.exceptions.FinancialEntityNotFoundException
+import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
@@ -28,7 +27,7 @@ class FinancialEntityServiceImp implements FinancialEntityService {
     @Override
     FinancialEntity getById(Long id) {
         Optional.ofNullable(financialEntityGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new FinancialEntityNotFoundException() })
+                .orElseThrow({ -> new NotFoundException('financialEntity.exist') })
     }
 
     @Override

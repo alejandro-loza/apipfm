@@ -2,7 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.AccountDto
-import mx.finerio.pfm.api.exceptions.AccountNotFoundException
+import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.UserService
@@ -33,7 +33,7 @@ class AccountServiceImp implements AccountService {
     @Override
     Account getAccount(Long id) {
         Optional.ofNullable(accountGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new AccountNotFoundException('The account ID you requested was not found.') })
+                .orElseThrow({ -> new NotFoundException('The account ID you requested was not found.') })
     }
 
     @Override

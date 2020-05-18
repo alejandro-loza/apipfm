@@ -16,7 +16,7 @@ import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.exceptions.UserNotFoundException
+
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -112,7 +112,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  new AccountCommand())
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -125,7 +125,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  'asd')
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException

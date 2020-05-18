@@ -2,7 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.exceptions.UserNotFoundException
+import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCreateCommand
@@ -21,7 +21,7 @@ class UserServiceImp implements UserService {
     @Override
     User getUser(long id) {
         Optional.ofNullable(userGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new UserNotFoundException('The user ID you requested was not found.') })
+                .orElseThrow({ -> new NotFoundException('The user ID you requested was not found.') })
     }
 
     @Override

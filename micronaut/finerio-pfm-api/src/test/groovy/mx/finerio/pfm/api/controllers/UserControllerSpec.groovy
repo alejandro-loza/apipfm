@@ -13,7 +13,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.exceptions.UserNotFoundException
+
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCreateCommand
 import spock.lang.Shared
@@ -120,7 +120,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("/users/${notFoundId}")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -181,7 +181,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.PUT("/users/${notFoundId}",  cmd)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -247,7 +247,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("/users/666")
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(UserNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException

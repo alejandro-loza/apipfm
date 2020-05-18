@@ -13,7 +13,7 @@ import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
-import mx.finerio.pfm.api.exceptions.FinancialEntityNotFoundException
+
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
@@ -158,7 +158,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
-                FinancialEntityNotFoundException as Argument<FinancialEntityNotFoundException>)
+                NotFoundException as Argument<NotFoundException>)
 
         then:
         def  e = thrown HttpClientResponseException
@@ -175,7 +175,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
-                FinancialEntityNotFoundException as Argument<FinancialEntityNotFoundException>)
+                NotFoundException as Argument<NotFoundException>)
 
         then:
         def  e = thrown HttpClientResponseException

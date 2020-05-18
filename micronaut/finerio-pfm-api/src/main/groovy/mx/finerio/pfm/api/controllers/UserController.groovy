@@ -9,7 +9,7 @@ import io.reactivex.Single
 
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.exceptions.UserNotFoundException
+import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.UserCreateCommand
 
@@ -57,8 +57,8 @@ class UserController {
         HttpResponse.noContent()
     }
 
-    @Error(exception = UserNotFoundException)
-    HttpResponse notFound(UserNotFoundException ex) {
+    @Error(exception = NotFoundException)
+    HttpResponse notFound(NotFoundException ex) {
         HttpResponse.notFound().body(ex.message)
     }
 
