@@ -1,8 +1,10 @@
-package mx.finerio.pfm.api.dtos
+package mx.finerio.pfm.api.validators
 
+import com.sun.org.apache.bcel.internal.generic.DADD
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.TransactionCommand
 import spock.lang.Specification
 
 import javax.validation.ConstraintViolation
@@ -11,7 +13,7 @@ import javax.validation.Validator
 import javax.validation.ValidatorFactory
 
 @MicronautTest(application = Application.class)
-class AccountCommandSpec extends Specification{
+class TransactionCommandSpec extends Specification{
     Validator validator
 
     void setup() {
@@ -19,16 +21,14 @@ class AccountCommandSpec extends Specification{
         validator = factory.getValidator()
     }
 
-    def "Should validate a account command"(){
-        given:'an account command validator'
-        AccountCommand cmd = new AccountCommand()
+    def "Should validate a transaction command"(){
+        given:'an transaction command validator'
+        TransactionCommand cmd = new TransactionCommand()
         cmd.with {
-            userId = 1
-            financialEntityId = 1
-            nature = 'TEST'
-            name = 'NAME'
-            number = 1234123412341234
-            balance = 0.01
+            date = new Date()
+            charge = true
+            description = 'wild description appears'
+            amount = 100.00
         }
         when:
         Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
@@ -39,14 +39,14 @@ class AccountCommandSpec extends Specification{
 
     def "Should not validate a account command"(){
         given:'an account command validator'
-        AccountCommand cmd = new AccountCommand()
+        TransactionCommand cmd = new TransactionCommand()
 
         when:
         Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
 
         then:
         assert !violations.isEmpty()
-        violations.size() == 7
+        violations.size() == 4
     }
 
 
