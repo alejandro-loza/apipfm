@@ -10,6 +10,7 @@ tags:
   - name: Users
   - name: Financial entities
   - name: Accounts
+  - name: Transactions
 paths:
   /users:
     post:
@@ -463,6 +464,164 @@ paths:
           description: The account ID you requested was not found.
         '500':
           description: Something in the server was wrong.
+  /transactions:
+    post:
+      tags:
+      - Transactions
+      summary: Creates a transaction.
+      description: Creates a transaction. A previosuly created account is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransaction'
+      responses:
+        '200':
+          description: A transaction created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          
+        '500':
+          description: Something in the server was wrong.
+    get:
+      tags:
+      - Transactions
+      summary: Fetches a list of transactions.
+      description: Fetches a list of transactions, sorted by ID in descending order. The API is able to fetch up to 100 transactions. If a cursor is specified, the list starts with the item that has that ID.
+      parameters:
+        - in: query
+          name: accountId
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the account where the list starts.
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the transaction where the list starts.
+      responses:
+        '200':
+          description: An array of transactions.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Transactions'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+  /transactions/{id}:
+    get:
+      tags:
+      - Transactions
+      summary: Fetches a transaction.
+      description: Fetches the information of a transaction.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the transaction to request.
+      responses:
+        '200':
+          description: The information of the transaction requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The transaction ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    put:
+      tags:
+      - Transactions
+      summary: Updates a transaction.
+      description: Updates a transaction.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the transaction to request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTransaction'
+      responses:
+        '200':
+          description: A transaction updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The transaction ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    delete:
+      tags:
+      - Transactions
+      summary: Deletes a transaction.
+      description: Deletes a transaction and all its information.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the transaction to request.
+      responses:
+        '204':
+          description: The transaction has been deleted successfully.
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The transaction ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
 components:
   schemas:
     CreateUser:
@@ -660,6 +819,84 @@ components:
         - Credit
         - Investment
         - Mortgage
+    CreateTransaction:
+      description: A representation of the data neccesary for creating a transaction.
+      required:
+        - accountId
+        - date
+        - charge
+        - description
+        - amount
+      properties:
+        accountId:
+          type: number
+          example: 123
+        date:
+          type: number
+          example: 1587567125458
+        charge:
+          type: boolean
+          example: true
+        description:
+          type: string
+          minimum: 3
+          maximum: 200
+          example: "UBER EATS"
+        amount:
+          type: number
+          example: 1234.56
+    UpdateTransaction:
+      description: A representation of the data neccesary for updating a transaction.
+      properties:
+        date:
+          type: number
+          example: 1587567125458
+        charge:
+          type: boolean
+          example: true
+        description:
+          type: string
+          minimum: 3
+          maximum: 200
+          example: "UBER EATS"
+        amount:
+          type: number
+          example: 1234.56
+    Transaction:
+      description: A representation of a transaction.
+      properties:
+        id:
+          type: integer
+          example: 123
+        date:
+          type: number
+          example: 1587567125458
+        charge:
+          type: boolean
+          example: true
+        description:
+          type: string
+          minimum: 3
+          maximum: 200
+          example: "UBER EATS"
+        amount:
+          type: number
+          example: 1234.56
+        dateCreated:
+          type: number
+          example: 1587567125458
+        lastUpdated:
+          type: number
+          example: 1587567125458
+    Transactions:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        nextCursor:
+          type: integer
+          example: 123
     Errors:
       description: An array of errors
       type: array
