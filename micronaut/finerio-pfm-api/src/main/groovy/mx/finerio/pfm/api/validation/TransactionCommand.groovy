@@ -7,13 +7,14 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Positive
 
-
 @Introspected
 @CompileStatic
 class TransactionCommand {
 
+    @NotNull(message= 'transaction.account.null')
+    Long accountId
     @NotNull(message= 'transaction.date.null')
-    Date date
+    Long date
     @NotNull(message= 'transaction.charge.null')
     boolean charge
     @NotNull(message= 'transaction.description.null')

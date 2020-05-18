@@ -1,20 +1,26 @@
 package mx.finerio.pfm.api.domain
 
+import grails.gorm.annotation.Entity
 import mx.finerio.pfm.api.validation.TransactionCommand
+import org.grails.datastore.gorm.GormEntity
 
-class Transaction {
+@Entity
+class Transaction implements GormEntity<Transaction> {
     Long id
+    Account account
     Date date
     boolean charge
     String description
     float  amount
     Date dateCreated
     Date lastUpdated
+    Date dateDeleted
 
     Transaction(){}
 
-    Transaction(TransactionCommand cmd){
-        this.date = cmd.date
+    Transaction(TransactionCommand cmd, Account account){
+        this.account = account
+        this.date = new Date(cmd.date)
         this.charge = cmd.charge
         this.description = cmd.description
         this.amount = cmd.amount
@@ -24,6 +30,7 @@ class Transaction {
         date nullable: false, blank:false
         description  nullable: false, blank:false
         amount nullable: false
+        dateDeleted nullable:true
     }
 
     static mapping = {
