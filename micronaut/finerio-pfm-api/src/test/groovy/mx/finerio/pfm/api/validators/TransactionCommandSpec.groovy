@@ -25,7 +25,8 @@ class TransactionCommandSpec extends Specification{
         given:'an transaction command validator'
         TransactionCommand cmd = new TransactionCommand()
         cmd.with {
-            date = new Date()
+            accountId = 1
+            date = new Date().getTime()
             charge = true
             description = 'wild description appears'
             amount = 100.00
@@ -46,7 +47,7 @@ class TransactionCommandSpec extends Specification{
 
         then:
         assert !violations.isEmpty()
-        violations.size() == 4
+        violations.size() == 5
     }
 
 
