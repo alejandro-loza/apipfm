@@ -39,6 +39,10 @@ class TransactionServiceImp implements TransactionService {
         Transaction transaction = find(id)
         transaction.with {
             account = accountService.getAccount(cmd.accountId)
+            date = new Date(cmd.date)
+            description = cmd.description
+            charge = cmd.charge
+            amount = cmd.amount
         }
         transactionGormService.save(transaction)
     }

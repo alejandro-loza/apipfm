@@ -1,6 +1,5 @@
 package mx.finerio.pfm.api.controllers
 
-
 import io.micronaut.context.annotation.Property
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
@@ -14,20 +13,17 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.AccountCommand
 import mx.finerio.pfm.api.validation.TransactionCommand
 import spock.lang.Shared
 import spock.lang.Specification
-
 import javax.inject.Inject
 
 @Property(name = 'spec.name', value = 'account controller')
@@ -263,24 +259,12 @@ class TransactionControllerSpec extends Specification {
         resp.status == HttpStatus.OK
         resp.body().with {
             assert accountId == cmd.accountId
-            assert date == cmd.date
+            assert date.getTime() == cmd.date
             assert charge == cmd.charge
             assert description == cmd.description
             assert amount == cmd.amount
         }
 
-    }
-
-    private TransactionCommand generateTransactionCommand(Account account1) {
-        TransactionCommand cmd = new TransactionCommand()
-        cmd.with {
-            accountId = account1.id
-            date = Long.valueOf(new Date())
-            charge = true
-            description = "UBER EATS"
-            amount= 1234.56
-        }
-        cmd
     }
 
     def "Should not update a transaction on band parameters and return Bad Request"(){
@@ -327,6 +311,125 @@ class TransactionControllerSpec extends Specification {
 
     }
 
+    def "Should get a list of transactions"(){
+
+        given:'a transaction list'
+        Account account1 = generateAccount()
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
+        transaction2.dateDeleted = new Date()
+        transactionGormService.save(transaction2)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction3)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction4)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
+        assert !(transaction2.id in transactionDtos.id)
+
+        assert !body.get("nextCursor")
+    }
+
+    def "Should get a list of transactions on a cursor point"(){
+
+        given:'a transaction list'
+        Account account1 = generateAccount()
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
+        transaction2.dateDeleted = new Date()
+        transactionGormService.save(transaction2)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction3)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction4)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?cursor=${transaction3.id}")
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
+        assert !(transaction2.id in transactionDtos.id)
+        assert !(transaction4.id in transactionDtos.id)
+
+        assert !body.get("nextCursor")
+    }
+
+    def "Should throw not found exception on delete no found transaction"(){
+        given:
+        def notFoundId = 666
+
+        and:'a client'
+        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${notFoundId}")
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+    }
+
+    def "Should delete an transaction"() {
+        given:'a transaction'
+        Account account1 = generateAccount()
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+
+        and:'a client request'
+        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${transaction1.id}")
+
+        when:
+        def response = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        response.status == HttpStatus.NO_CONTENT
+
+        and:
+        HttpRequest.GET("${TRANSACTION_ROOT}/${transaction1.id}")
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(NotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+    }
+
+    private TransactionCommand generateTransactionCommand(Account account1) {
+        def date1 = new Date()
+
+        TransactionCommand cmd = new TransactionCommand()
+        cmd.with {
+            accountId = account1.id
+            date = date1.getTime()
+            charge = true
+            description = "UBER EATS"
+            amount= 1234.56
+        }
+        cmd
+    }
 
 
 }
