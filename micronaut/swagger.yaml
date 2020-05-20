@@ -11,6 +11,8 @@ tags:
   - name: Financial entities
   - name: Accounts
   - name: Transactions
+  - name: Categories
+  - name: Budgets
 paths:
   /users:
     post:
@@ -622,6 +624,164 @@ paths:
           description: The transaction ID you requested was not found.
         '500':
           description: Something in the server was wrong.
+  /categories:
+    post:
+      tags:
+      - Categories
+      summary: Creates a category.
+      description: Creates a category. A previosuly created user is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategory'
+      responses:
+        '200':
+          description: A category created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          
+        '500':
+          description: Something in the server was wrong.
+    get:
+      tags:
+      - Categories
+      summary: Fetches a list of categories.
+      description: Fetches a list of categories, sorted by ID in descending order. The API is able to fetch up to 100 categories. If a cursor is specified, the list starts with the item that has that ID.
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the user where the list starts.
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the category where the list starts.
+      responses:
+        '200':
+          description: An array of categories.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Categories'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+  /categories/{id}:
+    get:
+      tags:
+      - Categories
+      summary: Fetches a category.
+      description: Fetches the information of a category.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the category to request.
+      responses:
+        '200':
+          description: The information of the category requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The category ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    put:
+      tags:
+      - Categories
+      summary: Updates a category.
+      description: Updates a category.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the category to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategory'
+      responses:
+        '200':
+          description: A category updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The category ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    delete:
+      tags:
+      - Categories
+      summary: Deletes a category.
+      description: Deletes a category and all its information.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the category to request.
+      responses:
+        '204':
+          description: The category has been deleted successfully.
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The category ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
 components:
   schemas:
     CreateUser:
@@ -894,6 +1054,78 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Transaction'
+        nextCursor:
+          type: integer
+          example: 123
+    CreateCategory:
+      description: A representation of the data neccesary for creating a category.
+      required:
+        - userId
+        - name
+      properties:
+        userId:
+          type: number
+          example: 123
+        name:
+          type: string
+          minimum: 3
+          maximum: 50
+          example: "Ropa y Calzado"
+        color:
+          type: string
+          minimum: 6
+          maximum: 6
+          example: "#00FFAA"
+        parentCategoryId:
+          type: number
+          example: 123
+    UpdateCategory:
+      description: A representation of the data neccesary for updating a category.
+      properties:
+        name:
+          type: string
+          minimum: 3
+          maximum: 50
+          example: "Ropa y Calzado"
+        color:
+          type: string
+          minimum: 6
+          maximum: 6
+          example: "#00FFAA"
+        parentCategoryId:
+          type: number
+          example: 123
+    Category:
+      description: A representation of a category.
+      properties:
+        id:
+          type: integer
+          example: 123
+        name:
+          type: string
+          minimum: 3
+          maximum: 50
+          example: "Ropa y Calzado"
+        color:
+          type: string
+          minimum: 6
+          maximum: 6
+          example: "#00FFAA"
+        parentCategoryId:
+          type: number
+          example: 123
+        dateCreated:
+          type: number
+          example: 1587567125458
+        lastUpdated:
+          type: number
+          example: 1587567125458
+    Categories:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
         nextCursor:
           type: integer
           example: 123
