@@ -13,5 +13,5 @@ interface CategoryGormService {
     List<Category> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
 
     @Query("from ${Category c} where $c.id = $id and c.dateDeleted is Null")
-    Transaction findByIdAndDateDeletedIsNull(Long id)
+    Category findByIdAndDateDeletedIsNull(Long id)
 }

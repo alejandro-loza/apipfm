@@ -22,7 +22,7 @@ class Category implements GormEntity<Category> {
     Category(CategoryCommand cmd, User user) {
         this.user = user
         this.name = cmd.name
-        this.color = new Color(cmd.color)
+        this.color = Color.decode(cmd.color)
         this.parentCategoryId = cmd.parentCategoryId
     }
 
