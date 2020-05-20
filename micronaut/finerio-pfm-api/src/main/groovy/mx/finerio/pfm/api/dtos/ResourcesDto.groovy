@@ -1,11 +1,11 @@
 package mx.finerio.pfm.api.dtos
 
-class UsersDto {
+class ResourcesDto {
 
-    List<UserDto> data
+    List<ResourceDto> data
     Long nextCursor
 
-    UsersDto(List<UserDto> data) {
+    ResourcesDto(List<UserDto> data) {
         this.data = data
         this.nextCursor = !data.isEmpty() ? calculateNextCursor(data?.last()?.id) : null
     }

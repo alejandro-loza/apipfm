@@ -1,16 +1,14 @@
 package mx.finerio.pfm.api.services
 
-import grails.gorm.services.Query
 import mx.finerio.pfm.api.domain.User
-import grails.gorm.services.Service
+import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.validation.UserCreateCommand
 
-@Service(User)
 interface UserService {
-    User save(User user)
-
-    @Query("from ${User u} where $u.id = $id and u.dateDeleted is Null")
-    User findByIdAndDateDeletedIsNull(Long id)
-    User findById(Long id)
-    List<User> findAll(Map args)
-    List<User> findByIdLessThanEquals(Long id, Map args)
+    User getUser(long id)
+    User create(UserCreateCommand cmd)
+    User update(UserCreateCommand cmd, Long id)
+    void delete(Long id)
+    List<UserDto> findAllByCursor(long cursor)
+    List<UserDto> getAll()
 }
