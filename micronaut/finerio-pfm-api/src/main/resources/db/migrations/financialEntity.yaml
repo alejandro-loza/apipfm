@@ -8,7 +8,7 @@ databaseChangeLog:
       author: pinky
       changes:
         - createTable:
-            tableName: account
+            tableName: financial_entity
             columns:
               - column:
                   name: id
@@ -18,33 +18,13 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: user_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: financial_entity_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: nature
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-              - column:
                   name: name
-                  type: varchar(100)
+                  type: string
                   constraints:
                     nullable: false
               - column:
-                  name: number
-                  type: number
-                  constraints:
-                    nullable: false
-              - column:
-                  name: balance
-                  type: float
+                  name: code
+                  type: string
                   constraints:
                     nullable: false
               - column:
@@ -52,4 +32,7 @@ databaseChangeLog:
                   type: date
               - column:
                   name: last_updated
+                  type: date
+              - column:
+                  name: date_deleted
                   type: date
