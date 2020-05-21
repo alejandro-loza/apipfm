@@ -663,8 +663,8 @@ paths:
           schema:
             type: integer
             example: 123
-          required: false
-          description: The ID of the user where the list starts.
+          required: true
+          description: The ID of the user.
         - in: query
           name: cursor
           schema:
@@ -780,6 +780,164 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The category ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+  /budgets:
+    post:
+      tags:
+      - Budgets
+      summary: Creates a budget.
+      description: Creates a budget. A previosuly created user is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBudget'
+      responses:
+        '200':
+          description: A budget created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          
+        '500':
+          description: Something in the server was wrong.
+    get:
+      tags:
+      - Budgets
+      summary: Fetches a list of budgets.
+      description: Fetches a list of budgets, sorted by ID in descending order. The API is able to fetch up to 100 budgets. If a cursor is specified, the list starts with the item that has that ID.
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the user.
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the budget where the list starts.
+      responses:
+        '200':
+          description: An array of budgets.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Budgets'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+  /budgets/{id}:
+    get:
+      tags:
+      - Budgets
+      summary: Fetches a budget.
+      description: Fetches the information of a budget.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the budget to request.
+      responses:
+        '200':
+          description: The information of the budget requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The budget ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    put:
+      tags:
+      - Budgets
+      summary: Updates a budget.
+      description: Updates a budget.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the budget to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBudget'
+      responses:
+        '200':
+          description: A budget updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The budget ID you requested was not found.
+        '500':
+          description: Something in the server was wrong.
+    delete:
+      tags:
+      - Budgets
+      summary: Deletes a budget.
+      description: Deletes a budget and all its information.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the budget to request.
+      responses:
+        '204':
+          description: The budget has been deleted successfully.
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: The budget ID you requested was not found.
         '500':
           description: Something in the server was wrong.
 components:
@@ -1126,6 +1284,83 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Category'
+        nextCursor:
+          type: integer
+          example: 123
+    CreateBudget:
+      description: A representation of the data neccesary for creating a budget.
+      required:
+        - userId
+        - categoryId
+        - name
+        - amount
+      properties:
+        userId:
+          type: number
+          example: 123
+        categoryId:
+          type: number
+          example: 123
+        name:
+          type: string
+          minimum: 3
+          maximum: 50
+          example: "Food budget"
+        amount:
+          type: number
+          example: 1234.56
+        parentBudgetId:
+          type: number
+          example: 123
+    UpdateBudget:
+      description: A representation of the data neccesary for updating a budget.
+      properties:
+        categoryId:
+          type: number
+          example: 123
+        name:
+          type: string
+          minimum: 3
+          maximum: 50
+          example: "Food budget"
+        amount:
+          type: number
+          example: 1234.56
+        parentBudgetId:
+          type: number
+          example: 123
+    Budget:
+      description: A representation of a budget.
+      properties:
+        id:
+          type: integer
+          example: 123
+        categoryId:
+          type: number
+          example: 123
+        name:
+          type: string
+          minimum: 3
+          maximum: 50
+          example: "Food budget"
+        amount:
+          type: number
+          example: 1234.56
+        parentBudgetId:
+          type: number
+          example: 123
+        dateCreated:
+          type: number
+          example: 1587567125458
+        lastUpdated:
+          type: number
+          example: 1587567125458
+    Budgets:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Budget'
         nextCursor:
           type: integer
           example: 123
