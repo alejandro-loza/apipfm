@@ -2,15 +2,15 @@ package mx.finerio.pfm.api.services.gorm
 
 import grails.gorm.services.Query
 import grails.gorm.services.Service
-import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.domain.Budget
 
-@Service(Transaction)
+@Service(Budget)
 interface BudgetGormService {
-    Transaction save(Transaction transaction)
-    Transaction getById(Long id)
-    List<Transaction> findAllByDateDeletedIsNull(Map args)
-    List<Transaction> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
+    Budget save(Budget transaction)
+    Budget getById(Long id)
+    List<Budget> findAllByDateDeletedIsNull(Map args)
+    List<Budget> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
 
-    @Query("from ${Transaction a} where $a.id = $id and a.dateDeleted is Null")
-    Transaction findByIdAndDateDeletedIsNull(Long id)
+    @Query("from ${Budget a} where $a.id = $id and a.dateDeleted is Null")
+    Budget findByIdAndDateDeletedIsNull(Long id)
 }
