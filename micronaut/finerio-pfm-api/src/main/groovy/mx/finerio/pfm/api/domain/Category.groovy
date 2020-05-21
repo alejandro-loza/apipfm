@@ -1,11 +1,8 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.AccountCommand
 import mx.finerio.pfm.api.validation.CategoryCommand
 import org.grails.datastore.gorm.GormEntity
-
-import java.awt.Color
 
 @Entity
 class Category implements GormEntity<Category> {
@@ -13,8 +10,8 @@ class Category implements GormEntity<Category> {
     Long id
     User user
     String name
-    Color color
-    Integer parentCategoryId //todo is this another class?
+    String color
+    Integer parentCategoryId
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
@@ -22,7 +19,7 @@ class Category implements GormEntity<Category> {
     Category(CategoryCommand cmd, User user) {
         this.user = user
         this.name = cmd.name
-        this.color = Color.decode(cmd.color)
+        this.color = cmd.color
         this.parentCategoryId = cmd.parentCategoryId
     }
 

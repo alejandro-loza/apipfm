@@ -43,7 +43,7 @@ class CategoryServiceImp implements CategoryService {
         category.with {
             user = userService.getUser(cmd.userId)
             name = cmd.name
-            color = Color.decode(cmd.color)
+            color = cmd.color
             parentCategoryId = cmd.parentCategoryId
         }
         categoryGormService.save(category)
