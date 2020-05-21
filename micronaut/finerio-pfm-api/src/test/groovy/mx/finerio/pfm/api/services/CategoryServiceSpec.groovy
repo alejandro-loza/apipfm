@@ -66,8 +66,10 @@ class CategoryServiceSpec extends Specification {
     }
 
     def "Should get all categories" () {
+        def category = new Category()
+        category.user = new User()
         when:
-        1 * categoryService.categoryGormService.findAllByDateDeletedIsNull(_ as Map) >> [new Category()]
+        1 * categoryService.categoryGormService.findAllByDateDeletedIsNull(_ as Map) >> [category]
         def response = categoryService.getAll()
 
         then:
@@ -84,9 +86,12 @@ class CategoryServiceSpec extends Specification {
         response.isEmpty()
     }
 
-    def "Should get  financial entities by a cursor " () {
+    def "Should get categories by a cursor " () {
+        given:
+        def category = new Category()
+        category.user = new User()
         when:
-        1 * categoryService.categoryGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(_ as Long, _ as Map) >> [new Category()]
+        1 * categoryService.categoryGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(_ as Long, _ as Map) >> [category]
         def response = categoryService.findAllByCursor(2)
 
         then:

@@ -13,7 +13,7 @@ class CategoryDto extends ResourceDto{
 
     CategoryDto(Category category) {
         this.id = category.id
-        this.userId = category.userId
+        this.userId = category.user.id
         this.name = category.name
         this.parentCategoryId = category.parentCategoryId
         this.color = category.color
