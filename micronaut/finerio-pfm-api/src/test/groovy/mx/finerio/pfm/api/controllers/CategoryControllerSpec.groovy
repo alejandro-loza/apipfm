@@ -375,7 +375,7 @@ class CategoryControllerSpec extends Specification {
         user
     }
 
-    private CategoryCommand generateCategoryCommand(User user1) {
+    private static CategoryCommand generateCategoryCommand(User user1) {
         CategoryCommand cmd = new CategoryCommand()
         cmd.with {
             userId = user1.id
