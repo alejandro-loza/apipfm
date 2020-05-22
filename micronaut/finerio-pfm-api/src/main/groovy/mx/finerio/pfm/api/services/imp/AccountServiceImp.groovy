@@ -26,6 +26,10 @@ class AccountServiceImp implements AccountService {
 
     @Override
     Account create(AccountCommand cmd){
+        if ( !cmd  ) {//todo dry this
+            throw new IllegalArgumentException(
+                    'request.body.invalid' )
+        }
         accountGormService.save( new Account(cmd, userService.getUser(cmd.userId),
                         financialEntityService.getById(cmd.financialEntityId)))
     }

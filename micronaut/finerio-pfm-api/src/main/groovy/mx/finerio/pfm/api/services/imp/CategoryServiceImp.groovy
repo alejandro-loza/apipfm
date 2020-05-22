@@ -24,7 +24,7 @@ class CategoryServiceImp implements CategoryService {
 
     @Override
     Category create(CategoryCommand cmd){
-        if ( !cmd  ) {//todo dry this
+        if ( !cmd  ) {
             throw new IllegalArgumentException(
                     'request.body.invalid' )
         }

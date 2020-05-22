@@ -25,6 +25,10 @@ class TransactionServiceImp implements TransactionService {
 
     @Override
     Transaction create(TransactionCommand cmd){
+        if ( !cmd  ) {
+            throw new IllegalArgumentException(
+                    'request.body.invalid' )
+        }
         transactionGormService.save(new Transaction(cmd, accountService.getAccount(cmd.accountId)) )
     }
 

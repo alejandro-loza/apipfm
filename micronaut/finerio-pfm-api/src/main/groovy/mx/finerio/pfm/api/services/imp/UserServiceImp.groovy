@@ -26,6 +26,10 @@ class UserServiceImp implements UserService {
 
     @Override
     User create(UserCreateCommand cmd){
+        if ( !cmd  ) {
+            throw new IllegalArgumentException(
+                    'request.body.invalid' )
+        }
         userGormService.save(new User(cmd.name))
     }
 
