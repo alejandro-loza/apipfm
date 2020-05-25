@@ -5,7 +5,7 @@ import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.UserCreateCommand
+import mx.finerio.pfm.api.validation.UserCommand
 import org.springframework.stereotype.Service
 
 import javax.inject.Inject
@@ -25,7 +25,7 @@ class UserServiceImp implements UserService {
     }
 
     @Override
-    User create(UserCreateCommand cmd){
+    User create(UserCommand cmd){
         if ( !cmd  ) {
             throw new IllegalArgumentException(
                     'request.body.invalid' )
@@ -34,7 +34,7 @@ class UserServiceImp implements UserService {
     }
 
     @Override
-    User update(UserCreateCommand cmd, Long id){
+    User update(UserCommand cmd, Long id){
         User user = getUser(id)
         user.with {
             name = cmd.name

@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull
 
 @Introspected
 @CompileStatic
-class UserCreateCommand {
+class UserCommand {
 
     @NotNull(message= 'user.name.null')
     @NotBlank(message= 'user.name.blank')
