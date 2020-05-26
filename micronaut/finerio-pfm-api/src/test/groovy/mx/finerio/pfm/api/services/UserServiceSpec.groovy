@@ -1,15 +1,11 @@
 package mx.finerio.pfm.api.services
 
 
-import mx.finerio.pfm.api.domain.Budget
-import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.services.imp.UserServiceImp
-import mx.finerio.pfm.api.validation.BudgetCommand
 import mx.finerio.pfm.api.validation.UserCommand
 import spock.lang.Specification
 
@@ -63,7 +59,7 @@ class UserServiceSpec extends Specification {
 
         then:
         NotFoundException e = thrown()
-        e.message == 'The user ID you requested was not found.'
+        e.message == 'user.notFound'
     }
 
     def "Should get all user" () {

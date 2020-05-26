@@ -73,7 +73,7 @@ class AccountServiceSpec extends Specification {
 
         then:
         NotFoundException e = thrown()
-        e.message == 'The account ID you requested was not found.'
+        e.message == 'account.notFound'
     }
 
     def "Should get all accounts" () {

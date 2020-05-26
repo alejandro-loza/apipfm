@@ -21,7 +21,7 @@ class UserServiceImp implements UserService {
     @Override
     User getUser(long id) {
         Optional.ofNullable(userGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('The user ID you requested was not found.') })
+                .orElseThrow({ -> new NotFoundException('user.notFound') })
     }
 
     @Override

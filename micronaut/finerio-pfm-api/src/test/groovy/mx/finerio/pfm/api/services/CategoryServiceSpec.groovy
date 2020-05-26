@@ -62,7 +62,7 @@ class CategoryServiceSpec extends Specification {
 
         then:
         NotFoundException e = thrown()
-        e.message == 'The category ID you requested was not found.'
+        e.message == 'category.notFound'
     }
 
     def "Should get all categories" () {

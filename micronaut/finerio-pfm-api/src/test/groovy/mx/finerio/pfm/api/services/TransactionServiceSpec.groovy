@@ -64,7 +64,7 @@ class TransactionServiceSpec extends Specification {
 
         then:
         NotFoundException e = thrown()
-        e.message == 'The transaction ID you requested was not found.'
+        e.message == 'transaction.notFound'
     }
 
     def "Should get all transactions" () {

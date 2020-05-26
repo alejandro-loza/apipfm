@@ -1,16 +1,14 @@
 package mx.finerio.pfm.api.services
 
-import mx.finerio.pfm.api.domain.Account
+
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
-import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.imp.BudgetServiceImp
 import mx.finerio.pfm.api.validation.BudgetCommand
-import mx.finerio.pfm.api.validation.CategoryCommand
 import spock.lang.Specification
 
 class BudgetServiceSpec extends Specification {
@@ -70,7 +68,7 @@ class BudgetServiceSpec extends Specification {
 
         then:
         NotFoundException e = thrown()
-        e.message == 'The budget ID you requested was not found.'
+        e.message == 'budget.notFound'
     }
 
     def "Should get all budget" () {

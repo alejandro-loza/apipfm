@@ -35,7 +35,7 @@ class TransactionServiceImp implements TransactionService {
     @Override
     Transaction find(Long id) {
         Optional.ofNullable(transactionGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('The transaction ID you requested was not found.') })
+                .orElseThrow({ -> new NotFoundException('transaction.notFound') })
     }
 
     @Override

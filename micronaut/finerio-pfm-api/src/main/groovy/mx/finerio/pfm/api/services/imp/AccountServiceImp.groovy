@@ -37,7 +37,7 @@ class AccountServiceImp implements AccountService {
     @Override
     Account getAccount(Long id) {
         Optional.ofNullable(accountGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('The account ID you requested was not found.') })
+                .orElseThrow({ -> new NotFoundException('account.notFound') })
     }
 
     @Override

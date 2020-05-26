@@ -57,9 +57,5 @@ class UserController {
         HttpResponse.noContent()
     }
 
-    @Error(exception = NotFoundException)
-    HttpResponse notFound(NotFoundException ex) {
-        HttpResponse.notFound().body(ex.message)
-    }
 
 }

@@ -40,7 +40,7 @@ class BudgetServiceImp implements BudgetService {
     @Override
     Budget find(Long id) {
         Optional.ofNullable(budgetGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('The budget ID you requested was not found.') })
+                .orElseThrow({ -> new NotFoundException('budget.notFound') })
     }
 
     @Override

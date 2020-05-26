@@ -9,8 +9,6 @@ import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.validation.CategoryCommand
 
 import javax.inject.Inject
-import java.awt.*
-import java.util.List
 
 class CategoryServiceImp implements CategoryService {
 
@@ -34,7 +32,7 @@ class CategoryServiceImp implements CategoryService {
     @Override
     Category find(Long id) {
         Optional.ofNullable(categoryGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('The category ID you requested was not found.') })
+                .orElseThrow({ -> new NotFoundException('category.notFound') })
     }
 
     @Override
