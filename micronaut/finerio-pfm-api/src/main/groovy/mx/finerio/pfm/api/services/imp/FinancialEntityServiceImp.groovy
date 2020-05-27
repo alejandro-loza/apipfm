@@ -8,7 +8,7 @@ import mx.finerio.pfm.api.validation.FinancialEntityCommand
 
 import javax.inject.Inject
 
-class FinancialEntityServiceImp implements FinancialEntityService {
+class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEntityService {
 
     public static final int MAX_ROWS = 100
 
@@ -17,10 +17,7 @@ class FinancialEntityServiceImp implements FinancialEntityService {
 
     @Override
     FinancialEntity create(FinancialEntityCommand cmd) {
-        if ( !cmd  ) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid' )
-        }
+        verifyBody(cmd)
         financialEntityGormService.save(new FinancialEntity(cmd))
     }
 
@@ -32,10 +29,7 @@ class FinancialEntityServiceImp implements FinancialEntityService {
 
     @Override
     FinancialEntity update(FinancialEntityCommand cmd, Long id) {
-        if ( !cmd || !id ) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid' )
-        }
+        verifyBody(cmd)
         FinancialEntity financialEntity = getById(id)
         financialEntity.with {
             name = cmd.name

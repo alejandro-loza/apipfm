@@ -1,15 +1,10 @@
 package mx.finerio.pfm.api.validation
 
-import groovy.transform.CompileStatic
-import io.micronaut.core.annotation.Introspected
-import mx.finerio.pfm.api.domain.User
-
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
-@Introspected
-@CompileStatic
-class CategoryCommand {
+
+class CategoryCommand extends ValidationCommand {
 
     @NotNull(message= 'user.null')
     Long userId

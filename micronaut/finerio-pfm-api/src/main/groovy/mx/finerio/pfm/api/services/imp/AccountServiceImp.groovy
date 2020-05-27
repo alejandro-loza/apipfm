@@ -11,9 +11,7 @@ import mx.finerio.pfm.api.validation.AccountCommand
 
 import javax.inject.Inject
 
-class AccountServiceImp implements AccountService {
-
-    public static final int MAX_ROWS = 100
+class AccountServiceImp extends ServiceTemplate implements AccountService {
 
     @Inject
     AccountGormService accountGormService
@@ -26,10 +24,7 @@ class AccountServiceImp implements AccountService {
 
     @Override
     Account create(AccountCommand cmd){
-        if ( !cmd  ) {//todo dry this
-            throw new IllegalArgumentException(
-                    'request.body.invalid' )
-        }
+        verifyBody(cmd)
         accountGormService.save( new Account(cmd, userService.getUser(cmd.userId),
                         financialEntityService.getById(cmd.financialEntityId)))
     }
@@ -42,6 +37,7 @@ class AccountServiceImp implements AccountService {
 
     @Override
     Account update(AccountCommand cmd, Long id){
+        verifyBody(cmd)
         Account account = getAccount(id)
         account.with {
             user = userService.getUser(cmd.userId)

@@ -10,9 +10,7 @@ import mx.finerio.pfm.api.validation.CategoryCommand
 
 import javax.inject.Inject
 
-class CategoryServiceImp implements CategoryService {
-
-    public static final int MAX_ROWS = 100
+class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
     @Inject
     CategoryGormService categoryGormService
@@ -22,10 +20,7 @@ class CategoryServiceImp implements CategoryService {
 
     @Override
     Category create(CategoryCommand cmd){
-        if ( !cmd  ) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid' )
-        }
+        verifyBody(cmd)
         categoryGormService.save(new Category(cmd, userService.getUser(cmd.userId)) )
     }
 
@@ -37,6 +32,7 @@ class CategoryServiceImp implements CategoryService {
 
     @Override
     Category update(CategoryCommand cmd, Long id){
+        verifyBody(cmd)
         Category category = find(id)
         category.with {
             user = userService.getUser(cmd.userId)

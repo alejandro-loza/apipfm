@@ -11,9 +11,7 @@ import mx.finerio.pfm.api.validation.BudgetCommand
 
 import javax.inject.Inject
 
-class BudgetServiceImp implements BudgetService {
-
-    public static final int MAX_ROWS = 100
+class BudgetServiceImp extends ServiceTemplate implements BudgetService {
 
     @Inject
     BudgetGormService budgetGormService
@@ -26,10 +24,7 @@ class BudgetServiceImp implements BudgetService {
 
     @Override
     Budget create(BudgetCommand cmd){
-        if ( !cmd  ) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid' )
-        }
+        verifyBody(cmd)
         budgetGormService.save(
                 new Budget(cmd,
                         userService.getUser(cmd.userId),
@@ -45,6 +40,7 @@ class BudgetServiceImp implements BudgetService {
 
     @Override
     Budget update(BudgetCommand cmd, Long id){
+        verifyBody(cmd)
         Budget budget = find(id)
         budget.with {
             user = userService.getUser(cmd.userId)

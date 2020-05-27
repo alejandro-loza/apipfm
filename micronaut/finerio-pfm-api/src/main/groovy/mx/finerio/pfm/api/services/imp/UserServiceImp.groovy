@@ -11,9 +11,7 @@ import org.springframework.stereotype.Service
 import javax.inject.Inject
 
 @Service
-class UserServiceImp implements UserService {
-
-    public static final int MAX_ROWS = 100
+class UserServiceImp extends ServiceTemplate implements UserService {
 
     @Inject
     UserGormService userGormService

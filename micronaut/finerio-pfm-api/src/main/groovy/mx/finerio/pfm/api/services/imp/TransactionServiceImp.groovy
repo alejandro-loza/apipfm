@@ -1,21 +1,16 @@
 package mx.finerio.pfm.api.services.imp
 
-import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
-import mx.finerio.pfm.api.validation.AccountCommand
 import mx.finerio.pfm.api.validation.TransactionCommand
 
 import javax.inject.Inject
 
-class TransactionServiceImp implements TransactionService {
-
-    public static final int MAX_ROWS = 100
+class TransactionServiceImp extends ServiceTemplate implements TransactionService {
 
     @Inject
     TransactionGormService transactionGormService
@@ -25,10 +20,7 @@ class TransactionServiceImp implements TransactionService {
 
     @Override
     Transaction create(TransactionCommand cmd){
-        if ( !cmd  ) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid' )
-        }
+        verifyBody(cmd)
         transactionGormService.save(new Transaction(cmd, accountService.getAccount(cmd.accountId)) )
     }
 
@@ -40,6 +32,7 @@ class TransactionServiceImp implements TransactionService {
 
     @Override
     Transaction update(TransactionCommand cmd, Long id){
+        verifyBody(cmd)
         Transaction transaction = find(id)
         transaction.with {
             account = accountService.getAccount(cmd.accountId)
