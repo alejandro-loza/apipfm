@@ -31,6 +31,8 @@ dependencies {
     implementation "io.micronaut:micronaut-http-client"
     implementation 'io.micronaut.configuration:micronaut-liquibase'
     implementation 'org.liquibase:liquibase-groovy-dsl:2.0.3'
+    implementation "io.micronaut:micronaut-security-jwt"
+    implementation "org.springframework.security:spring-security-crypto:${springSecurityCryptoVersion}"
 
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
     runtime "com.h2database:h2"
