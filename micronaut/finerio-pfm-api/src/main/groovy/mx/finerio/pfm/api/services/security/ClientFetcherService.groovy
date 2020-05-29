@@ -15,7 +15,7 @@ class ClientFetcherService implements UserFetcher {
 
     protected ClientGormService clientGormService
 
-    UserFetcherService(ClientGormService userGormService) {
+    ClientFetcherService(ClientGormService userGormService) {
         this.clientGormService = userGormService
     }
 
