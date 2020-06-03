@@ -47,7 +47,7 @@ class LoginIntegrationSpec extends Specification {
         UsernamePasswordCredentials creds = new UsernamePasswordCredentials("sherlock", "password")
         final String encodedPassword = passwordEncoderService.encode(creds.password)
 
-        def client1 = clientGormService.save(creds.username, creds.password)
+        def client1 = clientGormService.save(creds.username, encodedPassword)
         def role = roleGormService.save('ADMIN')
         clientRoleGormService.save(client1, role)
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:creds.username, password:creds.password])
