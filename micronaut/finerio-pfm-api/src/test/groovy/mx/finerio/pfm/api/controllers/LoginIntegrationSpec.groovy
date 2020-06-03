@@ -6,6 +6,7 @@ import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.authentication.UsernamePasswordCredentials
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.services.gorm.ClientGormService
@@ -52,7 +53,7 @@ class LoginIntegrationSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:creds.username, password:creds.password])
 
         when:
-        def response = client.toBlocking().exchange(request, Map)
+        def response = client.toBlocking().exchange(request, AccessRefreshToken)
 
         then:
         def  e = thrown HttpClientResponseException
