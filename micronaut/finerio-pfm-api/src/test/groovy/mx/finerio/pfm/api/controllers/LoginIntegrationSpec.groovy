@@ -6,8 +6,11 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
+import io.micronaut.security.token.jwt.validator.JwtTokenValidator
 import io.micronaut.test.annotation.MicronautTest
+import io.reactivex.Flowable
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.services.RegisterService
 import spock.lang.Shared
@@ -28,6 +31,11 @@ class LoginIntegrationSpec extends Specification {
     @Inject
     RegisterService registerService
 
+    @Shared
+    @Inject
+    JwtTokenValidator tokenValidator
+
+
     def "Should do login"(){
         given:
         registerService.register( "sherlock", 'elementary', ['ROLE_DETECTIVE'])
@@ -35,13 +43,25 @@ class LoginIntegrationSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:'sherlock', password:'elementary'])
 
         when:
-        def response = client.toBlocking().exchange(request, AccessRefreshToken)
+        def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
 
         then:
-        response.status == HttpStatus.OK
-        response.body.get().accessToken
-        response.body.get().refreshToken
-        response.body().expiresIn
+        noExceptionThrown()
+        rsp.status == HttpStatus.OK
+        rsp.body.get().accessToken
+        rsp.body.get().refreshToken
+        rsp.body().expiresIn
+
+        when:
+        String accessToken = rsp.body.get().accessToken
+        Authentication authentication = Flowable.fromPublisher(tokenValidator.validateToken(accessToken)).blockingFirst()
+
+        then:
+        authentication.getAttributes()
+        authentication.getAttributes().containsKey('roles')
+        authentication.getAttributes().containsKey('iss')
+        authentication.getAttributes().containsKey('exp')
+        authentication.getAttributes().containsKey('iat')
 
     }
 
