@@ -7,6 +7,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
@@ -17,6 +18,7 @@ import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.services.RegisterService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
@@ -31,6 +33,7 @@ import javax.inject.Inject
 class TransactionControllerSpec extends Specification {
 
     public static final String TRANSACTION_ROOT = "/transactions"
+    public static final String LOGIN_ROOT = "/login"
 
     @Shared
     @Inject
@@ -49,10 +52,25 @@ class TransactionControllerSpec extends Specification {
     @Inject
     TransactionGormService transactionGormService
 
+    @Inject
+    @Shared
+    RegisterService registerService
+
+    @Shared
+    String accessToken
+
+    def setupSpec(){
+        def generatedUserName = this.getClass().getCanonicalName()
+        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
+        def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
+        accessToken = rsp.body.get().accessToken
+    }
+
     def "Should get a empty list of transactions"(){
 
         given:'a client'
-        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT)
+        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(TransactionDto))
@@ -76,7 +94,7 @@ class TransactionControllerSpec extends Specification {
             amount= 1234.56
         }
 
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         def rsp = client.toBlocking().exchange(request, TransactionDto)
@@ -113,7 +131,7 @@ class TransactionControllerSpec extends Specification {
     def "Should not create a transaction and throw bad request on wrong params"(){
         given:'an transaction request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT,  new TransactionCommand())
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT,  new TransactionCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, TransactionDto)
@@ -126,7 +144,7 @@ class TransactionControllerSpec extends Specification {
     def "Should not create a transaction and throw bad request on wrong body"(){
         given:'a transaction request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT,  'asd')
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT,  'asd').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, TransactionDto)
@@ -148,7 +166,7 @@ class TransactionControllerSpec extends Specification {
             amount = 100.00
         }
 
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorDto))
@@ -174,7 +192,7 @@ class TransactionControllerSpec extends Specification {
         transactionGormService.save(transaction)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT+"/${transaction.id}")
+        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT+"/${transaction.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, TransactionDto)
@@ -183,7 +201,7 @@ class TransactionControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         rspGET.body().with {
             assert id == transaction.id
-            assert accountId == transaction.accountId
+            assert accountId == transaction.account.id
             assert date == transaction.date
             assert charge == transaction.charge
             assert description == transaction.description
@@ -203,13 +221,13 @@ class TransactionControllerSpec extends Specification {
         entity
     }
 
-    def "Should not get a transaction and throw 404"(){//TODO test the error body
+    def "Should not get a transaction and throw 404"(){
         given:'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("${TRANSACTION_ROOT}/0000")
+        HttpRequest request = HttpRequest.GET("${TRANSACTION_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -220,7 +238,7 @@ class TransactionControllerSpec extends Specification {
     def "Should not get an account and throw 400"(){
         given:'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("${TRANSACTION_ROOT}/abc")
+        HttpRequest request = HttpRequest.GET("${TRANSACTION_ROOT}/abc").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, TransactionDto)
@@ -250,7 +268,7 @@ class TransactionControllerSpec extends Specification {
         TransactionCommand cmd = generateTransactionCommand(account1)
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  cmd)
+        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  cmd).bearerAuth(accessToken)
 
         when:
         def resp = client.toBlocking().exchange(request,  Argument.of(TransactionDto) as Argument<TransactionDto>,
@@ -283,6 +301,7 @@ class TransactionControllerSpec extends Specification {
         transactionGormService.save(transaction)
 
         HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  new TransactionCommand())
+                .bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, TransactionDto)
@@ -301,7 +320,7 @@ class TransactionControllerSpec extends Specification {
 
         and:'a client'
         HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/666",  generateTransactionCommand(account1))
-
+                .bearerAuth(accessToken)
         when:
         client.toBlocking().exchange(request, TransactionDto)
 
@@ -327,7 +346,7 @@ class TransactionControllerSpec extends Specification {
         transactionGormService.save(transaction4)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT)
+        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -358,6 +377,7 @@ class TransactionControllerSpec extends Specification {
 
         and:
         HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?cursor=${transaction3.id}")
+                .bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -377,7 +397,7 @@ class TransactionControllerSpec extends Specification {
         def notFoundId = 666
 
         and:'a client'
-        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${notFoundId}")
+        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
@@ -396,7 +416,7 @@ class TransactionControllerSpec extends Specification {
         transactionGormService.save(transaction1)
 
         and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${transaction1.id}")
+        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${transaction1.id}").bearerAuth(accessToken)
 
         when:
         def response = client.toBlocking().exchange(request, TransactionDto)
@@ -405,7 +425,7 @@ class TransactionControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
 
         and:
-        HttpRequest.GET("${TRANSACTION_ROOT}/${transaction1.id}")
+        HttpRequest.GET("${TRANSACTION_ROOT}/${transaction1.id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,

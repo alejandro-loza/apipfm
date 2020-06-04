@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
+import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.FinancialEntity
@@ -25,6 +26,7 @@ import static io.reactivex.Single.just
 
 @Controller("/financialEntities")
 @Validated
+@Secured('isAuthenticated()')
 class FinancialEntityController {
 
     @Inject

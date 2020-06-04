@@ -7,13 +7,17 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.authentication.Authentication
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
+import io.micronaut.security.token.jwt.validator.JwtTokenValidator
 import io.micronaut.test.annotation.MicronautTest
+import io.reactivex.Flowable
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-
+import mx.finerio.pfm.api.services.RegisterService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCreateCommand
 import spock.lang.Shared
@@ -25,6 +29,8 @@ import javax.inject.Inject
 @MicronautTest(application = Application.class)
 class UserControllerSpec extends Specification {
 
+    public static final String LOGIN_ROOT = "/login"
+
     @Shared
     @Inject
     @Client("/")
@@ -33,10 +39,25 @@ class UserControllerSpec extends Specification {
     @Inject
     UserGormService userService
 
+    @Inject
+    @Shared
+    RegisterService registerService
+
+    @Shared
+    String accessToken
+
+    def setupSpec(){
+        def generatedUserName = this.getClass().getCanonicalName()
+        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
+        def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
+        accessToken = rsp.body.get().accessToken
+    }
+
     def "Should get a empty list of users"(){
 
         given:'a client'
-        HttpRequest getReq = HttpRequest.GET("/users")
+        HttpRequest getReq = HttpRequest.GET("/users").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(UserDto))
@@ -54,7 +75,7 @@ class UserControllerSpec extends Specification {
             name = 'username'
         }
 
-        HttpRequest request = HttpRequest.POST('/users', cmd)
+        HttpRequest request = HttpRequest.POST('/users', cmd).bearerAuth(accessToken)
 
         when:
         def rsp = client.toBlocking().exchange(request, UserDto)
@@ -70,7 +91,7 @@ class UserControllerSpec extends Specification {
         userService.save(user)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users/${user.id}")
+        HttpRequest getReq = HttpRequest.GET("/users/${user.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, UserDto)
@@ -86,7 +107,7 @@ class UserControllerSpec extends Specification {
     def "Should not create an user an return 400"(){
         given:'an user'
 
-        HttpRequest request = HttpRequest.POST('/users',  new UserCreateCommand())
+        HttpRequest request = HttpRequest.POST('/users',  new UserCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
@@ -100,7 +121,7 @@ class UserControllerSpec extends Specification {
     def "Should not create an user with wrong body an return 400"(){
         given:'an user'
 
-        HttpRequest request = HttpRequest.POST('/users',  'qwe')
+        HttpRequest request = HttpRequest.POST('/users',  'qwe').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
@@ -117,7 +138,7 @@ class UserControllerSpec extends Specification {
         def notFoundId = 666
 
         and:'a client'
-        HttpRequest request = HttpRequest.GET("/users/${notFoundId}")
+        HttpRequest request = HttpRequest.GET("/users/${notFoundId}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
@@ -140,7 +161,7 @@ class UserControllerSpec extends Specification {
         }
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  cmd)
+        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  cmd).bearerAuth(accessToken)
 
         when:
         def resp = client.toBlocking().exchange(request, UserDto)
@@ -157,7 +178,7 @@ class UserControllerSpec extends Specification {
         userService.save(user)
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCreateCommand())
+        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,UserDto)
@@ -178,7 +199,7 @@ class UserControllerSpec extends Specification {
         def notFoundId = 666
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/users/${notFoundId}",  cmd)
+        HttpRequest request = HttpRequest.PUT("/users/${notFoundId}",  cmd).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
@@ -199,7 +220,7 @@ class UserControllerSpec extends Specification {
          User user2 = new User('awesome')
          userService.save(user2)
         and:
-        HttpRequest getReq = HttpRequest.GET("/users")
+        HttpRequest getReq = HttpRequest.GET("/users").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -226,7 +247,7 @@ class UserControllerSpec extends Specification {
         userService.save(user3)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users?cursor=${user2.id}")
+        HttpRequest getReq = HttpRequest.GET("/users?cursor=${user2.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -244,7 +265,7 @@ class UserControllerSpec extends Specification {
 
     def "Should throw not found exception on delete no found user"(){
         given:
-        HttpRequest request = HttpRequest.DELETE("/users/666")
+        HttpRequest request = HttpRequest.DELETE("/users/666").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
@@ -262,7 +283,7 @@ class UserControllerSpec extends Specification {
         Long id = user.id
 
         and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("/users/${id}")
+        HttpRequest request = HttpRequest.DELETE("/users/${id}").bearerAuth(accessToken)
 
         when:
         def response = client.toBlocking().exchange(request, UserDto)
@@ -272,7 +293,7 @@ class UserControllerSpec extends Specification {
         assert userService.findById(user.id).dateDeleted
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/users/${id}")
+        HttpRequest.GET("/users/${id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
