@@ -6,15 +6,10 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.services.RegisterService
-import mx.finerio.pfm.api.services.gorm.ClientGormService
-import mx.finerio.pfm.api.services.gorm.ClientRoleGormService
-import mx.finerio.pfm.api.services.gorm.RoleGormService
-import mx.finerio.pfm.api.services.security.BCryptPasswordEncoderService
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -48,5 +43,31 @@ class LoginIntegrationSpec extends Specification {
         response.body.get().refreshToken
         response.body().expiresIn
 
+    }
+
+    def "Should not do login"(){
+        given:
+        registerService.register( "admin", 'elementary', ['ROLE_DETECTIVE'])
+
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:'admin', password:'wrongpass'])
+
+        when:
+        client.toBlocking().exchange(request, AccessRefreshToken)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
+    }
+
+    def "Should not do login on not found client"(){
+        given:
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:'hacker', password:'hacker666'])
+
+        when:
+        client.toBlocking().exchange(request, AccessRefreshToken)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
     }
 }
