@@ -15,7 +15,7 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: YourSecretKeyGoesHere
+              secret: secret01234567890ABCDEFGHIJKLMNO
 hibernate:
   hbm2ddl:
     auto: update
