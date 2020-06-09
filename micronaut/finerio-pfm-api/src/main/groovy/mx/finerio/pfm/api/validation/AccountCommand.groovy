@@ -7,9 +7,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
-@Introspected
-@CompileStatic
-class AccountCommand {
+class AccountCommand extends ValidationCommand{
 
     @NotNull(message= 'account.userID.null')
     Long userId

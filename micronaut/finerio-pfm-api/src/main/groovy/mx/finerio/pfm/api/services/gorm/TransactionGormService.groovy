@@ -6,7 +6,7 @@ import mx.finerio.pfm.api.domain.Transaction
 
 @Service(Transaction)
 interface TransactionGormService {
-    Transaction save(Transaction account)
+    Transaction save(Transaction transaction)
     Transaction getById(Long id)
     List<Transaction> findAllByDateDeletedIsNull(Map args)
     List<Transaction> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)

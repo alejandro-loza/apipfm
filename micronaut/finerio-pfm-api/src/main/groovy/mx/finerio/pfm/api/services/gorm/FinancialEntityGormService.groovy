@@ -6,7 +6,7 @@ import mx.finerio.pfm.api.domain.FinancialEntity
 
 @Service(FinancialEntity)
 interface FinancialEntityGormService {
-    FinancialEntity save(FinancialEntity account)
+    FinancialEntity save(FinancialEntity financialEntity)
     @Query("from ${FinancialEntity u} where $u.id = $id and u.dateDeleted is Null")
     FinancialEntity findByIdAndDateDeletedIsNull(Long id)
     FinancialEntity getById(Long id)

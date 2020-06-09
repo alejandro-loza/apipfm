@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: liquibase
+
+  - changeSet:
+      id: 1
+      author: pinky
+      changes:
+        - createTable:
+            tableName: budget
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: parent_budget_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: string
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount
+                  type: float
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: date
+              - column:
+                  name: last_updated
+                  type: date
+              - column:
+                  name: date_deleted
+                  type: date

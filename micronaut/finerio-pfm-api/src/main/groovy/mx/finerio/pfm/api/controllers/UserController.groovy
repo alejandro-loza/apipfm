@@ -11,7 +11,7 @@ import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.UserService
-import mx.finerio.pfm.api.validation.UserCreateCommand
+import mx.finerio.pfm.api.validation.UserCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -31,7 +31,7 @@ class UserController {
     MessageSource messageSource
 
     @Post("/")
-    Single<UserDto> save(@Body @Valid UserCreateCommand cmd){
+    Single<UserDto> save(@Body @Valid UserCommand cmd){
         just(new UserDto(userService.create(cmd)))
     }
 
@@ -47,7 +47,7 @@ class UserController {
     }
 
     @Put("/{id}")
-    Single<UserDto> edit(@Body @Valid UserCreateCommand cmd, @NotNull Long id ) {
+    Single<UserDto> edit(@Body @Valid UserCommand cmd, @NotNull Long id ) {
         just(new UserDto(userService.update(cmd,id)))
     }
 
@@ -57,9 +57,5 @@ class UserController {
         HttpResponse.noContent()
     }
 
-    @Error(exception = NotFoundException)
-    HttpResponse notFound(NotFoundException ex) {
-        HttpResponse.notFound().body(ex.message)
-    }
 
 }

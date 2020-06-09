@@ -1,15 +1,10 @@
 package mx.finerio.pfm.api.validation
 
-import groovy.transform.CompileStatic
-import io.micronaut.core.annotation.Introspected
-
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Positive
 
-@Introspected
-@CompileStatic
-class TransactionCommand {
+class TransactionCommand extends ValidationCommand{
 
     @NotNull(message= 'transaction.account.null')
     Long accountId
