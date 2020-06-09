@@ -3,3 +3,9 @@ databaseChangeLog:
       file: migrations/user.yaml
   - include:
       file: migrations/account.yaml
+  - include:
+      file: migrations/financialEntity.yaml
+  - include:
+      file: migrations/transaction.yaml
+  - include:
+      file: migrations/category.yaml

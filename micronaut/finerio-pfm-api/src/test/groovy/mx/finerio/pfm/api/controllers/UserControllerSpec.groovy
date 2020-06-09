@@ -19,7 +19,7 @@ import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.RegisterService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.UserCreateCommand
+import mx.finerio.pfm.api.validation.UserCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -70,7 +70,7 @@ class UserControllerSpec extends Specification {
 
     def "Should create and get user"(){
         given:'an user'
-        UserCreateCommand cmd = new UserCreateCommand()
+        UserCommand cmd = new UserCommand()
         cmd.with {
             name = 'username'
         }
@@ -106,8 +106,7 @@ class UserControllerSpec extends Specification {
 
     def "Should not create an user an return 400"(){
         given:'an user'
-
-        HttpRequest request = HttpRequest.POST('/users',  new UserCreateCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST('/users',  new UserCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
@@ -155,7 +154,7 @@ class UserControllerSpec extends Specification {
         userService.save(user)
 
         and:'an user command to update data'
-        UserCreateCommand cmd = new UserCreateCommand()
+        UserCommand cmd = new UserCommand()
         cmd.with {
             name = 'awesome name'
         }
@@ -178,7 +177,7 @@ class UserControllerSpec extends Specification {
         userService.save(user)
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCreateCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,UserDto)
@@ -191,7 +190,7 @@ class UserControllerSpec extends Specification {
 
     def "Should not update an user and throw not found exception"(){
         given:'an user commando to update data'
-        UserCreateCommand cmd = new UserCreateCommand()
+        UserCommand cmd = new UserCommand()
         cmd.with {
             name = 'awesome name'
         }

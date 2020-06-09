@@ -309,6 +309,7 @@ class TransactionControllerSpec extends Specification {
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
+        def body = e.response.getBody(ErrorDto)
 
     }
 

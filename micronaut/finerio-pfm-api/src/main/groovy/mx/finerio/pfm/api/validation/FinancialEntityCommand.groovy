@@ -1,14 +1,9 @@
 package mx.finerio.pfm.api.validation
 
-import groovy.transform.CompileStatic
-import io.micronaut.core.annotation.Introspected
-
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
-@Introspected
-@CompileStatic
-class FinancialEntityCommand {
+class FinancialEntityCommand extends ValidationCommand {
 
     @NotNull(message= 'financialEntity.name.null')
     @NotBlank(message= 'financialEntity.name.blank')
