@@ -3,6 +3,7 @@ package mx.finerio.pfm.api.controllers
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.CategoryDto
@@ -19,6 +20,7 @@ import javax.validation.constraints.NotNull
 
 @Controller("/categories")
 @Validated
+@Secured('isAuthenticated()')
 class CategoryController {
 
     @Inject

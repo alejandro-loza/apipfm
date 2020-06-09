@@ -2,6 +2,20 @@ micronaut:
   application:
     name: finerio-pfm-api
     max: 50
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: true
+      oauth:
+        enabled: true
+    token:
+      jwt:
+        enabled: true
+        signatures:
+          secret:
+            generator:
+              secret: secret01234567890ABCDEFGHIJKLMNO
 hibernate:
   hbm2ddl:
     auto: update

@@ -7,6 +7,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Budget
@@ -17,6 +18,7 @@ import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.services.RegisterService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -34,6 +36,7 @@ import java.util.List
 class BudgetControllerSpec extends Specification {
 
     public static final String BUDGETS_ROOT = "/budgets"
+    public static final String LOGIN_ROOT = "/login"
 
     @Shared
     @Inject
@@ -49,10 +52,26 @@ class BudgetControllerSpec extends Specification {
     @Inject
     BudgetGormService budgetGormService
 
+    @Inject
+    @Shared
+    RegisterService registerService
+
+    @Shared
+    String accessToken
+
+    def setupSpec(){
+        def generatedUserName = this.getClass().getCanonicalName()
+        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
+                .bearerAuth(accessToken)
+        def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
+        accessToken = rsp.body.get().accessToken
+    }
+
     def "Should get a empty list of budgets"() {
 
         given: 'a client'
-        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT)
+        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(BudgetDto))
@@ -70,7 +89,7 @@ class BudgetControllerSpec extends Specification {
         and: 'a command request body'
         BudgetCommand cmd = generateBudgetCommand(user1, category1)
 
-        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         def rsp = client.toBlocking().exchange(request, BudgetDto)
@@ -89,7 +108,7 @@ class BudgetControllerSpec extends Specification {
     def "Should not create a budget and throw bad request on wrong params"() {
         given: 'a budget request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, new CategoryCommand())
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, new CategoryCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
@@ -102,7 +121,7 @@ class BudgetControllerSpec extends Specification {
     def "Should not create a transaction and throw bad request on wrong body"() {
         given: 'a transaction request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, 'asd')
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, 'asd').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
@@ -121,7 +140,7 @@ class BudgetControllerSpec extends Specification {
         category.id = 666
         BudgetCommand cmd = generateBudgetCommand(user, category)
 
-        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>, Argument.of(ErrorDto))
@@ -143,7 +162,7 @@ class BudgetControllerSpec extends Specification {
         budgetGormService.save(budget)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT + "/${budget.id}")
+        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT + "/${budget.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, CategoryDto)
@@ -160,7 +179,7 @@ class BudgetControllerSpec extends Specification {
     def "Should not get a transaction and throw 404"() {//TODO test the error body
         given: 'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("${BUDGETS_ROOT}/0000")
+        HttpRequest request = HttpRequest.GET("${BUDGETS_ROOT}/0000").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
@@ -174,7 +193,7 @@ class BudgetControllerSpec extends Specification {
     def "Should not get an account and throw 400"() {
         given: 'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("${BUDGETS_ROOT}/abc")
+        HttpRequest request = HttpRequest.GET("${BUDGETS_ROOT}/abc").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, TransactionDto)
@@ -207,7 +226,7 @@ class BudgetControllerSpec extends Specification {
         }
 
         and: 'a client'
-        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", cmd)
+        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", cmd).bearerAuth(accessToken)
 
         when:
         def resp = client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
@@ -231,7 +250,7 @@ class BudgetControllerSpec extends Specification {
         Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
         budgetGormService.save(budget)
 
-        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", [])
+        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", []).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,  Argument.of(BudgetDto) as Argument<BudgetDto>,
@@ -252,6 +271,7 @@ class BudgetControllerSpec extends Specification {
         def category = generateCategory(user)
         HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${notFoundId}",
                 generateBudgetCommand(user, category))
+                .bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, BudgetDto)
@@ -276,7 +296,7 @@ class BudgetControllerSpec extends Specification {
         }
 
         and:
-        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT)
+        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -308,7 +328,7 @@ class BudgetControllerSpec extends Specification {
         budgetGormService.save(budget4)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budget3.id}")
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budget3.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -329,7 +349,7 @@ class BudgetControllerSpec extends Specification {
         def notFoundId = 666
 
         and: 'a client'
-        HttpRequest request = HttpRequest.DELETE("${BUDGETS_ROOT}/${notFoundId}")
+        HttpRequest request = HttpRequest.DELETE("${BUDGETS_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,
@@ -351,7 +371,7 @@ class BudgetControllerSpec extends Specification {
         Budget budget = generateSavedBudget(user1,category)
 
         and: 'a client request'
-        HttpRequest request = HttpRequest.DELETE("${BUDGETS_ROOT}/${budget.id}")
+        HttpRequest request = HttpRequest.DELETE("${BUDGETS_ROOT}/${budget.id}").bearerAuth(accessToken)
 
         when:
         def response = client.toBlocking().exchange(request, BudgetDto)
@@ -360,7 +380,7 @@ class BudgetControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
 
         and:
-        HttpRequest.GET("${BUDGETS_ROOT}/${budget.id}")
+        HttpRequest.GET("${BUDGETS_ROOT}/${budget.id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
@@ -394,7 +414,7 @@ class BudgetControllerSpec extends Specification {
         category1
     }
 
-    private BudgetCommand generateBudgetCommand(User user, Category category) {
+    private static BudgetCommand generateBudgetCommand(User user, Category category) {
         BudgetCommand cmd = new BudgetCommand()
         cmd.with {
             userId = user.id

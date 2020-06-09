@@ -7,7 +7,10 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.services.RegisterService
+
 import java.awt.Color
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Category
@@ -29,6 +32,7 @@ import javax.inject.Inject
 class CategoryControllerSpec extends Specification {
 
     public static final String CATEGORIES_ROOT = "/categories"
+    public static final String LOGIN_ROOT = "/login"
 
     @Shared
     @Inject
@@ -41,10 +45,25 @@ class CategoryControllerSpec extends Specification {
     @Inject
     CategoryGormService categoryGormService
 
+    @Inject
+    @Shared
+    RegisterService registerService
+
+    @Shared
+    String accessToken
+
+    def setupSpec(){
+        def generatedUserName = this.getClass().getCanonicalName()
+        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
+        def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
+        accessToken = rsp.body.get().accessToken
+    }
+
     def "Should get a empty list of categories"() {
 
         given: 'a client'
-        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT)
+        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(CategoryDto))
@@ -61,7 +80,7 @@ class CategoryControllerSpec extends Specification {
         and: 'a command request body'
         CategoryCommand cmd = generateCategoryCommand(user1)
 
-        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         def rsp = client.toBlocking().exchange(request, CategoryDto)
@@ -80,7 +99,7 @@ class CategoryControllerSpec extends Specification {
     def "Should not create a category and throw bad request on wrong params"() {
         given: 'a category request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, new CategoryCommand())
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, new CategoryCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
@@ -93,7 +112,7 @@ class CategoryControllerSpec extends Specification {
     def "Should not create a transaction and throw bad request on wrong body"() {
         given: 'a transaction request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, 'asd')
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, 'asd').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
@@ -110,7 +129,7 @@ class CategoryControllerSpec extends Specification {
         user.id = 666
         CategoryCommand cmd = generateCategoryCommand(user)
 
-        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorDto))
@@ -129,7 +148,7 @@ class CategoryControllerSpec extends Specification {
         categoryGormService.save(category)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT + "/${category.id}")
+        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT + "/${category.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, CategoryDto)
@@ -143,10 +162,10 @@ class CategoryControllerSpec extends Specification {
 
     }
 
-    def "Should not get a transaction and throw 404"() {//TODO test the error body
+    def "Should not get a transaction and throw 404"() {
         given: 'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("${CATEGORIES_ROOT}/0000")
+        HttpRequest request = HttpRequest.GET("${CATEGORIES_ROOT}/0000").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
@@ -160,7 +179,7 @@ class CategoryControllerSpec extends Specification {
     def "Should not get an account and throw 400"() {
         given: 'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("${CATEGORIES_ROOT}/abc")
+        HttpRequest request = HttpRequest.GET("${CATEGORIES_ROOT}/abc").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, TransactionDto)
@@ -189,7 +208,7 @@ class CategoryControllerSpec extends Specification {
         def cmd = generateCategoryCommand(user1)
 
         and: 'a client'
-        HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${category.id}", cmd)
+        HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${category.id}", cmd).bearerAuth(accessToken)
 
         when:
         def resp = client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
@@ -217,7 +236,7 @@ class CategoryControllerSpec extends Specification {
         categoryGormService.save(category)
 
 
-        HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${category.id}", [])
+        HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${category.id}", []).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,  Argument.of(CategoryDto) as Argument<CategoryDto>,
@@ -235,7 +254,7 @@ class CategoryControllerSpec extends Specification {
 
         and: 'a client'
         HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${notFoundId}",
-                generateCategoryCommand(generateUser()))
+                generateCategoryCommand(generateUser())).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
@@ -268,7 +287,7 @@ class CategoryControllerSpec extends Specification {
         categoryGormService.save(category5)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT)
+        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -304,7 +323,7 @@ class CategoryControllerSpec extends Specification {
         categoryGormService.save(category5)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("$CATEGORIES_ROOT?cursor=${category4.id}")
+        HttpRequest getReq = HttpRequest.GET("$CATEGORIES_ROOT?cursor=${category4.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -325,7 +344,7 @@ class CategoryControllerSpec extends Specification {
         def notFoundId = 666
 
         and: 'a client'
-        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${notFoundId}")
+        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(NotFoundException))
@@ -344,7 +363,7 @@ class CategoryControllerSpec extends Specification {
         categoryGormService.save(category1)
 
         and: 'a client request'
-        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${category1.id}")
+        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${category1.id}").bearerAuth(accessToken)
 
         when:
         def response = client.toBlocking().exchange(request, CategoryDto)
@@ -353,7 +372,7 @@ class CategoryControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
 
         and:
-        HttpRequest.GET("${CATEGORIES_ROOT}/${category1.id}")
+        HttpRequest.GET("${CATEGORIES_ROOT}/${category1.id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,

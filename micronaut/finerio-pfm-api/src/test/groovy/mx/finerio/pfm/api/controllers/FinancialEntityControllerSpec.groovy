@@ -7,6 +7,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.FinancialEntity
@@ -15,6 +16,7 @@ import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
 
 import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.services.RegisterService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
 import spock.lang.Shared
@@ -27,6 +29,7 @@ import javax.inject.Inject
 class FinancialEntityControllerSpec extends Specification {
 
     public static final String FINANCIAL_ROOT = "/financialEntities"
+    public static final String LOGIN_ROOT = "/login"
 
     @Shared
     @Inject
@@ -36,11 +39,27 @@ class FinancialEntityControllerSpec extends Specification {
     @Inject
     FinancialEntityGormService financialGormService
 
+    @Inject
+    @Shared
+    RegisterService registerService
+
+    @Shared
+    String accessToken
+
+    def setupSpec(){
+        def generatedUserName = this.getClass().getCanonicalName()
+        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
+        def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
+        accessToken = rsp.body.get().accessToken
+    }
+
+
 
     def "Should get a empty list of financial entities"(){
 
         given:'a client'
-        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT)
+        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(FinancialEntityDto))
@@ -54,7 +73,7 @@ class FinancialEntityControllerSpec extends Specification {
         given:'an financial entity request body'
         FinancialEntityCommand cmd = getWakandaTestBankCommand()
 
-        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         def rsp = client.toBlocking().exchange(request, FinancialEntityDto)
@@ -78,7 +97,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should not create a financial entity an throw bad request"() {
         given:'an financial entity empty request body'
-        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, new FinancialEntityCommand())
+        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, new FinancialEntityCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
@@ -89,7 +108,6 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
-
         then:
         jsonError.isPresent()
         jsonError.get().errors.size() ==  4
@@ -101,7 +119,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should not create a financial entity an throw bad request on malformed bodyt"() {
         given:'an financial entity empty request body'
-        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, '!"·!"')
+        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, '!"·!"').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
@@ -128,7 +146,7 @@ class FinancialEntityControllerSpec extends Specification {
         financialGormService.save(financialEntity)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${financialEntity.id}")
+        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${financialEntity.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, FinancialEntityDto)
@@ -154,7 +172,7 @@ class FinancialEntityControllerSpec extends Specification {
         financialGormService.save(financialEntity)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${financialEntity.id}")
+        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${financialEntity.id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
@@ -171,7 +189,7 @@ class FinancialEntityControllerSpec extends Specification {
     def "Should not get an not found financial entity and throw 404"(){
         given:'a wrong id'
         Long id = 666
-        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${id}")
+        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
@@ -186,7 +204,7 @@ class FinancialEntityControllerSpec extends Specification {
     def "Should not get an financial entity and throw bad request"(){
         given:'a wrong path with string as id'
 
-        HttpRequest request = HttpRequest.GET("${FINANCIAL_ROOT}/abc")
+        HttpRequest request = HttpRequest.GET("${FINANCIAL_ROOT}/abc").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request)
@@ -209,7 +227,7 @@ class FinancialEntityControllerSpec extends Specification {
         }
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${financialEntity.id}",  cmd)
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${financialEntity.id}",  cmd).bearerAuth(accessToken)
 
         when:
         def resp = client.toBlocking().exchange(request, FinancialEntityDto)
@@ -229,6 +247,7 @@ class FinancialEntityControllerSpec extends Specification {
         Long id = 666
 
         HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${id}",  new FinancialEntityCommand())
+                .bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,FinancialEntityDto)
@@ -243,7 +262,7 @@ class FinancialEntityControllerSpec extends Specification {
         given:'A not found entity id'
         Long id = 666
 
-        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${id}",  '!"·!"')
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${id}",  '!"·!"').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,FinancialEntityDto)
@@ -265,10 +284,12 @@ class FinancialEntityControllerSpec extends Specification {
         def notFoundId = 666
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${notFoundId}",  cmd)
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${notFoundId}",  cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(
+                request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(NotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -287,7 +308,7 @@ class FinancialEntityControllerSpec extends Specification {
         financialGormService.save(financialEntity2)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT)
+        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -323,6 +344,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         and:
         HttpRequest getReq = HttpRequest.GET("${FINANCIAL_ROOT}?cursor=${financialEntity4.id}")
+                .bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -341,7 +363,7 @@ class FinancialEntityControllerSpec extends Specification {
         def notFoundId = 666
 
         and:'a client'
-        HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${notFoundId}")
+        HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>, Argument.of(NotFoundException))
@@ -358,7 +380,7 @@ class FinancialEntityControllerSpec extends Specification {
         financialGormService.save(financialEntity1)
 
         and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${financialEntity1.id}")
+        HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${financialEntity1.id}").bearerAuth(accessToken)
 
         when:
         def response = client.toBlocking().exchange(request, FinancialEntityDto)

@@ -7,6 +7,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
@@ -16,7 +17,7 @@ import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-
+import mx.finerio.pfm.api.services.RegisterService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -31,6 +32,7 @@ import javax.inject.Inject
 class AccountControllerSpec extends Specification {
 
     public static final String ACCOUNT_ROOT = "/accounts"
+    public static final String LOGIN_ROOT = "/login"
 
     @Shared
     @Inject
@@ -46,10 +48,25 @@ class AccountControllerSpec extends Specification {
     @Inject
     FinancialEntityGormService financialEntityService
 
+    @Inject
+    @Shared
+    RegisterService registerService
+
+    @Shared
+    String accessToken
+
+    def setupSpec(){
+        def generatedUserName = this.getClass().getCanonicalName()
+        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
+        def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
+        accessToken = rsp.body.get().accessToken
+    }
+
     def "Should get a empty list of accounts"(){
 
         given:'a client'
-        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT)
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(AccountDto))
@@ -81,7 +98,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
         }
 
-        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         def rsp = client.toBlocking().exchange(request, AccountDto)
@@ -109,7 +126,7 @@ class AccountControllerSpec extends Specification {
     def "Should not create an account and throw bad request on wrong params"(){
         given:'an account request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  new AccountCommand())
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  new AccountCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
@@ -122,7 +139,7 @@ class AccountControllerSpec extends Specification {
     def "Should not create an account and throw bad request on wrong body"(){
         given:'an account request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  'asd')
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  'asd').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
@@ -145,7 +162,7 @@ class AccountControllerSpec extends Specification {
             balance = 0.1
         }
 
-        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
@@ -170,7 +187,7 @@ class AccountControllerSpec extends Specification {
             balance = 0.1
         }
 
-        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd)
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
@@ -204,7 +221,7 @@ class AccountControllerSpec extends Specification {
         accountService.save(account)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT+"/${account.id}")
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT+"/${account.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, AccountDto)
@@ -238,7 +255,7 @@ class AccountControllerSpec extends Specification {
     def "Should not get an account and throw 404"(){
         given:'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("/accounts/0000")
+        HttpRequest request = HttpRequest.GET("/accounts/0000").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
@@ -252,7 +269,7 @@ class AccountControllerSpec extends Specification {
     def "Should not get an account and throw 400"(){
         given:'a not found id request'
 
-        HttpRequest request = HttpRequest.GET("/accounts/abc")
+        HttpRequest request = HttpRequest.GET("/accounts/abc").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
@@ -300,7 +317,7 @@ class AccountControllerSpec extends Specification {
         }
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/accounts/${account.id}",  cmd)
+        HttpRequest request = HttpRequest.PUT("/accounts/${account.id}",  cmd).bearerAuth(accessToken)
 
         when:
         def resp = client.toBlocking().exchange(request, AccountDto)
@@ -318,7 +335,7 @@ class AccountControllerSpec extends Specification {
     def "Should not update an account on band parameters and return Bad Request"(){
         given:'a saved user'
 
-        HttpRequest request = HttpRequest.PUT("/accounts/666",  new AccountCommand())
+        HttpRequest request = HttpRequest.PUT("/accounts/666",  new AccountCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,AccountDto)
@@ -344,7 +361,7 @@ class AccountControllerSpec extends Specification {
         def notFoundId = 666
 
         and:'a client'
-        HttpRequest request = HttpRequest.PUT("/accounts/${notFoundId}",  cmd)
+        HttpRequest request = HttpRequest.PUT("/accounts/${notFoundId}",  cmd).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
@@ -394,7 +411,7 @@ class AccountControllerSpec extends Specification {
         accountService.save(account2)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT)
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT).bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -455,7 +472,7 @@ class AccountControllerSpec extends Specification {
         accountService.save(account3)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("/accounts?cursor=${account2.id}")
+        HttpRequest getReq = HttpRequest.GET("/accounts?cursor=${account2.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -470,7 +487,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should throw not found exception on delete no found user"(){
         given:
-        HttpRequest request = HttpRequest.DELETE("/accounts/666")
+        HttpRequest request = HttpRequest.DELETE("/accounts/666").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
@@ -507,7 +524,7 @@ class AccountControllerSpec extends Specification {
         accountService.save(account)
 
         and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("/accounts/${account.id}")
+        HttpRequest request = HttpRequest.DELETE("/accounts/${account.id}").bearerAuth(accessToken)
 
         when:
         def response = client.toBlocking().exchange(request, UserDto)
@@ -516,7 +533,7 @@ class AccountControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
 
         and:
-        HttpRequest.GET("/accounts/${account.id}")
+        HttpRequest.GET("/accounts/${account.id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))

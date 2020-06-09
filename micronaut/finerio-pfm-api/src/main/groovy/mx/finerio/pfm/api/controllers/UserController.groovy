@@ -1,9 +1,9 @@
 package mx.finerio.pfm.api.controllers
 
-
 import io.micronaut.context.MessageSource
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 
@@ -22,6 +22,7 @@ import static io.reactivex.Single.just
 
 @Controller("/users")
 @Validated
+@Secured('isAuthenticated()')
 class UserController {
 
     @Inject

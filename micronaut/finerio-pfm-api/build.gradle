@@ -11,11 +11,12 @@ group "mx.finerio.pfm.api"
 repositories {
     mavenCentral()
     maven { url "https://jcenter.bintray.com" }
+    jcenter()
+    maven { url "https://oss.jfrog.org/oss-snapshot-local" }
 }
 
 configurations {
-    // for dependencies that are needed for development only
-    developmentOnly 
+    developmentOnly
 }
 
 dependencies {
@@ -31,6 +32,11 @@ dependencies {
     implementation "io.micronaut:micronaut-http-client"
     implementation 'io.micronaut.configuration:micronaut-liquibase'
     implementation 'org.liquibase:liquibase-groovy-dsl:2.0.3'
+
+    annotationProcessor "io.micronaut:micronaut-security-annotations:2.0.0.BUILD-SNAPSHOT"
+    implementation "io.micronaut:micronaut-security-jwt"
+
+    implementation "org.springframework.security:spring-security-crypto:${springSecurityCryptoVersion}"
 
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
     runtime "com.h2database:h2"
@@ -60,7 +66,7 @@ shadowJar {
 
 tasks.withType(JavaExec) {
     classpath += configurations.developmentOnly
-    jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+    jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Dmicronaut.config.files=file:application.yml')
 }
 
 tasks.withType(GroovyCompile) {
