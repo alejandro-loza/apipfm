@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: financial_entity
+      author: alejandro.hernandez
+      changes:
+        - createTable:
+            tableName: financial_entity
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: java.sql.Types.VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: java.sql.Types.VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: DATE
+              - column:
+                  name: last_updated
+                  type: DATE
+              - column:
+                  name: date_deleted
+                  type: DATE

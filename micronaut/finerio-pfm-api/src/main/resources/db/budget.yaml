@@ -1,53 +1,49 @@
 databaseChangeLog:
-  - preConditions:
-      - runningAs:
-          username: liquibase
-
   - changeSet:
-      id: 1
-      author: pinky
+      id: budget
+      author: alejandro.hernandez
       changes:
         - createTable:
-            tableName: transaction
+            tableName: budget
             columns:
               - column:
                   name: id
-                  type: int
+                  type: BIGINT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: account_id
-                  type: int
+                  name: user_id
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
-                  name: date
-                  type: date
+                  name: category_id
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
-                  name: charge
-                  type: boolean
+                  name: parent_budget_id
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
-                  name: description
-                  type: string
+                  name: name
+                  type: java.sql.Types.VARCHAR(100)
                   constraints:
                     nullable: false
               - column:
                   name: amount
-                  type: float
+                  type: DECIMAL(18,12)
                   constraints:
                     nullable: false
               - column:
                   name: date_created
-                  type: date
+                  type: DATE
               - column:
                   name: last_updated
                   type: date
               - column:
                   name: date_deleted
-                  type: date
+                  type: DATE
