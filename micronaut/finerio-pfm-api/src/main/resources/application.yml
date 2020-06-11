@@ -24,12 +24,15 @@ hibernate:
       use_second_level_cache: false
       use_query_cache: false
       region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
-datasources:
-  default:
-    url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
-    username: ${JDBC_USER:sa}
-    password: ${JDBC_PASSWORD:""}
-    driverClassName: ${JDBC_DRIVER:org.h2.Driver}
+dataSource:
+  username: root
+  password: dinerio73
+  url: jdbc:mysql://127.0.0.1:3306/pfm_develop?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+  dbCreate: create-update
+  pooled: true
+  jmxExport: true
+  driverClassName: com.mysql.jdbc.Driver
+  dialect: org.hibernate.dialect.MySQL5InnoDBDialect
 jpa:
   default:
     packages-to-scan:

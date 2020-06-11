@@ -2,8 +2,7 @@ package mx.finerio.pfm.api
 
 import groovy.transform.CompileStatic
 import io.micronaut.runtime.Micronaut
-import mx.finerio.pfm.api.services.ClientService
-import mx.finerio.pfm.api.validation.ClientCommand
+import mx.finerio.pfm.api.services.RegisterService
 
 import javax.inject.Singleton
 import io.micronaut.context.event.ApplicationEventListener
@@ -13,21 +12,15 @@ import io.micronaut.runtime.server.event.ServerStartupEvent
 @Singleton
 class Application implements ApplicationEventListener<ServerStartupEvent> {
 
-    protected final ClientService registerService
+    protected final RegisterService registerService
 
-    Application(ClientService registerService) {
+    Application(RegisterService registerService) {
         this.registerService = registerService
     }
 
     @Override
     void onApplicationEvent(ServerStartupEvent event) {
-        ClientCommand cmd = new ClientCommand()
-        cmd.with {
-            username = 'sherlock'
-            rawPassword = 'elementary'
-            authorities = ['ROLE_DETECTIVE']
-        }
-        registerService.register(cmd)
+        registerService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
     }
 
     static void main(String[] args) {
