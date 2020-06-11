@@ -39,7 +39,7 @@ dependencies {
     implementation "org.springframework.security:spring-security-crypto:${springSecurityCryptoVersion}"
 
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-  //  runtime "com.h2database:h2"
+    runtime "com.h2database:h2"
     runtime "org.apache.tomcat:tomcat-jdbc:8.5.0"
 
     runtime 'mysql:mysql-connector-java:5.1.39'
