@@ -13,6 +13,8 @@ tags:
   - name: Transactions
   - name: Categories
   - name: Budgets
+  - name: Insights
+    description: Insights about user financial information.
 paths:
   /users:
     post:
@@ -940,6 +942,34 @@ paths:
           description: The budget ID you requested was not found.
         '500':
           description: Something in the server was wrong.
+  /resume:
+    get:
+      tags: 
+      - Insights
+      summary: Fetches a resume of the financial information of a user.
+      description: Fetches a resume of the financial information of a user.
+      parameters: 
+      - in: query
+        name: userId
+        schema:
+          type: integer
+        required: true
+        description: The ID of the user to fetch the resume.
+      responses:
+        '200':
+          description: The resume of a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resume'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
 components:
   schemas:
     CreateUser:
@@ -1364,6 +1394,99 @@ components:
         nextCursor:
           type: integer
           example: 123
+    Resume:
+      description: A representation of the resume of the financial information of a user.
+      properties:
+        incomes:
+          description: The incomes of a user, grouped by month
+          type: array
+          items:
+            $ref: '#/components/schemas/ResumeByMonth'
+        expenses:
+          description: The expenses of a user, grouped by month
+          type: array
+          items:
+            $ref: '#/components/schemas/ResumeByMonth'
+        balances:
+          description: The balance of the financial information of a user, grouped by month
+          type: array
+          items:
+            $ref: '#/components/schemas/ResumeBalance'
+    ResumeByMonth:
+      description: Financial information grouped by month
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        amount:
+          description: The amount of the month.
+          type: number
+          example: 123.45
+        categories:
+          description: The financial information grouped by categories
+          type: array
+          items:
+            $ref: '#/components/schemas/ResumeByCategory'
+    ResumeByCategory:
+      description: Financial information grouped by category
+      properties:
+        categoryId:
+          description: The system ID of the category.
+          type: integer
+          example: 123
+        amount:
+          description: The amount of the category.
+          type: number
+          example: 123.45
+        subcategories:
+          description: The financial information grouped by subcategories
+          type: array
+          items:
+            $ref: '#/components/schemas/ResumeBySubcategory'
+    ResumeBySubcategory:
+      description: Financial information grouped by subcategory
+      properties:
+        categoryId:
+          description: The system ID of the subcategory.
+          type: integer
+          example: 123
+        amount:
+          description: The amount of the subcategory.
+          type: number
+          example: 123.45
+        transactionsByDate:
+          description: The transactions grouped by date
+          type: array
+          items:
+            $ref: '#/components/schemas/MovementsByDate'
+    MovementsByDate:
+      description: The transactions grouped by date
+      properties:
+        date:
+          description: The date of the transactions
+          type: integer
+          example: 15912423261854
+        transactions:
+          description: The transactions grouped by date
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+    ResumeBalance:
+      description: The balance of the financial information of a user, grouped by month
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        incomes:
+          description: The incomes of the month.
+          type: number
+          example: 123.45
+        expenses:
+          description: The expeenses of the month.
+          type: number
+          example: 123.45
     Errors:
       description: An array of errors
       type: array
