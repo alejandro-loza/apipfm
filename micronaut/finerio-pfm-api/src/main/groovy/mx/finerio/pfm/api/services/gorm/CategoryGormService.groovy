@@ -11,7 +11,8 @@ interface CategoryGormService {
     Category getById(Long id)
     List<Category> findAllByDateDeletedIsNull(Map args)
     List<Category> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
-
+    List<Category> findAll()
+    void delete(Serializable id)
     @Query("from ${Category c} where $c.id = $id and c.dateDeleted is Null")
     Category findByIdAndDateDeletedIsNull(Long id)
 }

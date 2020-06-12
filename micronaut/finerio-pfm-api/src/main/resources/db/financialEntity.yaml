@@ -30,10 +30,10 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: date_created
-                  type: DATE
+                  type: DATETIME(6)
               - column:
                   name: last_updated
-                  type: DATE
+                  type: DATETIME(6)
               - column:
                   name: date_deleted
-                  type: DATE
+                  type: DATETIME(6)

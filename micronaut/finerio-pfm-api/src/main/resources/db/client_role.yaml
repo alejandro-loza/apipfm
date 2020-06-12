@@ -19,11 +19,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: version
-                  type: BIGINT
-                  constraints:
-                    nullable: false
-              - column:
                   name: client_id
                   type: BIGINT
                   constraints:
