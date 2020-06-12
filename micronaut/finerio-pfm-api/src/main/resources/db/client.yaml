@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: client
+      id: cliente
       author: alejandro.hernandez
       changes:
         - createTable:
-            tableName: client
+            tableName: cliente
             columns:
               - column:
                   name: id
@@ -59,3 +59,8 @@ databaseChangeLog:
                   type: DATETIME(6)
                   constraints:
                     nullable: false
+              - column:
+                  name: date_deleted
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: true
