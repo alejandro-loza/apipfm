@@ -408,7 +408,6 @@ class BudgetControllerSpec extends Specification {
             user = user1
             name = 'Shoes and clothes'
             color = "#00FFAA"
-            parentCategoryId = 123
         }
         categoryGormService.save(category1)
         category1

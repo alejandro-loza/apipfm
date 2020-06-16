@@ -103,6 +103,40 @@ class CategoryControllerSpec extends Specification {
 
     }
 
+    def "Should create a category with parent category"() {
+        given: 'an saved User '
+        User user1 = generateUser()
+
+        and: 'a command request body'
+        CategoryCommand cmd = generateCategoryCommand(user1)
+
+        and:'a saved parent category'
+        Category parentCategory = new Category()
+        parentCategory.with {
+            user = user1
+            name = 'parent'
+            color = cmd.color
+        }
+        categoryGormService.save(parentCategory)
+        cmd.parentCategoryId =  parentCategory.id
+
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, CategoryDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        assert rsp.body().with {
+            assert cmd
+            assert id
+            assert dateCreated
+            assert lastUpdated
+            assert parentCategoryId ==  parentCategory.id
+        }
+
+    }
+
     def "Should not create a category and throw bad request on wrong params"() {
         given: 'a category request body with empty body'
 
@@ -146,6 +180,23 @@ class CategoryControllerSpec extends Specification {
         e.response.status == HttpStatus.NOT_FOUND
     }
 
+    def "Should not create a category and throw not found exception on category not found"() {
+        given: 'a saved user'
+        User user = generateUser()
+
+        CategoryCommand cmd = generateCategoryCommand(user)
+        cmd.parentCategoryId = 666
+
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorDto))
+
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+    }
+
     def "Should get a category"() {
         given: 'a saved user'
         User user = generateUser()
@@ -169,13 +220,13 @@ class CategoryControllerSpec extends Specification {
 
     }
 
-    def "Should not get a transaction and throw 404"() {
+    def "Should not get a category and throw 404"() {
         given: 'a not found id request'
 
         HttpRequest request = HttpRequest.GET("${CATEGORIES_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(NotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -206,8 +257,7 @@ class CategoryControllerSpec extends Specification {
         category.with {
             user = user1
             name = 'awesome name'
-            color = Color.decode('#12AD4D')
-            parentCategoryId = 456
+            color = '#12AD4D'
         }
         categoryGormService.save(category)
 
@@ -228,6 +278,36 @@ class CategoryControllerSpec extends Specification {
 
     }
 
+    def "Should not update an category on not found parent category"() {
+        given: 'a saved user'
+        User user1 = generateUser()
+
+        and: 'a saved category'
+        Category category = new Category()
+        category.with {
+            user = user1
+            name = 'awesome name'
+            color = '#12AD4D'
+        }
+        categoryGormService.save(category)
+
+        and: 'an account command to update data'
+        def cmd = generateCategoryCommand(user1)
+        cmd.parentCategoryId = 100000
+
+        and: 'a client'
+        HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${category.id}", cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
+                Argument.of(ErrorDto))
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+
+    }
+
     def "Should not update a transaction on band parameters and return Bad Request"() {
         given: 'a saved user'
         User user1 = generateUser()
@@ -238,7 +318,6 @@ class CategoryControllerSpec extends Specification {
             user = user1
             name = 'awesome name'
             color = Color.decode('#12AD4D')
-            parentCategoryId = 456
         }
         categoryGormService.save(category)
 
@@ -407,7 +486,6 @@ class CategoryControllerSpec extends Specification {
             userId = user1.id
             name = 'Shoes and clothes'
             color = "#00FFAA"
-            parentCategoryId = 123
         }
         cmd
     }

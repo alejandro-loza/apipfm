@@ -2,9 +2,10 @@ package mx.finerio.pfm.api.dtos
 
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import spock.lang.Specification
 
 @MicronautTest(application = Application.class)
-class ResourcesDtoSpec extends spock.lang.Specification {
+class ResourcesDtoSpec extends Specification {
 
     def "should get null on empty list"(){
         setup:'an users dto'

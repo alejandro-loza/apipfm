@@ -47,7 +47,7 @@ class CategoryCommandSpec extends Specification{
 
         then:
         assert !violations.isEmpty()
-        violations.size() == 5
+        violations.size() == 4
     }
 
 

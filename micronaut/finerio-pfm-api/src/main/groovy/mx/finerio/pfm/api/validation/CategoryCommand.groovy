@@ -16,6 +16,5 @@ class CategoryCommand extends ValidationCommand {
     @NotNull(message= 'category.color.null')
     String color
 
-    @NotNull(message= 'category.parentCategory.null')
-    Integer parentCategoryId
+    Long parentCategoryId
 }

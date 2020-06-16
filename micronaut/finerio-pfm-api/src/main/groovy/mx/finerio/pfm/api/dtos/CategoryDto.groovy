@@ -15,7 +15,7 @@ class CategoryDto extends ResourceDto{
         this.id = category.id
         this.userId = category.user.id
         this.name = category.name
-        this.parentCategoryId = category.parentCategoryId
+        this.parentCategoryId = category?.parent?.id
         this.color = category.color
         this.dateCreated = category.dateCreated
         this.lastUpdated = category.lastUpdated

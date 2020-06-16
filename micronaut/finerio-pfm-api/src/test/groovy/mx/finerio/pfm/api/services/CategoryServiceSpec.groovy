@@ -1,7 +1,6 @@
 package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Category
-import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
@@ -18,19 +17,44 @@ class CategoryServiceSpec extends Specification {
         categoryService.userService = Mock(UserService)
     }
 
-    def 'Should save an category'(){
+    def 'Should not save an category with parent category on parent category not found'(){
+
         given:'an category command request body'
         CategoryCommand cmd = generateCommand()
+        cmd.parentCategoryId = 888
         def user = new User()
 
         when:
         1 * categoryService.userService.getUser(_ as Long) >> user
-        1 * categoryService.categoryGormService.save(_  as Category) >> new Category(cmd, user)
+        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long ) >> null
+        0 * categoryService.categoryGormService.save()
 
-        def response = categoryService.create(cmd)
+        categoryService.create(cmd)
+
+        then:
+        NotFoundException e = thrown()
+        e.message == 'category.notFound'
+    }
+
+    def 'Should save an category with parent category'(){
+        given:'an category command request body'
+        CategoryCommand cmd = generateCommand()
+        def user = new User()
+        def parentCategory = new Category(cmd, user)
+        parentCategory.id = 1234
+        cmd.parentCategoryId = parentCategory.id
+        def category = new Category(cmd, user)
+        category.parent = parentCategory
+        when:
+        1 * categoryService.userService.getUser(_ as Long) >> user
+        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull( _ as Long) >> parentCategory
+        1 * categoryService.categoryGormService.save(_  as Category) >> category
+
+        Category response = categoryService.create(cmd)
 
         then:
         response instanceof Category
+        assert response.parent == parentCategory
     }
 
     def "Should throw exception on null body"() {
@@ -104,7 +128,6 @@ class CategoryServiceSpec extends Specification {
             userId = 123
             name = "Ropa y Calzado"
             color = "#00FFAA"
-            parentCategoryId = 123
         }
         cmd
     }

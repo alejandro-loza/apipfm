@@ -21,7 +21,9 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     @Override
     Category create(CategoryCommand cmd){
         verifyBody(cmd)
-        categoryGormService.save(new Category(cmd, userService.getUser(cmd.userId)) )
+        Category category = new Category(cmd, userService.getUser(cmd.userId))
+        category.parent = findParentCategory(cmd)
+        categoryGormService.save(category)
     }
 
     @Override
@@ -38,8 +40,8 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
             user = userService.getUser(cmd.userId)
             name = cmd.name
             color = cmd.color
-            parentCategoryId = cmd.parentCategoryId
         }
+        category.parent = findParentCategory(cmd)
         categoryGormService.save(category)
     }
 
@@ -60,4 +62,10 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
         categoryGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new CategoryDto(it)}
     }
 
+    private Category findParentCategory(CategoryCommand cmd) {
+        if(!cmd.parentCategoryId){
+           return null
+        }
+        find(cmd.parentCategoryId)
+    }
 }

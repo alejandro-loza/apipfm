@@ -11,7 +11,7 @@ class Category implements GormEntity<Category> {
     User user
     String name
     String color
-    Integer parentCategoryId
+    Category parent
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
@@ -20,7 +20,6 @@ class Category implements GormEntity<Category> {
         this.user = user
         this.name = cmd.name
         this.color = cmd.color
-        this.parentCategoryId = cmd.parentCategoryId
     }
 
     Category(){}
@@ -29,8 +28,8 @@ class Category implements GormEntity<Category> {
         user nullable: false
         name nullable: false, blank:false
         color  nullable: false, blank:false
-        parentCategoryId nullable: false
         dateDeleted nullable:true
+        parent nullable:true
     }
 
     static mapping = {
