@@ -1193,6 +1193,9 @@ components:
         amount:
           type: number
           example: 1234.56
+        categoryId:
+          type: number
+          example: 123
     UpdateTransaction:
       description: A representation of the data neccesary for updating a transaction.
       properties:
@@ -1210,6 +1213,9 @@ components:
         amount:
           type: number
           example: 1234.56
+        categoryId:
+          type: number
+          example: 123
     Transaction:
       description: A representation of a transaction.
       properties:
@@ -1230,6 +1236,9 @@ components:
         amount:
           type: number
           example: 1234.56
+        categoryId:
+          type: number
+          example: 123
         dateCreated:
           type: number
           example: 1587567125458
