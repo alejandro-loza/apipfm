@@ -12,7 +12,7 @@ class Account  implements GormEntity<Account> {
     FinancialEntity financialEntity
     String nature
     String name
-    Long number
+    String number
     float balance
     Date dateCreated
     Date lastUpdated
@@ -23,7 +23,7 @@ class Account  implements GormEntity<Account> {
         this.financialEntity = financialEntity
         this.nature = accountCommand.nature
         this.name = accountCommand.name
-        this.number = Long.valueOf(accountCommand.number)
+        this.number = accountCommand.number
         this.balance = accountCommand.balance
     }
 

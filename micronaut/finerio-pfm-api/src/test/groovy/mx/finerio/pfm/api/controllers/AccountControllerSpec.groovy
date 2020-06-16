@@ -11,6 +11,7 @@ import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
@@ -40,7 +41,7 @@ class AccountControllerSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
-    AccountGormService accountService
+    AccountGormService accountGormService
 
     @Inject
     UserGormService userService
@@ -61,6 +62,13 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
+    }
+
+    void setup(){
+        List<Account> accounts = accountGormService.findAll()
+        accounts.each { Account account ->
+            accountGormService.delete(account.id)
+        }
     }
 
     def "Should get a empty list of accounts"(){
@@ -117,7 +125,7 @@ class AccountControllerSpec extends Specification {
         }
 
         when:
-        Account account = accountService.getById(rsp.body().id)
+        Account account = accountGormService.getById(rsp.body().id)
 
         then:'verify'
         !account.dateDeleted
@@ -213,12 +221,12 @@ class AccountControllerSpec extends Specification {
             financialEntityId = entity.id
             nature = 'DEBIT'
             name = 'awesome name'
-            number = 1234123412341234
+            number = '1234123412341234'
         }
 
         and:'a saved account'
         Account account = new Account(cmd, user, entity)
-        accountService.save(account)
+        accountGormService.save(account)
 
         and:
         HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT+"/${account.id}").bearerAuth(accessToken)
@@ -233,7 +241,7 @@ class AccountControllerSpec extends Specification {
             assert financialEntityId == cmd.financialEntityId
             assert nature == cmd.nature
             assert name == cmd.name
-            assert number == Long.valueOf(cmd.number)
+            assert number == cmd.number
             assert balance == cmd.balance
             assert dateCreated == account.dateCreated
             assert lastUpdated == account.lastUpdated
@@ -303,7 +311,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
             balance = 0.0
         }
-        accountService.save(account)
+        accountGormService.save(account)
 
         and:'an account command to update data'
         AccountCommand cmd = new AccountCommand()
@@ -397,7 +405,7 @@ class AccountControllerSpec extends Specification {
             balance = 0.0
         }
         account.dateDeleted = new Date()
-        accountService.save(account)
+        accountGormService.save(account)
 
         Account account2 = new Account()
         account2.with {
@@ -408,7 +416,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
             balance = 0.0
         }
-        accountService.save(account2)
+        accountGormService.save(account2)
 
         and:
         HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT).bearerAuth(accessToken)
@@ -447,7 +455,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
             balance = 0.0
         }
-        accountService.save(account)
+        accountGormService.save(account)
 
         Account account2 = new Account()
         account2.with {
@@ -458,7 +466,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
             balance = 0.0
         }
-        accountService.save(account2)
+        accountGormService.save(account2)
 
         Account account3 = new Account()
         account3.with {
@@ -469,7 +477,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
             balance = 0.0
         }
-        accountService.save(account3)
+        accountGormService.save(account3)
 
         and:
         HttpRequest getReq = HttpRequest.GET("/accounts?cursor=${account2.id}").bearerAuth(accessToken)
@@ -521,7 +529,7 @@ class AccountControllerSpec extends Specification {
             number = 1234123412341234
             balance = 0.0
         }
-        accountService.save(account)
+        accountGormService.save(account)
 
         and:'a client request'
         HttpRequest request = HttpRequest.DELETE("/accounts/${account.id}").bearerAuth(accessToken)
