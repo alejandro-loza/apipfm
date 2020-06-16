@@ -123,6 +123,7 @@ class AccountControllerSpec extends Specification {
             balance == cmd.balance
             dateCreated
         }
+        assert rsp.body().number instanceof  String
 
         when:
         Account account = accountGormService.getById(rsp.body().id)
