@@ -40,7 +40,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: number
-                  type: NUMBER
+                  type: java.sql.Types.VARCHAR(100)
                   constraints:
                     nullable: false
               - column:
