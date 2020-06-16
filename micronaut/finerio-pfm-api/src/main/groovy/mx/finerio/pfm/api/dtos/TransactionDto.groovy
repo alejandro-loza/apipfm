@@ -9,7 +9,7 @@ class TransactionDto extends ResourceDto{
     boolean charge
     String description
     float  amount
-
+    Long categoryId
     TransactionDto() {}
 
     TransactionDto(Transaction transaction) {
@@ -21,6 +21,7 @@ class TransactionDto extends ResourceDto{
         this.amount = transaction.amount
         this.dateCreated = transaction.dateCreated
         this.lastUpdated = transaction.lastUpdated
+        this.categoryId = transaction?.category?.id
     }
 
 }

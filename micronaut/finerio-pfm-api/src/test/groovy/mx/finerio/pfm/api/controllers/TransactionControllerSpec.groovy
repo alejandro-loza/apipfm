@@ -87,7 +87,7 @@ class TransactionControllerSpec extends Specification {
     def "Should create a transaction"(){
         given:'an saved Account '
         Account account1 = generateAccount()
-        Category category1 = generateCategory(new User())
+        Category category1 = generateCategory(generateUser())
         and:'a command request body'
         TransactionCommand cmd = new TransactionCommand()
         cmd.with {
@@ -107,7 +107,7 @@ class TransactionControllerSpec extends Specification {
         then:
         rsp.status == HttpStatus.OK
         rsp.body.get().accountId == account1.id
-        rsp.body.get().categoryId == category.id
+        rsp.body.get().categoryId == category1.id
     }
 
     def "Should not create a transaction and throw bad request on wrong params"(){
@@ -489,7 +489,15 @@ class TransactionControllerSpec extends Specification {
             name = 'category test'
             color = '#12312'
         }
-        categoryGormService.save()
+        categoryGormService.save(category)
+    }
+
+    private User generateUser(){
+        def user = new User()
+        user.with {
+            name = 'test name'
+        }
+        userService.save(user)
     }
 
 
