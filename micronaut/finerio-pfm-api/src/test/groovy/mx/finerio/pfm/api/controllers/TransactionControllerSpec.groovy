@@ -14,12 +14,13 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.RegisterService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
+import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -53,6 +54,9 @@ class TransactionControllerSpec extends Specification {
     TransactionGormService transactionGormService
 
     @Inject
+    CategoryGormService categoryGormService
+
+    @Inject
     @Shared
     RegisterService registerService
 
@@ -83,7 +87,7 @@ class TransactionControllerSpec extends Specification {
     def "Should create a transaction"(){
         given:'an saved Account '
         Account account1 = generateAccount()
-
+        Category category1 = generateCategory(new User())
         and:'a command request body'
         TransactionCommand cmd = new TransactionCommand()
         cmd.with {
@@ -92,6 +96,7 @@ class TransactionControllerSpec extends Specification {
             charge = true
             description = "UBER EATS"
             amount= 1234.56
+            categoryId = category1.id
         }
 
         HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
@@ -101,31 +106,8 @@ class TransactionControllerSpec extends Specification {
 
         then:
         rsp.status == HttpStatus.OK
-
-    }
-
-    private Account generateAccount() {
-        User user1 = new User('awesome user')
-        userService.save(user1)
-
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        financialEntityService.save(entity)
-
-        Account account1 = new Account()
-        account1.with {
-            user = user1
-            financialEntity = entity
-            nature = 'TEST NATURE'
-            name = 'TEST NAME'
-            number = 123412341234
-            balance = 0.0
-        }
-        accountService.save(account1)
-        account1
+        rsp.body.get().accountId == account1.id
+        rsp.body.get().categoryId == category.id
     }
 
     def "Should not create a transaction and throw bad request on wrong params"(){
@@ -164,6 +146,30 @@ class TransactionControllerSpec extends Specification {
             charge = true
             description = 'UBER EATS'
             amount = 100.00
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+    }
+
+    def "Should not create an transaction and throw not found exception on category not found"(){
+
+        given:'an transaction request body with no found category id'
+        Account account1 = generateAccount()
+        TransactionCommand cmd = new TransactionCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = 'UBER EATS'
+            amount = 100.00
+            categoryId = 666
         }
 
         HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
@@ -438,7 +444,7 @@ class TransactionControllerSpec extends Specification {
 
     }
 
-    private TransactionCommand generateTransactionCommand(Account account1) {
+    private static TransactionCommand generateTransactionCommand(Account account1) {
         def date1 = new Date()
 
         TransactionCommand cmd = new TransactionCommand()
@@ -450,6 +456,40 @@ class TransactionControllerSpec extends Specification {
             amount= 1234.56
         }
         cmd
+    }
+
+    private Account generateAccount() {
+        User user1 = new User('awesome user')
+        userService.save(user1)
+
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        financialEntityService.save(entity)
+
+        Account account1 = new Account()
+        account1.with {
+            user = user1
+            financialEntity = entity
+            nature = 'TEST NATURE'
+            name = 'TEST NAME'
+            number = 123412341234
+            balance = 0.0
+        }
+        accountService.save(account1)
+        account1
+    }
+
+    private Category generateCategory(User userToSet){
+        Category category = new Category()
+        category.with {
+            user =userToSet
+            name = 'category test'
+            color = '#12312'
+        }
+        categoryGormService.save()
     }
 
 

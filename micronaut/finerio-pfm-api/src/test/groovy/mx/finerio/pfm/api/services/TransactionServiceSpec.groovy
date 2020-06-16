@@ -16,6 +16,7 @@ class TransactionServiceSpec extends Specification {
     void setup(){
         transactionService.transactionGormService = Mock(TransactionGormService)
         transactionService.accountService = Mock(AccountService)
+        transactionService.categoryService = Mock(CategoryService)
     }
 
     def 'Should save an transaction'(){
@@ -33,6 +34,26 @@ class TransactionServiceSpec extends Specification {
 
         then:
         response instanceof Transaction
+    }
+
+    def
+    'Should not save an transaction on category not found'(){
+        given:'a transaction command request body'
+        TransactionCommand cmd = new TransactionCommand()
+        cmd.with {
+            accountId = 666
+            date =  new Date().getTime()
+            categoryId = 666
+        }
+        when:
+        1 * transactionService.accountService.getAccount(_ as Long)
+        1 * transactionService.categoryService.find(_ as Long) >> {throw new NotFoundException('category.notFound') }
+
+        def response = transactionService.create(cmd)
+
+        then:
+        NotFoundException e = thrown()
+        e.message == 'category.notFound'
     }
 
     def "Should throw exception on null body"() {

@@ -15,6 +15,7 @@ class Transaction implements GormEntity<Transaction> {
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
+    Category category
 
     Transaction(){}
 
@@ -31,6 +32,7 @@ class Transaction implements GormEntity<Transaction> {
         description  nullable: false, blank:false
         amount nullable: false
         dateDeleted nullable:true
+        category nullable:true
     }
 
     static mapping = {

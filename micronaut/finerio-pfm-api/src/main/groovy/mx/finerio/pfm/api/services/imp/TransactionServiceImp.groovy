@@ -1,9 +1,11 @@
 package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.validation.TransactionCommand
@@ -18,10 +20,15 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
     @Inject
     AccountService accountService
 
+    @Inject
+    CategoryService categoryService
+
     @Override
     Transaction create(TransactionCommand cmd){
         verifyBody(cmd)
-        transactionGormService.save(new Transaction(cmd, accountService.getAccount(cmd.accountId)) )
+        Transaction transaction = new Transaction(cmd, accountService.getAccount(cmd.accountId))
+        transaction.category = findCategory(cmd)
+        transactionGormService.save(transaction)
     }
 
     @Override
@@ -59,6 +66,13 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
     @Override
     List<TransactionDto> findAllByCursor(Long cursor) {
         transactionGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new TransactionDto(it)}
+    }
+
+    private Category findCategory(TransactionCommand cmd){
+        if(!cmd.categoryId){
+           return null
+        }
+         return categoryService.find(cmd.categoryId)
     }
 
 }
