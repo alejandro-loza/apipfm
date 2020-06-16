@@ -21,7 +21,7 @@ class AccountCommand extends ValidationCommand{
     String name
 
     @NotNull(message= 'account.number.null')
-    @Size(min = 13, max =100, message= 'account.number.size')
+    @Size(min = 3, max =100, message= 'account.number.size')
     String number
 
     float balance
