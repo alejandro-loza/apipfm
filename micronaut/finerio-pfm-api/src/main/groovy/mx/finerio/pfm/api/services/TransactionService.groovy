@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services
 
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.validation.TransactionCommand
@@ -11,4 +12,5 @@ interface TransactionService {
     void delete(Long id)
     List<TransactionDto> getAll()
     List<TransactionDto> findAllByCursor(Long cursor)
+    List<TransactionDto> findAllByAccountAndCursor(Account account, Long cursor)
 }

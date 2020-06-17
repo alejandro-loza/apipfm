@@ -367,12 +367,13 @@ class TransactionControllerSpec extends Specification {
         assert !body.get("nextCursor")
     }
 
-    def "Should get a list of transactions on a cursor point"(){
+    def "Should get a list of transactions of an account on a cursor point"(){
 
         given:'a transaction list'
         Account account1 = generateAccount()
+        Account account2 = generateAccount()
 
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
         transactionGormService.save(transaction1)
         Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
         transaction2.dateDeleted = new Date()
@@ -383,7 +384,7 @@ class TransactionControllerSpec extends Specification {
         transactionGormService.save(transaction4)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?cursor=${transaction3.id}")
+        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?accountId=${account1.id}&cursor=${transaction3.id}")
                 .bearerAuth(accessToken)
 
         when:
@@ -393,11 +394,12 @@ class TransactionControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
+        assert !(transaction1.id in transactionDtos.id)
         assert !(transaction2.id in transactionDtos.id)
         assert !(transaction4.id in transactionDtos.id)
-
-        assert !body.get("nextCursor")
+        transactionDtos.size() == 1
     }
+
 
     def "Should throw not found exception on delete no found transaction"(){
         given:

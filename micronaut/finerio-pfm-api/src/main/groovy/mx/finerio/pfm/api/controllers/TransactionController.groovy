@@ -8,6 +8,7 @@ import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.TransactionCommand
 
@@ -24,6 +25,9 @@ class TransactionController {
     @Inject
     TransactionService transactionsService
 
+    @Inject
+    AccountService accountService
+
     @Post("/")
     Single<TransactionDto> save(@Body @Valid TransactionCommand cmd){
         Single.just(new TransactionDto(transactionsService.create(cmd)))
@@ -35,10 +39,13 @@ class TransactionController {
         Single.just(new TransactionDto(transactionsService.find(id)))
     }
 
-    @Get("{?cursor}")
+    @Get("{?cursor,accountId}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor) {
-        List<TransactionDto> transactions = cursor ? transactionsService.findAllByCursor(cursor) : transactionsService.getAll()
+    Single<Map> showAll(@Nullable Long cursor, @Nullable Long accountId) {
+
+        List<TransactionDto> transactions = cursor ?
+                transactionsService.findAllByAccountAndCursor(accountService.getAccount(accountId), cursor)
+                : transactionsService.getAll()
         Single.just(transactions.isEmpty() ? [] :  new ResourcesDto(transactions)) as Single<Map>
     }
 
