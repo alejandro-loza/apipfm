@@ -349,8 +349,15 @@ paths:
       tags:
       - Accounts
       summary: Fetches a list of accounts.
-      description: Fetches a list of accounts, sorted by ID in descending order. The API is able to fetch up to 100 accounts. If a cursor is specified, the list starts with the item that has that ID.
+      description: Fetches a list of accounts, sorted by ID in descending order. The API is able to fetch up to 100 accounts. If a cursor is specified, the list starts with the item that has that ID. A previously created user is required.
       parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+            example: 123
+          required: true
+          description: The ID of the user that owns the accounts.
         - in: query
           name: cursor
           schema:
@@ -658,7 +665,7 @@ paths:
       tags:
       - Categories
       summary: Fetches a list of categories.
-      description: Fetches a list of categories, sorted by ID in descending order. The API is able to fetch up to 100 categories. If a cursor is specified, the list starts with the item that has that ID.
+      description: Fetches a list of categories, sorted by ID in descending order. The API is able to fetch up to 100 categories. If a cursor is specified, the list starts with the item that has that ID. A previously created user is required.
       parameters:
         - in: query
           name: userId
@@ -816,7 +823,7 @@ paths:
       tags:
       - Budgets
       summary: Fetches a list of budgets.
-      description: Fetches a list of budgets, sorted by ID in descending order. The API is able to fetch up to 100 budgets. If a cursor is specified, the list starts with the item that has that ID.
+      description: Fetches a list of budgets, sorted by ID in descending order. The API is able to fetch up to 100 budgets. If a cursor is specified, the list starts with the item that has that ID. A previously created user is required.
       parameters:
         - in: query
           name: userId
