@@ -7,7 +7,7 @@ class AccountDto  extends ResourceDto{
     Long financialEntityId
     String nature
     String name
-    Long number
+    String number
     float balance
 
     AccountDto() {}

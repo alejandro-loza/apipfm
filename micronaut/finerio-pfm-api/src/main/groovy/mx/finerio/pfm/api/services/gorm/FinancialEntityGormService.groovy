@@ -10,6 +10,8 @@ interface FinancialEntityGormService {
     @Query("from ${FinancialEntity u} where $u.id = $id and u.dateDeleted is Null")
     FinancialEntity findByIdAndDateDeletedIsNull(Long id)
     FinancialEntity getById(Long id)
+    List<FinancialEntity> findAll()
+    void delete(Serializable id)
     List<FinancialEntity> findAllByDateDeletedIsNull(Map args)
     List<FinancialEntity> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
 }

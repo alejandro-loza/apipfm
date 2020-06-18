@@ -1,14 +1,10 @@
 databaseChangeLog:
-  - preConditions:
-      - runningAs:
-          username: liquibase
-
   - changeSet:
-      id: 1
-      author: pinky
+      id: financial_entity
+      author: alejandro.hernandez
       changes:
         - createTable:
-            tableName: category
+            tableName: financial_entity
             columns:
               - column:
                   name: id
@@ -18,31 +14,26 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: user_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: parent_category_id
-                  type: int
+                  name: version
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
                   name: name
-                  type: string
+                  type: java.sql.Types.VARCHAR(255)
                   constraints:
                     nullable: false
               - column:
-                  name: color
-                  type: string
+                  name: code
+                  type: java.sql.Types.VARCHAR(255)
                   constraints:
                     nullable: false
               - column:
                   name: date_created
-                  type: date
+                  type: DATETIME(6)
               - column:
                   name: last_updated
-                  type: date
+                  type: DATETIME(6)
               - column:
                   name: date_deleted
-                  type: date
+                  type: DATETIME(6)

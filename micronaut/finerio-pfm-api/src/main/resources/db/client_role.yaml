@@ -28,27 +28,4 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-  - changeSet:
-      id: client_role_client_fk
-      author: alejandro.hernandez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: client_id
-            baseTableName: client_role
-            constraintName: fk_client_role_client
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: client
-  - changeSet:
-      id: client_role_role_fk
-      author: alejandro.hernandez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: role_id
-            baseTableName: client_role
-            constraintName: fk_client_role_role
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: role
+

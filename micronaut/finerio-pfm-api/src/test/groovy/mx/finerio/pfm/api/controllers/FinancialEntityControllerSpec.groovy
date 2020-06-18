@@ -54,7 +54,12 @@ class FinancialEntityControllerSpec extends Specification {
         accessToken = rsp.body.get().accessToken
     }
 
-
+    void setup(){
+        List<FinancialEntity> entities = financialGormService.findAll()
+        entities.each {  entity ->
+            financialGormService.delete(entity.id)
+        }
+    }
 
     def "Should get a empty list of financial entities"(){
 
@@ -318,8 +323,6 @@ class FinancialEntityControllerSpec extends Specification {
         Map body = rspGET.getBody(Map).get()
         List<FinancialEntityDto> financialEntityDtos = body.get("data") as List<FinancialEntityDto>
         assert !(financialEntity2.id in financialEntityDtos.id)
-
-        assert !body.get("nextCursor")
     }
 
     def "Should get a list of financial entities in a cursor point"(){

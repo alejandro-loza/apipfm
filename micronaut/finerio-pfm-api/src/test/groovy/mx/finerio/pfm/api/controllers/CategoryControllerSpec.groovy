@@ -60,6 +60,13 @@ class CategoryControllerSpec extends Specification {
         accessToken = rsp.body.get().accessToken
     }
 
+    void setup(){
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+                    categoryGormService.delete(category.id)
+        }
+    }
+
     def "Should get a empty list of categories"() {
 
         given: 'a client'
@@ -298,7 +305,7 @@ class CategoryControllerSpec extends Specification {
         List<CategoryDto> categoryDtos = body.get("data") as List<CategoryDto>
         assert !(category2.id in categoryDtos.id)
 
-        assert !body.get("nextCursor")
+        assert body.get("nextCursor")
     }
 
     def "Should get a list of categories in a cursor "() {
@@ -335,7 +342,7 @@ class CategoryControllerSpec extends Specification {
         assert !(category2.id in categoryDtos.id)
         assert !(category5.id in categoryDtos.id)
 
-        assert !body.get("nextCursor")
+        assert body.get("nextCursor")
     }
 
 

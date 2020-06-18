@@ -7,11 +7,8 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
-import io.micronaut.security.token.jwt.validator.JwtTokenValidator
 import io.micronaut.test.annotation.MicronautTest
-import io.reactivex.Flowable
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
@@ -37,7 +34,7 @@ class UserControllerSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
-    UserGormService userService
+    UserGormService userGormService
 
     @Inject
     @Shared
@@ -52,6 +49,13 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
+    }
+
+    void setup(){
+        List<User> entities = userGormService.findAll()
+        entities.each {  entity ->
+            userGormService.delete(entity.id)
+        }
     }
 
     def "Should get a empty list of users"(){
@@ -88,7 +92,7 @@ class UserControllerSpec extends Specification {
     def "Should get an user"(){
         given:'a saved user'
         User user = new User('no awesome name')
-        userService.save(user)
+        userGormService.save(user)
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users/${user.id}").bearerAuth(accessToken)
@@ -151,7 +155,7 @@ class UserControllerSpec extends Specification {
     def "Should update an user"(){
         given:'a saved user'
         User user = new User('no awesome name')
-        userService.save(user)
+        userGormService.save(user)
 
         and:'an user command to update data'
         UserCommand cmd = new UserCommand()
@@ -174,7 +178,7 @@ class UserControllerSpec extends Specification {
     def "Should not update an user on band parameters and return Bad Request"(){
         given:'a saved user'
         User user = new User('no awesome name')
-        userService.save(user)
+        userGormService.save(user)
 
         and:'a client'
         HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCommand()).bearerAuth(accessToken)
@@ -214,10 +218,10 @@ class UserControllerSpec extends Specification {
          given:'a saved user'
          User user = new User('no awesome')
          user.dateDeleted = new Date()
-         userService.save(user)
+         userGormService.save(user)
 
          User user2 = new User('awesome')
-         userService.save(user2)
+         userGormService.save(user2)
         and:
         HttpRequest getReq = HttpRequest.GET("/users").bearerAuth(accessToken)
 
@@ -237,13 +241,13 @@ class UserControllerSpec extends Specification {
 
         given:'a saved user'
         User user = new User('no awesome')
-        userService.save(user)
+        userGormService.save(user)
 
         User user2 = new User('awesome')
-        userService.save(user2)
+        userGormService.save(user2)
 
         User user3 = new User('more awesome')
-        userService.save(user3)
+        userGormService.save(user3)
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users?cursor=${user2.id}").bearerAuth(accessToken)
@@ -278,7 +282,7 @@ class UserControllerSpec extends Specification {
     def "Should delete an user"() {
         given:'a saved user'
         User user = new User('i will die soon cause i have covid-19')
-        userService.save(user)
+        userGormService.save(user)
         Long id = user.id
 
         and:'a client request'
@@ -289,7 +293,7 @@ class UserControllerSpec extends Specification {
 
         then:
         response.status == HttpStatus.NO_CONTENT
-        assert userService.findById(user.id).dateDeleted
+        assert userGormService.findById(user.id).dateDeleted
 
         and:
         HttpRequest.GET("/users/${id}").bearerAuth(accessToken)

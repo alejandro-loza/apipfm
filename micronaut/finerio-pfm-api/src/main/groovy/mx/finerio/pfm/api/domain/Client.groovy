@@ -13,15 +13,18 @@ class Client implements GormEntity<Client>, UserState {
     boolean accountExpired = false
     boolean accountLocked = false
     boolean passwordExpired = false
+    Date dateCreated
+    Date lastUpdated
+    Date dateDeleted
 
     static constraints = {
         username nullable: false, blank: false, unique: true
         password nullable: false, blank: false, password: true
+        dateDeleted nullable:true
     }
 
     static mapping = {
         table 'client'
-        password column: '`password`'
     }
 
 }

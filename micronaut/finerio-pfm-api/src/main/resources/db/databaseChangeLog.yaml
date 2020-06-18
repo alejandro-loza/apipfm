@@ -1,11 +1,19 @@
 databaseChangeLog:
   - include:
-      file: migrations/user.yaml
+      file: db/account.yaml
   - include:
-      file: migrations/account.yaml
+      file: db/budget.yaml
   - include:
-      file: migrations/financialEntity.yaml
+      file: db/category.yaml
   - include:
-      file: migrations/transaction.yaml
+      file: db/client.yaml
   - include:
-      file: migrations/category.yaml
+      file: db/client_role.yaml
+  - include:
+      file: db/financialEntity.yaml
+  - include:
+      file: db/role.yaml
+  - include:
+      file: db/transaction.yaml
+  - include:
+      file: db/user.yaml

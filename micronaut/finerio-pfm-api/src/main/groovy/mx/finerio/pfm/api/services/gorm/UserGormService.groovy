@@ -14,4 +14,6 @@ interface UserGormService {
     User findById(Long id)
     List<User> findAllByDateDeletedIsNull(Map args)
     List<User> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
+    List<User> findAll()
+    void delete(Serializable id)
 }

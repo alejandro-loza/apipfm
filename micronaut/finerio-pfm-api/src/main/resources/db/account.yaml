@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: user
+      id: account
       author: alejandro.hernandez
       changes:
         - createTable:
-            tableName: client
+            tableName: account
             columns:
               - column:
                   name: id
@@ -19,43 +19,41 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: username
-                  type: java.sql.Types.VARCHAR(255)
-                  constraints:
-                    nullable: false
-                    unique: true
-              - column:
-                  name: password
-                  type: java.sql.Types.VARCHAR(255)
+                  name: user_id
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
-                  name: enabled
-                  type: BOOLEAN
+                  name: financial_entity_id
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
-                  name: account_expired
-                  type: BOOLEAN
+                  name: nature
+                  type: java.sql.Types.VARCHAR(100)
                   constraints:
                     nullable: false
               - column:
-                  name: account_locked
-                  type: BOOLEAN
+                  name: name
+                  type: java.sql.Types.VARCHAR(100)
                   constraints:
                     nullable: false
               - column:
-                  name: password_expired
-                  type: BOOLEAN
+                  name: number
+                  type: java.sql.Types.VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: balance
+                  type: DECIMAL(18,12)
                   constraints:
                     nullable: false
               - column:
                   name: date_created
                   type: DATETIME(6)
-                  constraints:
-                    nullable: false
               - column:
                   name: last_updated
                   type: DATETIME(6)
-                  constraints:
-                    nullable: false
+              - column:
+                  name: date_deleted
+                  type: DATETIME(6)

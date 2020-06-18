@@ -11,5 +11,5 @@ out/
 .project
 .settings
 .classpath
-
 application.yml
+micronaut/finerio-pfm-api/src/main/groovy/mx/finerio/pfm/api/config/GenerateDefaultClient.groovy'
