@@ -2,7 +2,6 @@ package mx.finerio.pfm.api.controllers
 
 
 import grails.gorm.transactions.Transactional
-import io.micronaut.context.MessageSource
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
@@ -19,7 +18,6 @@ import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
-import javax.validation.constraints.Null
 
 @Controller("/accounts")
 @Validated
@@ -46,7 +44,9 @@ class AccountController {
     @Get("{?cursor,userId}")
     @Transactional
     Single<Map> showAll(@Nullable Long cursor, @Nullable Long userId ) {
-        List<AccountDto> accounts = cursor ? accountService.findAllByUser(userId) : accountService.getAll()
+        List<AccountDto> accounts = cursor ?
+                accountService.findAllByUserAndCursor(userService.getUser(userId), cursor)
+                : accountService.getAll()
         Single.just(accounts.isEmpty() ? [] :  new ResourcesDto(accounts)) as Single<Map>
     }
 

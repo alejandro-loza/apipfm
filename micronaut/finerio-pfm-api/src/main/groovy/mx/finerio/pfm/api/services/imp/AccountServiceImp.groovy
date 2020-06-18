@@ -65,8 +65,9 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     }
 
     @Override
-    List<AccountDto> findAllByUser(User user) {
-        accountGormService.findAllByUserAndDateDeletedIsNull(user,[max: MAX_ROWS, sort: 'id', order: 'desc'])
+    List<AccountDto> findAllByUserAndCursor(User user, Long cursor) {
+        accountGormService.findAllByUserAndDateDeletedIsNullAndIdLessThanEquals(
+                user,cursor,[max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{new AccountDto(it)}
     }
 
