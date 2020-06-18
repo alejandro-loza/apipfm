@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.AccountService
@@ -59,7 +60,14 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
 
     @Override
     List<AccountDto> getAll() {
-        accountGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
+        accountGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new AccountDto(it)}
+    }
+
+    @Override
+    List<AccountDto> findAllByUser(User user) {
+        accountGormService.findAllByUserAndDateDeletedIsNull(user,[max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new AccountDto(it)}
     }
 
     @Override

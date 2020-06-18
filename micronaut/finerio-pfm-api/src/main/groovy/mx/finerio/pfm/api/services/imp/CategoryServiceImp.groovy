@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
@@ -54,12 +55,20 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
     @Override
     List<CategoryDto> getAll() {
-        categoryGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new CategoryDto(it)}
+        categoryGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new CategoryDto(it)}
     }
 
     @Override
     List<CategoryDto> findAllByCursor(Long cursor) {
-        categoryGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new CategoryDto(it)}
+        categoryGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort:'id',order:'desc'])
+                .collect{new CategoryDto(it)}
+    }
+
+    @Override
+    List<CategoryDto> findAllByAccount(Account account) {
+        categoryGormService.findAllByAccountAndDateDeletedIsNull(account, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new CategoryDto(it)}
     }
 
     private Category findParentCategory(CategoryCommand cmd) {

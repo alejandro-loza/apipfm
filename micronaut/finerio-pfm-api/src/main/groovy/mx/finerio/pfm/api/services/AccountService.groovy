@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.validation.AccountCommand
 
@@ -11,4 +12,5 @@ interface AccountService {
     void delete(Long id)
     List<AccountDto> getAll()
     List<AccountDto> findAllByCursor(Long cursor)
+    List<AccountDto> findAllByUser(User user)
 }

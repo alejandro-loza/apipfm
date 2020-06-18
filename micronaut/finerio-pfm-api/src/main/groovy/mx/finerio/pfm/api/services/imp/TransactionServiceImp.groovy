@@ -74,7 +74,6 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
         transactionGormService.findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(account, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new TransactionDto(it)}
     }
 
-
     private Category findCategory(TransactionCommand cmd){
         if(!cmd.categoryId){
            return null

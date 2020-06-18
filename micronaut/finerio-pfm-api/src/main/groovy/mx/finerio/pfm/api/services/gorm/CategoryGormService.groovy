@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services.gorm
 
 import grails.gorm.services.Query
 import grails.gorm.services.Service
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
 
@@ -12,6 +13,7 @@ interface CategoryGormService {
     List<Category> findAllByDateDeletedIsNull(Map args)
     List<Category> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
     List<Category> findAll()
+    List<Category> findAllByAccountAndDateDeletedIsNull(Account account, Map args)
     void delete(Serializable id)
     @Query("from ${Category c} where $c.id = $id and c.dateDeleted is Null")
     Category findByIdAndDateDeletedIsNull(Long id)

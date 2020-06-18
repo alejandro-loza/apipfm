@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services
 
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.validation.CategoryCommand
@@ -11,4 +12,5 @@ interface CategoryService {
     void delete(Long id)
     List<CategoryDto> getAll()
     List<CategoryDto> findAllByCursor(Long cursor)
+    List<CategoryDto> findAllByAccount(Account account)
 }

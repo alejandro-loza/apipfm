@@ -12,12 +12,14 @@ import mx.finerio.pfm.api.dtos.AccountDto
 
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.AccountCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
+import javax.validation.constraints.Null
 
 @Controller("/accounts")
 @Validated
@@ -26,6 +28,9 @@ class AccountController {
 
     @Inject
     AccountService accountService
+
+    @Inject
+    UserService userService
 
     @Post("/")
     Single<AccountDto> save(@Body @Valid AccountCommand cmd){
@@ -38,10 +43,10 @@ class AccountController {
         Single.just(new AccountDto(accountService.getAccount(id)))
     }
 
-    @Get("{?cursor}")
+    @Get("{?cursor,userId}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor) {
-        List<AccountDto> accounts = cursor ? accountService.findAllByCursor(cursor) : accountService.getAll()
+    Single<Map> showAll(@Nullable Long cursor, @Nullable Long userId ) {
+        List<AccountDto> accounts = cursor ? accountService.findAllByUser(userId) : accountService.getAll()
         Single.just(accounts.isEmpty() ? [] :  new ResourcesDto(accounts)) as Single<Map>
     }
 
