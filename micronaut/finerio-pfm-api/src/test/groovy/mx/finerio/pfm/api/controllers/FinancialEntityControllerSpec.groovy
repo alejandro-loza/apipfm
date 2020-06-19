@@ -16,7 +16,7 @@ import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
 
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
 import spock.lang.Shared
@@ -41,7 +41,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService registerService
 
     @Shared
     String accessToken

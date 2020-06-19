@@ -3,16 +3,16 @@ package mx.finerio.pfm.api.config
 import groovy.transform.CompileStatic
 import io.micronaut.context.event.ApplicationEventListener
 import io.micronaut.runtime.server.event.ServerStartupEvent
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 
 import javax.inject.Singleton
 
 @CompileStatic
 @Singleton
 class GenerateDefaultClient implements ApplicationEventListener<ServerStartupEvent> {
-    protected final RegisterService registerService
+    protected final ClientService registerService
 
-    GenerateDefaultClient(RegisterService registerService) {
+    GenerateDefaultClient(ClientService registerService) {
         this.registerService = registerService
     }
 

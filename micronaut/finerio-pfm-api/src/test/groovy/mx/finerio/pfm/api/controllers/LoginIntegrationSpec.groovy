@@ -12,7 +12,7 @@ import io.micronaut.security.token.jwt.validator.JwtTokenValidator
 import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.Flowable
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -29,7 +29,7 @@ class LoginIntegrationSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
-    RegisterService registerService
+    ClientService registerService
 
     @Shared
     @Inject

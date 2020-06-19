@@ -1,5 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
+import grails.gorm.transactions.Transactional
+import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
@@ -23,15 +25,17 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     }
 
     @Override
-    User create(UserCommand cmd){
+    User create(UserCommand cmd, Client client){
         if ( !cmd  ) {
             throw new IllegalArgumentException(
                     'request.body.invalid' )
         }
-        userGormService.save(new User(cmd.name))
+        User user = new User(cmd.name, client)
+        userGormService.save(user)
     }
 
     @Override
+    @Transactional
     User update(UserCommand cmd, Long id){
         User user = getUser(id)
         user.with {
@@ -41,9 +45,12 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     }
 
     @Override
+    @Transactional
     void delete(Long id){
         User user = getUser(id)
-        user.dateDeleted = new Date()
+        user.with {
+            dateDeleted = new Date()
+        }
         userGormService.save(user)
     }
 

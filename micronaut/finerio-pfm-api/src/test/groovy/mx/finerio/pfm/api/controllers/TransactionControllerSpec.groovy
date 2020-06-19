@@ -18,7 +18,7 @@ import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
@@ -45,7 +45,7 @@ class TransactionControllerSpec extends Specification {
     AccountGormService accountService
 
     @Inject
-    UserGormService userService
+    UserGormService userGormService
 
     @Inject
     FinancialEntityGormService financialEntityService
@@ -58,14 +58,14 @@ class TransactionControllerSpec extends Specification {
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService clientService
 
     @Shared
     String accessToken
 
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
@@ -217,16 +217,6 @@ class TransactionControllerSpec extends Specification {
 
     }
 
-    private FinancialEntity getSavedFinancialEntity() {
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        entity = financialEntityService.save(entity)
-        entity
-    }
-
     def "Should not get a transaction and throw 404"(){
         given:'a not found id request'
 
@@ -315,15 +305,11 @@ class TransactionControllerSpec extends Specification {
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
-        def body = e.response.getBody(ErrorDto)
-
     }
 
     def "Should not update an transaction and throw not found exception"(){
         given:
         Account account1 = generateAccount()
-
-        def notFoundId = 666
 
         and:'a client'
         HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/666",  generateTransactionCommand(account1))
@@ -461,8 +447,7 @@ class TransactionControllerSpec extends Specification {
     }
 
     private Account generateAccount() {
-        User user1 = new User('awesome user')
-        userService.save(user1)
+        User user1 = generateUser()
 
         FinancialEntity entity = new FinancialEntity()
         entity.with {
@@ -494,12 +479,12 @@ class TransactionControllerSpec extends Specification {
         categoryGormService.save(category)
     }
 
-    private User generateUser(){
-        def user = new User()
-        user.with {
-            name = 'test name'
-        }
-        userService.save(user)
+    private User generateUser() {
+        userGormService.save(new User('awesome user', generateClient()))
+    }
+
+    private mx.finerio.pfm.api.domain.Client generateClient(){
+        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
     }
 
 

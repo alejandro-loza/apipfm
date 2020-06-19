@@ -17,7 +17,7 @@ import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -50,14 +50,14 @@ class AccountControllerSpec extends Specification {
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService clientService
 
     @Shared
     String accessToken
 
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
@@ -85,8 +85,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should create an account"(){
         given:'an saved user and financial entity'
-        User user = new User('awesome user')
-        user = userService.save(user)
+        User user = generateUser()
 
         FinancialEntity entity = new FinancialEntity()
         entity.with {
@@ -182,8 +181,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should not create an account and throw not found exception on financial entity not found"(){
         given:'an saved user and financial entity'
-        User user = new User('awesome user')
-        user = userService.save(user)
+        User user = generateUser()
 
         AccountCommand cmd = new AccountCommand()
         cmd.with {
@@ -207,8 +205,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should get an account"(){
         given:'a saved user'
-        User user = new User('no awesome name')
-        userService.save(user)
+        User user = generateUser()
 
         and: 'a financial entity'
 
@@ -290,8 +287,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should update an account"(){
         given:'a saved user'
-        User awesomeUser = new User('no awesome name')
-        awesomeUser = userService.save(awesomeUser)
+        User awesomeUser = generateUser()
 
         and:'a saved entity'
         FinancialEntity entity1 = new FinancialEntity()
@@ -383,8 +379,7 @@ class AccountControllerSpec extends Specification {
     def "Should get a list of accounts"(){
 
         given:'a saved user'
-        User user1 = new User('no awesome')
-        userService.save(user1)
+        User user1 =generateUser()
 
         and:'a saved entity'
         FinancialEntity entity = new FinancialEntity()
@@ -434,8 +429,7 @@ class AccountControllerSpec extends Specification {
     def "Should get a list of accounts in a cursor point"(){
 
         given:'a saved user'
-        User user1 = new User('no awesome')
-        userService.save(user1)
+        User user1 =  generateUser()
 
         and:'a saved entity'
         FinancialEntity entity = new FinancialEntity()
@@ -509,8 +503,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should delete an account"() {
         given:'a saved user'
-        User user1 = new User('i will die soon cause i have covid-19')
-        userService.save(user1)
+        User user1 = generateUser()
 
         and:'a saved entity'
         FinancialEntity entity = new FinancialEntity()
@@ -554,5 +547,14 @@ class AccountControllerSpec extends Specification {
 
     }
 
+    private User generateUser() {
+        userService.save(new User('awesome user', generateClient()))
+    }
+
+    private mx.finerio.pfm.api.domain.Client generateClient(){
+        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
+    }
+
 
 }
+

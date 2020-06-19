@@ -14,7 +14,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCommand
 import spock.lang.Shared
@@ -38,14 +38,14 @@ class UserControllerSpec extends Specification {
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService clientService
 
     @Shared
     String accessToken
 
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
@@ -91,8 +91,7 @@ class UserControllerSpec extends Specification {
 
     def "Should get an user"(){
         given:'a saved user'
-        User user = new User('no awesome name')
-        userGormService.save(user)
+        User user =  generateUser()
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users/${user.id}").bearerAuth(accessToken)
@@ -154,8 +153,7 @@ class UserControllerSpec extends Specification {
 
     def "Should update an user"(){
         given:'a saved user'
-        User user = new User('no awesome name')
-        userGormService.save(user)
+        User user =  generateUser()
 
         and:'an user command to update data'
         UserCommand cmd = new UserCommand()
@@ -177,8 +175,7 @@ class UserControllerSpec extends Specification {
 
     def "Should not update an user on band parameters and return Bad Request"(){
         given:'a saved user'
-        User user = new User('no awesome name')
-        userGormService.save(user)
+        User user =  generateUser()
 
         and:'a client'
         HttpRequest request = HttpRequest.PUT("/users/${user.id}",  new UserCommand()).bearerAuth(accessToken)
@@ -216,12 +213,11 @@ class UserControllerSpec extends Specification {
     def "Should get a list of users"(){
 
          given:'a saved user'
-         User user = new User('no awesome')
+         User user = new User('no awesome', generateClient())
          user.dateDeleted = new Date()
          userGormService.save(user)
 
-         User user2 = new User('awesome')
-         userGormService.save(user2)
+         User user2 =  generateUser()
         and:
         HttpRequest getReq = HttpRequest.GET("/users").bearerAuth(accessToken)
 
@@ -240,14 +236,11 @@ class UserControllerSpec extends Specification {
     def "Should get a list of users in a cursor point"() {
 
         given:'a saved user'
-        User user = new User('no awesome')
-        userGormService.save(user)
+        User user =generateUser()
 
-        User user2 = new User('awesome')
-        userGormService.save(user2)
+        User user2 = generateUser()
 
-        User user3 = new User('more awesome')
-        userGormService.save(user3)
+        User user3 =generateUser()
 
         and:
         HttpRequest getReq = HttpRequest.GET("/users?cursor=${user2.id}").bearerAuth(accessToken)
@@ -264,6 +257,7 @@ class UserControllerSpec extends Specification {
             assert name == user2.name
             assert dateCreated
         }
+        users.last().id == user.id
     }
 
     def "Should throw not found exception on delete no found user"(){
@@ -281,8 +275,7 @@ class UserControllerSpec extends Specification {
 
     def "Should delete an user"() {
         given:'a saved user'
-        User user = new User('i will die soon cause i have covid-19')
-        userGormService.save(user)
+        User user = generateUser()
         Long id = user.id
 
         and:'a client request'
@@ -305,6 +298,14 @@ class UserControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
+    }
+
+    private User generateUser() {
+        userGormService.save(new User('awesome user', generateClient()))
+    }
+
+    private mx.finerio.pfm.api.domain.Client generateClient(){
+        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
     }
 
 

@@ -9,7 +9,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 
 import java.awt.Color
 import mx.finerio.pfm.api.Application
@@ -47,14 +47,14 @@ class CategoryControllerSpec extends Specification {
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService clientService
 
     @Shared
     String accessToken
 
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
@@ -471,13 +471,11 @@ class CategoryControllerSpec extends Specification {
     }
 
     private User generateUser() {
-        User user = new User()
-        user.with {
-            name = 'awesome name'
+        userGormService.save(new User('awesome user', generateClient()))
+    }
 
-        }
-        userGormService.save(user)
-        user
+    private mx.finerio.pfm.api.domain.Client generateClient(){
+        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
     }
 
     private static CategoryCommand generateCategoryCommand(User user1) {

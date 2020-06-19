@@ -1,6 +1,6 @@
 package mx.finerio.pfm.api.services
 
-
+import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
@@ -21,10 +21,11 @@ class UserServiceSpec extends Specification {
         given:'a user command request body'
         UserCommand cmd = new UserCommand(name:"awesome name")
 
+        def client = new Client()
         when:
-        1 * userService.userGormService.save(_  as User) >> new User(cmd.name)
+        1 * userService.userGormService.save(_  as User) >> new User(cmd.name, client)
 
-        def response = userService.create(cmd)
+        def response = userService.create(cmd, client)
 
         then:
         response instanceof User
@@ -33,7 +34,7 @@ class UserServiceSpec extends Specification {
     def "Should throw exception on null body"() {
 
         when:
-        userService.create(null)
+        userService.create(null, new Client())
         then:
         IllegalArgumentException e = thrown()
         e.message ==

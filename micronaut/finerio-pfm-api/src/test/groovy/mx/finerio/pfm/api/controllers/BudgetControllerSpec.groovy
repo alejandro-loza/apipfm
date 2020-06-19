@@ -18,7 +18,7 @@ import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -28,8 +28,6 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Inject
-import java.awt.*
-import java.util.List
 
 @Property(name = 'spec.name', value = 'budget controller')
 @MicronautTest(application = Application.class)
@@ -54,14 +52,14 @@ class BudgetControllerSpec extends Specification {
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService clientService
 
     @Shared
     String accessToken
 
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
                 .bearerAuth(accessToken)
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
@@ -393,14 +391,13 @@ class BudgetControllerSpec extends Specification {
     }
 
     private User generateUser() {
-        User user = new User()
-        user.with {
-            name = 'awesome name'
-
-        }
-        userGormService.save(user)
-        user
+        userGormService.save(new User('awesome user', generateClient()))
     }
+
+    private mx.finerio.pfm.api.domain.Client generateClient(){
+        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
+    }
+
 
     private Category generateCategory(User user1) {
         Category category1 = new Category()
