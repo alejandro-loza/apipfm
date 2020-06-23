@@ -1,5 +1,8 @@
 package mx.finerio.pfm.api.dtos
 
+import com.fasterxml.jackson.annotation.JsonInclude
+
+@JsonInclude(JsonInclude.Include.ALWAYS)
 class ResourcesDto {
 
     List<ResourceDto> data

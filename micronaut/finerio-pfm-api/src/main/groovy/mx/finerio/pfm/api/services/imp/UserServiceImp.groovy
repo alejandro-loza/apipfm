@@ -55,8 +55,17 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     }
 
     @Override
-    List<UserDto> getAll() {
-        userGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+    @Transactional
+    List<UserDto> getAllByClient(Client client) {
+        userGormService.findAllByClientAndDateDeletedIsNull(client, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{user -> new UserDto(user)}
+    }
+
+    @Override
+    @Transactional
+    List<UserDto> getAllByClientAndCursor(Client client, Long cursor) {
+        userGormService.findAllByClientAndDateDeletedIsNullAndIdLessThanEquals(client,cursor,
+                [max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{user -> new UserDto(user)}
     }
 

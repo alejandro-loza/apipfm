@@ -45,9 +45,10 @@ class UserController {
     }
 
     @Get("{?cursor}")
-    Single<Map> showAll(@Nullable Long cursor) {
-        List<UserDto> users = cursor ? userService.findAllByCursor(cursor) : userService.getAll()
-        just(users.isEmpty() ? [] :  new ResourcesDto(users)) as Single<Map>
+    ResourcesDto showAll(@Nullable Long cursor) {
+        List<UserDto> users = cursor ? userService.getAllByClientAndCursor(getCurrenLoggedClient(), cursor)
+                :  userService.getAllByClient(getCurrenLoggedClient())
+        new ResourcesDto(users)
     }
 
     @Put("/{id}")

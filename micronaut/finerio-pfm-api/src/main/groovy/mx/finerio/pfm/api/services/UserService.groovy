@@ -11,5 +11,7 @@ interface UserService {
     User update(UserCommand cmd, Long id)
     void delete(Long id)
     List<UserDto> findAllByCursor(long cursor)
-    List<UserDto> getAll()
+    List<UserDto> getAllByClient(Client client)
+    List<UserDto> getAllByClientAndCursor(Client client, Long cursor)
+
 }

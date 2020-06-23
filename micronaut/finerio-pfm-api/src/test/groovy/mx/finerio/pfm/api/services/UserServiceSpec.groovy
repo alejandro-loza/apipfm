@@ -63,24 +63,6 @@ class UserServiceSpec extends Specification {
         e.message == 'user.notFound'
     }
 
-    def "Should get all user" () {
-        when:
-        1 * userService.userGormService.findAllByDateDeletedIsNull(_ as Map) >> [new User()]
-        def response = userService.getAll()
-
-        then:
-        assert response instanceof  List<User>
-    }
-
-    def "Should not get all user" () {
-        when:
-        1 * userService.userGormService.findAllByDateDeletedIsNull(_ as Map) >> []
-        def response = userService.getAll()
-
-        then:
-        response instanceof  List<UserDto>
-        response.isEmpty()
-    }
 
     def "Should get user by a cursor " () {
 

@@ -43,18 +43,21 @@ class UserControllerSpec extends Specification {
     @Shared
     String accessToken
 
+    @Shared
+    mx.finerio.pfm.api.domain.Client loggedInClient
+
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        loggedInClient = clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
     }
 
-    void setup(){
-        List<User> entities = userGormService.findAll()
-        entities.each {  entity ->
-            userGormService.delete(entity.id)
+    void cleanup(){
+        List<User> users = userGormService.findAll()
+        users.each {  user ->
+            userGormService.delete(user.id)
         }
     }
 
@@ -64,12 +67,14 @@ class UserControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("/users").bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(UserDto))
+        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(Map))
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().isEmpty()
-
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data") == []
+        assert body.get("nextCursor") == null
     }
 
     def "Should create and get user"(){
@@ -210,14 +215,20 @@ class UserControllerSpec extends Specification {
 
     }
 
-    def "Should get a list of users"(){
+    def "Should get a list of users by a current loggedIn client"(){
 
-         given:'a saved user'
-         User user = new User('no awesome', generateClient())
-         user.dateDeleted = new Date()
-         userGormService.save(user)
+        given:'a saved user'
+        User user =  generateUser()
 
-         User user2 =  generateUser()
+        User user2 = new User('no awesome', loggedInClient)
+        user2.dateDeleted = new Date()
+        userGormService.save(user2)
+
+        and:'an another client user '
+
+        User user3 = new User('another',generateClient())
+        userGormService.save(user3)
+
         and:
         HttpRequest getReq = HttpRequest.GET("/users").bearerAuth(accessToken)
 
@@ -227,11 +238,54 @@ class UserControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data")
+
         List<UserDto> users= body.get("data") as List<UserDto>
-        assert users.size() > 0
-        assert !(user.id in users.id)
+        assert !users.isEmpty()
+        assert users.stream().noneMatch{it.id == user2.id}
+        assert users.stream().noneMatch{it.id == user3.id}
+        assert users.stream().anyMatch{it.id == user.id}
 
     }
+
+    def "Should get a list of users by a current loggedIn client in a cursor point"(){
+
+        given:'a saved list of users'
+        User user = new User('no awesome', loggedInClient)
+        user.dateDeleted = new Date()
+        userGormService.save(user)
+
+        User user2 = generateUser()
+        User user3 = new User('another',generateClient())
+        userGormService.save(user3)
+        User user4 = generateUser()
+        User user5 = generateUser()
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("/users?cursor=${user4.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data")
+        assert body.get("nextCursor") == user2.id -1
+
+        List<UserDto> users= body.get("data") as List<UserDto>
+        assert !users.isEmpty()
+        assert users.stream().noneMatch{it.id == user.id}
+        assert users.stream().noneMatch{it.id == user3.id}
+        assert users.stream().noneMatch{it.id == user5.id}
+        assert users.stream().anyMatch{it.id == user2.id}
+        assert users.stream().anyMatch{it.id == user4.id}
+        assert users.first().id == user4.id
+        assert users.last().id == user2.id
+    }
+
 
     def "Should get a list of users in a cursor point"() {
 
@@ -301,11 +355,11 @@ class UserControllerSpec extends Specification {
     }
 
     private User generateUser() {
-        userGormService.save(new User('awesome user', generateClient()))
+        userGormService.save(new User('awesome user', loggedInClient))
     }
 
     private mx.finerio.pfm.api.domain.Client generateClient(){
-        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
+        clientService.register("another client", 'elementary', ['ROLE_DETECTIVE'])
     }
 
 
