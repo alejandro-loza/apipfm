@@ -27,9 +27,6 @@ class AccountController {
     @Inject
     AccountService accountService
 
-    @Inject
-    UserService userService
-
     @Post("/")
     Single<AccountDto> save(@Body @Valid AccountCommand cmd){
         Single.just(new AccountDto(accountService.create(cmd)))
@@ -45,8 +42,8 @@ class AccountController {
     @Transactional
     Single<Map> showAll(@Nullable Long cursor, @Nullable Long userId ) {
         List<AccountDto> accounts = cursor ?
-                accountService.findAllByUserAndCursor(userService.getUser(userId), cursor)
-                : accountService.getAll()
+                accountService.findAllByUserAndCursor(userId, cursor)
+                : accountService.findAllByUser(userId)
         Single.just(accounts.isEmpty() ? [] :  new ResourcesDto(accounts)) as Single<Map>
     }
 

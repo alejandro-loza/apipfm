@@ -7,6 +7,7 @@ import org.grails.datastore.gorm.GormEntity
 @Entity
 class Client implements GormEntity<Client>, UserState {
 
+    Long id
     String username
     String password
     boolean enabled = true

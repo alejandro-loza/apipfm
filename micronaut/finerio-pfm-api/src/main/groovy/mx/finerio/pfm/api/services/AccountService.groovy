@@ -12,5 +12,6 @@ interface AccountService {
     void delete(Long id)
     List<AccountDto> getAll()
     List<AccountDto> findAllByCursor(Long cursor)
-    List<AccountDto> findAllByUserAndCursor(User user, Long cursor)
+    List<AccountDto> findAllByUserAndCursor(Long userid, Long cursor)
+    List<AccountDto> findAllByUser(Long userid)
 }
