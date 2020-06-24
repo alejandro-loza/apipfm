@@ -1,6 +1,5 @@
 package mx.finerio.pfm.api.services
 
-import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.utils.SecurityService
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
@@ -291,11 +290,9 @@ class AccountServiceSpec extends Specification {
         }
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
-        1 * accountService.financialEntityService.getById(_ as Long) >> entity
         1 * accountService.accountGormService.save(_  as Account) >> account
 
         def response = accountService.delete(account.user.id)

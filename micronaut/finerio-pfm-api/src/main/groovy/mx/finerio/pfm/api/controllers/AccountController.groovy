@@ -28,6 +28,7 @@ class AccountController {
     AccountService accountService
 
     @Post("/")
+    @Transactional
     Single<AccountDto> save(@Body @Valid AccountCommand cmd){
         Single.just(new AccountDto(accountService.create(cmd)))
     }
@@ -40,11 +41,11 @@ class AccountController {
 
     @Get("{?cursor,userId}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor, @Nullable Long userId ) {
+    Single<ResourcesDto> showAll(@Nullable Long cursor, @Nullable Long userId ) {
         List<AccountDto> accounts = cursor ?
                 accountService.findAllByUserAndCursor(userId, cursor)
                 : accountService.findAllByUser(userId)
-        Single.just(accounts.isEmpty() ? [] :  new ResourcesDto(accounts)) as Single<Map>
+        Single.just( new ResourcesDto(accounts))
     }
 
     @Put("/{id}")
