@@ -61,11 +61,15 @@ class TransactionControllerSpec extends Specification {
     ClientService clientService
 
     @Shared
+    mx.finerio.pfm.api.domain.Client loggedInClient
+
+
+    @Shared
     String accessToken
 
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        loggedInClient = clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
@@ -480,12 +484,7 @@ class TransactionControllerSpec extends Specification {
     }
 
     private User generateUser() {
-        userGormService.save(new User('awesome user', generateClient()))
+        userGormService.save(new User('awesome user', loggedInClient))
     }
-
-    private mx.finerio.pfm.api.domain.Client generateClient(){
-        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
-    }
-
 
 }

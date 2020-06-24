@@ -1,5 +1,8 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.context.annotation.Property
+import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.TransactionDto
@@ -9,6 +12,8 @@ import mx.finerio.pfm.api.services.imp.TransactionServiceImp
 import mx.finerio.pfm.api.validation.TransactionCommand
 import spock.lang.Specification
 
+@Property(name = 'spec.name', value = 'account controller')
+@MicronautTest(application = Application.class)
 class TransactionServiceSpec extends Specification {
 
     TransactionService transactionService = new TransactionServiceImp()
@@ -27,7 +32,7 @@ class TransactionServiceSpec extends Specification {
             date =  new Date().getTime()
         }
         when:
-        1 * transactionService.accountService.getAccount(_ as Long)
+        1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
         1 * transactionService.transactionGormService.save(_  as Transaction) >> new Transaction()
 
         def response = transactionService.create(cmd)

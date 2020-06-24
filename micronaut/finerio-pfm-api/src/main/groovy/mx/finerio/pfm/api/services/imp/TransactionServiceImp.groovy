@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
+import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.Category
@@ -10,10 +11,13 @@ import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
 
-class TransactionServiceImp extends ServiceTemplate implements TransactionService {
+class TransactionServiceImp  implements TransactionService {
+
+    public static final int MAX_ROWS = 100
 
     @Inject
     TransactionGormService transactionGormService
@@ -25,6 +29,7 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
     CategoryService categoryService
 
     @Override
+    @Transactional
     Transaction create(TransactionCommand cmd){
         verifyBody(cmd)
         Transaction transaction = new Transaction(cmd, accountService.getAccount(cmd.accountId))
@@ -81,4 +86,10 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
          return categoryService.find(cmd.categoryId)
     }
 
+    static void verifyBody(ValidationCommand cmd) {
+        if (!cmd) {
+            throw new IllegalArgumentException(
+                    'request.body.invalid')
+        }
+    }
 }

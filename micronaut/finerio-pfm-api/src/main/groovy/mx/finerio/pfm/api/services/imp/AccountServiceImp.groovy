@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.validation.AccountCommand
 
 import javax.inject.Inject
+import javax.transaction.Transactional
 
 class AccountServiceImp extends ServiceTemplate implements AccountService {
 

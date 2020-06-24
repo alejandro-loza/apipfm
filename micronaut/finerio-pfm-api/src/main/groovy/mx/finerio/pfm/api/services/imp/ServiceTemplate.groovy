@@ -25,7 +25,7 @@ class ServiceTemplate {
         }
     }
 
-    Client getCurrentLoggedClient() {
+    Client getCurrentLoggedClient() {//todo verify if is all necesary in all services
         clientService.findByUsername(securityService.getAuthentication().get().name)
     }
 
