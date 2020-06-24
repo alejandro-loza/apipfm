@@ -6,7 +6,6 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.exceptions.NotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.imp.AccountServiceImp
@@ -41,15 +40,51 @@ class AccountServiceSpec extends Specification {
             balance = 1000.00
         }
 
+        and:
+        Client client = generateClient()
+        Account account = generateAccount(client)
+
         when:
-        1 * accountService.userService.getUser(_ as Long) >> new User()
+        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.securityService.getAuthentication() >> of(Principal)
+        1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.financialEntityService.getById(_ as Long) >> new FinancialEntity()
-        1 * accountService.accountGormService.save(_  as Account) >> new Account()
+        1 * accountService.accountGormService.save(_  as Account) >> account
 
         def response = accountService.create(cmd)
 
         then:
         response instanceof Account
+    }
+
+    def 'Should not save an account and throw not found user client users not match '(){
+        given:'a account command request body'
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId = 111
+            financialEntityId = 666
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
+        }
+
+        and:
+        Client client = generateClient()
+        Account account = generateAccount(client)
+
+        when:
+        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.securityService.getAuthentication() >> of(Principal)
+        1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
+        0 * accountService.financialEntityService.getById(_ as Long) >> new FinancialEntity()
+        0 * accountService.accountGormService.save(_  as Account) >> account
+
+        accountService.create(cmd)
+
+        then:
+        NotFoundException e = thrown()
+        e.message == 'account.notFound'
     }
 
     def "Should throw exception on null body"() {
@@ -105,14 +140,6 @@ class AccountServiceSpec extends Specification {
         e.message == 'account.notFound'
     }
 
-    def "Should get all accounts" () {
-        when:
-        1 * accountService.accountGormService.findAllByDateDeletedIsNull(_ as Map) >> [generateAccount()]
-        def response = accountService.getAll()
-
-        then:
-        assert response instanceof  List<Account>
-    }
 
     def "Should get all accounts by user" () {
         given:
@@ -167,24 +194,153 @@ class AccountServiceSpec extends Specification {
         assert response.first().id == account.id
     }
 
-    def "Should not get all user" () {
+    def "Should update an account"(){
+        given:
+        Client client = generateClient()
+        Account account = generateAccount(client)
+
+        and:
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId = account.user.id
+            financialEntityId = 666
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
+        }
+
+        def entity = new FinancialEntity()
+        entity.with {
+            name = 'name'
+            code = 'code'
+        }
+
         when:
-        1 * accountService.accountGormService.findAllByDateDeletedIsNull(_ as Map) >> []
-        def response = accountService.getAll()
+        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.securityService.getAuthentication() >> of(Principal)
+        1 * accountService.clientService.findByUsername(_ as String) >>  client
+        1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
+        1 * accountService.financialEntityService.getById(_ as Long) >> entity
+        1 * accountService.accountGormService.save(_  as Account) >> account
+
+        def response = accountService.update(cmd, account.user.id)
 
         then:
-        response instanceof  List<AccountDto>
-        response.isEmpty()
+        assert response instanceof  Account
+
     }
 
-    def "Should get account by a cursor " () {
+    def "Should throw not found exception update an account with different client of the user"(){
+        given:
+        Client client = generateClient()
+        Account account = generateAccount(client)
+
+        and:
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId = account.user.id
+            financialEntityId = 666
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
+        }
+
+        def entity = new FinancialEntity()
+        entity.with {
+            name = 'name'
+            code = 'code'
+        }
 
         when:
-        1 * accountService.accountGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(_ as Long, _ as Map) >> [generateAccount()]
-        def response = accountService.findAllByCursor(2)
+        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.securityService.getAuthentication() >> of(Principal)
+        1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
+        1 * accountService.financialEntityService.getById(_ as Long) >> entity
+        0 * accountService.accountGormService.save(_  as Account) >> account
+
+        accountService.update(cmd, account.user.id)
 
         then:
-        response instanceof  List<AccountDto>
+        NotFoundException e = thrown()
+        e.message == 'account.notFound'
+    }
+
+    def "Should delete an account"(){
+        given:
+        Client client = generateClient()
+        Account account = generateAccount(client)
+
+        and:
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId = account.user.id
+            financialEntityId = 666
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
+        }
+
+        def entity = new FinancialEntity()
+        entity.with {
+            name = 'name'
+            code = 'code'
+        }
+
+        when:
+        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.securityService.getAuthentication() >> of(Principal)
+        1 * accountService.clientService.findByUsername(_ as String) >>  client
+        1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
+        1 * accountService.financialEntityService.getById(_ as Long) >> entity
+        1 * accountService.accountGormService.save(_  as Account) >> account
+
+        def response = accountService.delete(account.user.id)
+
+        then:
+        assert response == null
+
+    }
+
+    def "Should throw not found exception on delete an account and client user not match"(){
+        given:
+        Client client = generateClient()
+        Account account = generateAccount(client)
+
+        and:
+        AccountCommand cmd = new AccountCommand()
+        cmd.with {
+            userId = account.user.id
+            financialEntityId = 666
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
+        }
+
+        def entity = new FinancialEntity()
+        entity.with {
+            name = 'name'
+            code = 'code'
+        }
+
+        when:
+        1 * accountService.securityService.getAuthentication() >> of(Principal)
+        1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
+        0 * accountService.financialEntityService.getById(_ as Long) >> entity
+        0 * accountService.accountGormService.save(_  as Account) >> account
+
+        accountService.delete(account.user.id)
+
+
+        then:
+        NotFoundException e = thrown()
+        e.message == 'account.notFound'
+
     }
 
     private static Account generateAccount(Client client) {

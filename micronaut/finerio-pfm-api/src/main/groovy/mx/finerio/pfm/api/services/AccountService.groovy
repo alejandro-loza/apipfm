@@ -10,8 +10,6 @@ interface AccountService {
     Account getAccount(Long id)
     Account update(AccountCommand cmd, Long id)
     void delete(Long id)
-    List<AccountDto> getAll()
-    List<AccountDto> findAllByCursor(Long cursor)
-    List<AccountDto> findAllByUserAndCursor(Long userid, Long cursor)
-    List<AccountDto> findAllByUser(Long userid)
+    List<AccountDto> findAllByUserAndCursor(Long userId, Long cursor)
+    List<AccountDto> findAllByUser(Long userId)
 }

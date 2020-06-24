@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
+import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
@@ -28,7 +29,9 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Override
     Account create(AccountCommand cmd){
         verifyBody(cmd)
-        accountGormService.save( new Account(cmd, userService.getUser(cmd.userId),
+        User user = userService.getUser(cmd.userId)
+        verifyLoggedClient(user.client)
+        accountGormService.save( new Account(cmd, user,
                         financialEntityService.getById(cmd.financialEntityId)))
     }
 
@@ -43,10 +46,12 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Override
     Account update(AccountCommand cmd, Long id){
         verifyBody(cmd)
+        User userToUpdate = userService.getUser(cmd.userId)
+        def financial = financialEntityService.getById(cmd.financialEntityId)
         Account account = getAccount(id)
         account.with {
-            user = userService.getUser(cmd.userId)
-            financialEntity = financialEntityService.getById(cmd.financialEntityId)
+            user = userToUpdate
+            financialEntity = financial
             nature = cmd.nature
             name = cmd.name
             number = Long.valueOf(cmd.number)
@@ -60,12 +65,6 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
         Account account = getAccount(id)
         account.dateDeleted = new Date()
         accountGormService.save(account)
-    }
-
-    @Override
-    List<AccountDto> getAll() {
-        accountGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{new AccountDto(it)}
     }
 
     @Override
@@ -86,14 +85,9 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
                 .collect{new AccountDto(it)}
     }
 
-    @Override
-    List<AccountDto> findAllByCursor(Long cursor) {
-        accountGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new AccountDto(it)}
-    }
-
     private void verifyLoggedClient(Client client) {
         if (client != getCurrentLoggedClient()) {
-            throw new NotFoundException('account.notFound')
+            throw new NotFoundException('account.notFound')//todo check this
         }
     }
 
