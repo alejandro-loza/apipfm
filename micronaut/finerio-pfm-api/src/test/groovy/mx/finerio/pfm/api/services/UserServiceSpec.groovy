@@ -3,7 +3,7 @@ package mx.finerio.pfm.api.services
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.services.imp.UserServiceImp
 import mx.finerio.pfm.api.validation.UserCommand
@@ -59,7 +59,7 @@ class UserServiceSpec extends Specification {
         userService.getUser(666)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'user.notFound'
     }
 

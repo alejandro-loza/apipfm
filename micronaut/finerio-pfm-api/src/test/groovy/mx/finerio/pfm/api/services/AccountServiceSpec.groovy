@@ -5,7 +5,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.imp.AccountServiceImp
 import mx.finerio.pfm.api.validation.AccountCommand
@@ -82,7 +82,7 @@ class AccountServiceSpec extends Specification {
         accountService.create(cmd)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'account.notFound'
     }
 
@@ -124,7 +124,7 @@ class AccountServiceSpec extends Specification {
         accountService.getAccount(1L)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'account.notFound'
     }
 
@@ -135,7 +135,7 @@ class AccountServiceSpec extends Specification {
         accountService.getAccount(666)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'account.notFound'
     }
 
@@ -171,7 +171,7 @@ class AccountServiceSpec extends Specification {
         accountService.findAllByUser(account.user.id)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'account.notFound'
     }
 
@@ -263,7 +263,7 @@ class AccountServiceSpec extends Specification {
         accountService.update(cmd, account.user.id)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'account.notFound'
     }
 
@@ -335,7 +335,7 @@ class AccountServiceSpec extends Specification {
 
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'account.notFound'
 
     }

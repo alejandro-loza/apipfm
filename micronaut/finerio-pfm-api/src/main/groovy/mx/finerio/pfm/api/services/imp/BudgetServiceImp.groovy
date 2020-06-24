@@ -2,7 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.UserService
@@ -35,7 +35,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     @Override
     Budget find(Long id) {
         Optional.ofNullable(budgetGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('budget.notFound') })
+                .orElseThrow({ -> new ItemNotFoundException('budget.notFound') })
     }
 
     @Override

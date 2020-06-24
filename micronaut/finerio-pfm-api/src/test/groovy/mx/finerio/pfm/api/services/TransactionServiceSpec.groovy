@@ -6,7 +6,7 @@ import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.imp.TransactionServiceImp
 import mx.finerio.pfm.api.validation.TransactionCommand
@@ -52,12 +52,12 @@ class TransactionServiceSpec extends Specification {
         }
         when:
         1 * transactionService.accountService.getAccount(_ as Long)
-        1 * transactionService.categoryService.find(_ as Long) >> {throw new NotFoundException('category.notFound') }
+        1 * transactionService.categoryService.find(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }
 
         def response = transactionService.create(cmd)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'category.notFound'
     }
 
@@ -89,7 +89,7 @@ class TransactionServiceSpec extends Specification {
         transactionService.find(666)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'transaction.notFound'
     }
 

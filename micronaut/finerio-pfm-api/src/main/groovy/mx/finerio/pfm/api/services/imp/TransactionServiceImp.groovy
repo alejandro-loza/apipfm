@@ -5,7 +5,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.TransactionService
@@ -40,7 +40,7 @@ class TransactionServiceImp  implements TransactionService {
     @Override
     Transaction find(Long id) {
         Optional.ofNullable(transactionGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('transaction.notFound') })
+                .orElseThrow({ -> new ItemNotFoundException('transaction.notFound') })
     }
 
     @Override

@@ -2,7 +2,7 @@ package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.imp.CategoryServiceImp
 import mx.finerio.pfm.api.validation.CategoryCommand
@@ -32,7 +32,7 @@ class CategoryServiceSpec extends Specification {
         categoryService.create(cmd)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'category.notFound'
     }
 
@@ -85,7 +85,7 @@ class CategoryServiceSpec extends Specification {
         categoryService.find(666)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'category.notFound'
     }
 

@@ -16,7 +16,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
@@ -98,7 +98,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=666").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(getReq,Argument.of(NotFoundException))
+        client.toBlocking().exchange(getReq,Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -158,7 +158,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  new AccountCommand()).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -171,7 +171,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  'asd').bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -285,7 +285,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${ACCOUNT_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -299,7 +299,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${ACCOUNT_ROOT}/abc").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -390,7 +390,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/${notFoundId}",  cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -515,7 +515,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${ACCOUNT_ROOT}/666").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -560,7 +560,7 @@ class AccountControllerSpec extends Specification {
         HttpRequest.GET("${ACCOUNT_ROOT}/${account.id}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException

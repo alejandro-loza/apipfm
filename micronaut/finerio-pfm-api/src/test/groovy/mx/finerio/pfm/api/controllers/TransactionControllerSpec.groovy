@@ -17,7 +17,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
@@ -399,7 +399,7 @@ class TransactionControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -428,7 +428,7 @@ class TransactionControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException

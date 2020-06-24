@@ -18,7 +18,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.CategoryCommand
@@ -226,7 +226,7 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${CATEGORIES_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -433,7 +433,7 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -462,7 +462,7 @@ class CategoryControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException

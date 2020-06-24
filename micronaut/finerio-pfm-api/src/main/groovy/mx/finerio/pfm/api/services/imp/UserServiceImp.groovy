@@ -4,7 +4,7 @@ import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCommand
@@ -21,7 +21,7 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     @Override
     User getUser(long id) {
         Optional.ofNullable(userGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('user.notFound') })
+                .orElseThrow({ -> new ItemNotFoundException('user.notFound') })
     }
 
     @Override

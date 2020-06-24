@@ -17,7 +17,7 @@ import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
@@ -180,7 +180,7 @@ class BudgetControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${BUDGETS_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -352,7 +352,7 @@ class BudgetControllerSpec extends Specification {
         when:
         client.toBlocking().exchange(request,
                 Argument.of(BudgetDto) as Argument<BudgetDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -382,7 +382,7 @@ class BudgetControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException

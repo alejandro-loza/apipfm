@@ -15,7 +15,7 @@ import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
 
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
@@ -181,7 +181,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
-                NotFoundException as Argument<NotFoundException>)
+                ItemNotFoundException as Argument<ItemNotFoundException>)
 
         then:
         def  e = thrown HttpClientResponseException
@@ -198,7 +198,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
-                NotFoundException as Argument<NotFoundException>)
+                ItemNotFoundException as Argument<ItemNotFoundException>)
 
         then:
         def  e = thrown HttpClientResponseException
@@ -294,7 +294,7 @@ class FinancialEntityControllerSpec extends Specification {
         when:
         client.toBlocking().exchange(
                 request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -369,7 +369,7 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -396,7 +396,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException

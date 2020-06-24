@@ -13,7 +13,7 @@ import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCommand
@@ -148,7 +148,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("/users/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -207,7 +207,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.PUT("/users/${notFoundId}",  cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -319,7 +319,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("/users/666").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -346,7 +346,7 @@ class UserControllerSpec extends Specification {
         HttpRequest.GET("/users/${id}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException

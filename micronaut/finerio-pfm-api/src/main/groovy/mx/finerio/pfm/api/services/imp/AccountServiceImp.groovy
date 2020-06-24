@@ -2,11 +2,9 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
-import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
-import mx.finerio.pfm.api.exceptions.BadRequestException
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.UserService
@@ -14,7 +12,6 @@ import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.validation.AccountCommand
 
 import javax.inject.Inject
-import javax.transaction.Transactional
 
 class AccountServiceImp extends ServiceTemplate implements AccountService {
 
@@ -39,7 +36,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Override
     Account getAccount(Long id) {
         Account account = Optional.ofNullable(accountGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('account.notFound') })
+                .orElseThrow({ -> new ItemNotFoundException('account.notFound') })
         verifyLoggedClient(account.user.client)
         account
     }
@@ -88,7 +85,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
 
     private void verifyLoggedClient(Client client) {
         if (client.id != getCurrentLoggedClient().id) {
-            throw new NotFoundException('account.notFound')//todo check this
+            throw new ItemNotFoundException('account.notFound')//todo check this
         }
     }
 

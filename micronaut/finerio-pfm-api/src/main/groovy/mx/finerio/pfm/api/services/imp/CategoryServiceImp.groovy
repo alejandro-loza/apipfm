@@ -3,7 +3,7 @@ package mx.finerio.pfm.api.services.imp
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.CategoryDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
@@ -30,7 +30,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     @Override
     Category find(Long id) {
         Optional.ofNullable(categoryGormService.findByIdAndDateDeletedIsNull(id))
-                .orElseThrow({ -> new NotFoundException('category.notFound') })
+                .orElseThrow({ -> new ItemNotFoundException('category.notFound') })
     }
 
     @Override

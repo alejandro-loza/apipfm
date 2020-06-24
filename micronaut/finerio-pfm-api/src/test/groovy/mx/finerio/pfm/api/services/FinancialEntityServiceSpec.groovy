@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.FinancialEntity
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.imp.FinancialEntityServiceImp
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
@@ -61,7 +61,7 @@ class FinancialEntityServiceSpec extends Specification {
         financialEntityService.getById(666)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'financialEntity.exist'
     }
 

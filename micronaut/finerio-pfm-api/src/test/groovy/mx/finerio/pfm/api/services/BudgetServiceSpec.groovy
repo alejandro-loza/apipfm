@@ -5,7 +5,7 @@ import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.imp.BudgetServiceImp
 import mx.finerio.pfm.api.validation.BudgetCommand
@@ -67,7 +67,7 @@ class BudgetServiceSpec extends Specification {
         budgetService.find(666)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'budget.notFound'
     }
 
