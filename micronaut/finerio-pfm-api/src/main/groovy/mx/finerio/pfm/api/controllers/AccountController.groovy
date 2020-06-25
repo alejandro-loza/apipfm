@@ -11,8 +11,8 @@ import mx.finerio.pfm.api.dtos.AccountDto
 
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.AccountService
-import mx.finerio.pfm.api.services.UserService
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
+import mx.finerio.pfm.api.validation.AccountUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -29,7 +29,7 @@ class AccountController {
 
     @Post("/")
     @Transactional
-    Single<AccountDto> save(@Body @Valid AccountCommand cmd){
+    Single<AccountDto> save(@Body @Valid AccountCreateCommand cmd){
         Single.just(new AccountDto(accountService.create(cmd)))
     }
 
@@ -50,7 +50,7 @@ class AccountController {
 
     @Put("/{id}")
     @Transactional
-    Single<AccountDto> edit(@Body @Valid AccountCommand cmd, @NotNull Long id ) {
+    Single<AccountDto> edit(@Body @Valid AccountUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new AccountDto(accountService.update(cmd, id)))
     }
 

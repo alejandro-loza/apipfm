@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
@@ -18,7 +18,7 @@ class Account  implements GormEntity<Account> {
     Date lastUpdated
     Date dateDeleted
 
-    Account(AccountCommand accountCommand, User user, FinancialEntity financialEntity) {
+    Account(AccountCreateCommand accountCommand, User user, FinancialEntity financialEntity) {
         this.user = user
         this.financialEntity = financialEntity
         this.nature = accountCommand.nature

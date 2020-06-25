@@ -3,9 +3,7 @@ package mx.finerio.pfm.api.validators
 
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.validation.AccountCommand
 import mx.finerio.pfm.api.validation.CategoryCommand
-import mx.finerio.pfm.api.validation.TransactionCommand
 import spock.lang.Specification
 
 import javax.validation.ConstraintViolation

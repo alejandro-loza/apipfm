@@ -12,7 +12,7 @@ import mx.finerio.pfm.api.services.imp.TransactionServiceImp
 import mx.finerio.pfm.api.validation.TransactionCommand
 import spock.lang.Specification
 
-@Property(name = 'spec.name', value = 'account controller')
+@Property(name = 'spec.name', value = 'transaction service')
 @MicronautTest(application = Application.class)
 class TransactionServiceSpec extends Specification {
 

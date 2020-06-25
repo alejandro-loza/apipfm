@@ -1,6 +1,9 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.context.annotation.Property
 import io.micronaut.security.utils.SecurityService
+import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
@@ -8,13 +11,16 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.imp.AccountServiceImp
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
+import mx.finerio.pfm.api.validation.AccountUpdateCommand
 import spock.lang.Specification
 
 import java.security.Principal
 
 import static java.util.Optional.of
 
+@Property(name = 'spec.name', value = 'account service')
+@MicronautTest(application = Application.class)
 class AccountServiceSpec extends Specification {
 
     AccountService accountService = new AccountServiceImp()
@@ -29,7 +35,7 @@ class AccountServiceSpec extends Specification {
 
     def 'Should save an account'(){
         given:'a account command request body'
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = 111
             financialEntityId = 666
@@ -58,7 +64,7 @@ class AccountServiceSpec extends Specification {
 
     def 'Should not save an account and throw not found user client users not match '(){
         given:'a account command request body'
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = 111
             financialEntityId = 666
@@ -199,7 +205,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         and:
-        AccountCommand cmd = new AccountCommand()
+        AccountUpdateCommand cmd = new AccountUpdateCommand()
         cmd.with {
             userId = account.user.id
             financialEntityId = 666
@@ -230,13 +236,47 @@ class AccountServiceSpec extends Specification {
 
     }
 
+    def "Should partially update an account"(){
+        given:
+        Client client = generateClient()
+        Account account = generateAccount(client)
+
+        and:
+        AccountUpdateCommand cmd = new AccountUpdateCommand()
+        cmd.with {
+            userId = account.user.id
+            financialEntityId = 666
+        }
+
+        def entity = new FinancialEntity()
+        entity.with {
+            name = 'name'
+            code = 'code'
+        }
+
+        when:
+        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.securityService.getAuthentication() >> of(Principal)
+        1 * accountService.clientService.findByUsername(_ as String) >>  client
+        1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
+        1 * accountService.financialEntityService.getById(_ as Long) >> entity
+        1 * accountService.accountGormService.save(_  as Account) >> account
+
+        def response = accountService.update(cmd, account.user.id)
+
+        then:
+        assert response instanceof  Account
+
+    }
+
+
     def "Should throw not found exception update an account with different client of the user"(){
         given:
         Client client = generateClient()
         Account account = generateAccount(client)
 
         and:
-        AccountCommand cmd = new AccountCommand()
+        AccountUpdateCommand cmd = new AccountUpdateCommand()
         cmd.with {
             userId = account.user.id
             financialEntityId = 666
@@ -253,11 +293,9 @@ class AccountServiceSpec extends Specification {
         }
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
         1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
-        1 * accountService.financialEntityService.getById(_ as Long) >> entity
         0 * accountService.accountGormService.save(_  as Account) >> account
 
         accountService.update(cmd, account.user.id)
@@ -273,7 +311,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         and:
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = account.user.id
             financialEntityId = 666
@@ -308,7 +346,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         and:
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = account.user.id
             financialEntityId = 666

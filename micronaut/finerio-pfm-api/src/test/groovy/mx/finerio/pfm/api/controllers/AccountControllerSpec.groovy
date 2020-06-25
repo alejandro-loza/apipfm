@@ -21,7 +21,7 @@ import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -128,7 +128,7 @@ class AccountControllerSpec extends Specification {
         entity = financialEntityService.save(entity)
 
         and:'a command request body'
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = user.id
             financialEntityId = entity.id
@@ -166,7 +166,7 @@ class AccountControllerSpec extends Specification {
     def "Should not create an account and throw bad request on wrong params"(){
         given:'an account request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  new AccountCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT,  new AccountCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
@@ -192,7 +192,7 @@ class AccountControllerSpec extends Specification {
     def "Should not create an account and throw not found exception on user not found"(){
         given:'an account request body with no found user id'
 
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = 666
             financialEntityId = 666
@@ -216,7 +216,7 @@ class AccountControllerSpec extends Specification {
         given:'an saved user and financial entity'
         User user = generateUser()
 
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = user.id
             financialEntityId = 666
@@ -245,7 +245,7 @@ class AccountControllerSpec extends Specification {
         FinancialEntity entity = getSavedFinancialEntity()
 
         and:'a account request command body'
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId  = user.id
             financialEntityId = entity.id
@@ -296,11 +296,21 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${ACCOUNT_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().with {
+            assert code == 'account.notFound'
+            assert title == 'Account not found.'
+            assert detail == 'The account ID you requested was not found.'
+        }
 
     }
 
@@ -343,7 +353,7 @@ class AccountControllerSpec extends Specification {
         accountGormService.save(account)
 
         and:'an account command to update data'
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = awesomeUser.id
             financialEntityId = entity1.id
@@ -372,7 +382,7 @@ class AccountControllerSpec extends Specification {
     def "Should not update an account on band parameters and return Bad Request"(){
         given:'a saved user'
 
-        HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/666",  new AccountCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/666",  new AccountCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,AccountDto)
@@ -385,7 +395,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should not update an account and throw not found exception"(){
         given:
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = 1
             financialEntityId = 123

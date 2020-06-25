@@ -9,7 +9,8 @@ import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
+import mx.finerio.pfm.api.validation.AccountUpdateCommand
 
 import javax.inject.Inject
 
@@ -25,7 +26,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     FinancialEntityService financialEntityService
 
     @Override
-    Account create(AccountCommand cmd){
+    Account create(AccountCreateCommand cmd){
         verifyBody(cmd)
         User user = userService.getUser(cmd.userId)
         verifyLoggedClient(user.client)
@@ -42,18 +43,19 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     }
 
     @Override
-    Account update(AccountCommand cmd, Long id){
+    Account update(AccountUpdateCommand cmd, Long id){
         verifyBody(cmd)
-        User userToUpdate = userService.getUser(cmd.userId)
-        def financial = financialEntityService.getById(cmd.financialEntityId)
+
         Account account = getAccount(id)
         account.with {
-            user = userToUpdate
-            financialEntity = financial
-            nature = cmd.nature
-            name = cmd.name
-            number = Long.valueOf(cmd.number)
-            balance = cmd.balance
+            user = cmd.userId ? userService.getUser(cmd.userId) : account.user
+            financialEntity = cmd.financialEntityId ?
+                    financialEntityService.getById(cmd.financialEntityId)
+                    : account.financialEntity
+            nature = cmd.nature ?: account.nature
+            name = cmd.name ?: account.name
+            number = cmd.number ?: account.number
+            balance = cmd.balance ?: account.balance
         }
         accountGormService.save(account)
     }

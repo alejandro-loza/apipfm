@@ -1,9 +1,9 @@
 package mx.finerio.pfm.api.validators
 
-import com.sun.org.apache.bcel.internal.generic.DADD
+
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.TransactionCommand
 import spock.lang.Specification
 
@@ -32,7 +32,7 @@ class TransactionCommandSpec extends Specification{
             amount = 100.00
         }
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert violations.isEmpty()
@@ -43,7 +43,7 @@ class TransactionCommandSpec extends Specification{
         TransactionCommand cmd = new TransactionCommand()
 
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert !violations.isEmpty()

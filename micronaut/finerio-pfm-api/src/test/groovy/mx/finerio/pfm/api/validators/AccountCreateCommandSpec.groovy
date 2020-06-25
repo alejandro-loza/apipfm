@@ -2,7 +2,7 @@ package mx.finerio.pfm.api.validators
 
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
 import spock.lang.Specification
 
 import javax.validation.ConstraintViolation
@@ -11,7 +11,7 @@ import javax.validation.Validator
 import javax.validation.ValidatorFactory
 
 @MicronautTest(application = Application.class)
-class AccountCommandSpec extends Specification{
+class AccountCreateCommandSpec extends Specification{
     Validator validator
 
     void setup() {
@@ -21,7 +21,7 @@ class AccountCommandSpec extends Specification{
 
     def "Should validate a account command"(){
         given:'an account command validator'
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
         cmd.with {
             userId = 1
             financialEntityId = 1
@@ -31,7 +31,7 @@ class AccountCommandSpec extends Specification{
             balance = 0.01
         }
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert violations.isEmpty()
@@ -39,10 +39,10 @@ class AccountCommandSpec extends Specification{
 
     def "Should not validate a account command"(){
         given:'an account command validator'
-        AccountCommand cmd = new AccountCommand()
+        AccountCreateCommand cmd = new AccountCreateCommand()
 
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert !violations.isEmpty()

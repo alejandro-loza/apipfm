@@ -3,9 +3,8 @@ package mx.finerio.pfm.api.validators
 
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.BudgetCommand
-import mx.finerio.pfm.api.validation.TransactionCommand
 import spock.lang.Specification
 
 import javax.validation.ConstraintViolation
@@ -33,7 +32,7 @@ class BudgetCommandSpec extends Specification{
             amount =100.00
         }
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert violations.isEmpty()
@@ -44,7 +43,7 @@ class BudgetCommandSpec extends Specification{
         BudgetCommand cmd = new BudgetCommand()
 
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert !violations.isEmpty()
