@@ -50,7 +50,7 @@ class AccountController {
 
     @Put("/{id}")
     @Transactional
-    Single<AccountDto> edit(@Body @Valid AccountUpdateCommand cmd, @NotNull Long id ) {
+    Single<AccountDto> edit(@Body AccountUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new AccountDto(accountService.update(cmd, id)))
     }
 

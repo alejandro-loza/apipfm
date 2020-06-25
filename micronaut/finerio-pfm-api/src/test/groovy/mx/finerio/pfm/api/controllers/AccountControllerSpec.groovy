@@ -22,6 +22,7 @@ import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
+import mx.finerio.pfm.api.validation.AccountUpdateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -379,6 +380,54 @@ class AccountControllerSpec extends Specification {
 
     }
 
+    def "Should partially update an account"(){
+        given:'a saved user'
+        User awesomeUser = generateUser()
+        User moreAwesomeUser = generateUser()
+
+        and:'a saved entity'
+        FinancialEntity entity1 = generateEntity()
+        FinancialEntity entity2 = generateEntity()
+
+
+        and:'a saved account'
+        Account account = new Account()
+        account.with {
+            user = awesomeUser
+            financialEntity = entity1
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account)
+
+        and:'an account command to update data'
+        AccountUpdateCommand cmd = new AccountUpdateCommand()
+        cmd.with {
+            userId = moreAwesomeUser.id
+            financialEntityId = entity2.id
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/${account.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, AccountDto)
+
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            userId == moreAwesomeUser.id
+            financialEntityId == entity2.id
+            nature == account.nature
+            name == account.name
+            number == account.number
+            balance == account.balance
+        }
+
+    }
+
     def "Should not update an account on band parameters and return Bad Request"(){
         given:'a saved user'
 
@@ -598,6 +647,14 @@ class AccountControllerSpec extends Specification {
         clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
     }
 
+    private FinancialEntity generateEntity() {
+        FinancialEntity entity1 = new FinancialEntity()
+        entity1.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+        }
+        financialEntityService.save(entity1)
+    }
 
 }
 
