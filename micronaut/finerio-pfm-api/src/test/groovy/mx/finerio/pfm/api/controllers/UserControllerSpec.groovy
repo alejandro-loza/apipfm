@@ -137,6 +137,17 @@ class UserControllerSpec extends Specification {
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().with {
+            assert code == 'request.body.invalid'
+            assert title == 'Malformed request body'
+            assert detail == 'The JSON body request you sent is invalid.'
+        }
+
     }
 
     def "Should throw not found exception on no found user"(){
@@ -148,11 +159,21 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("/users/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>,  Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().with {
+            assert code == 'user.notFound'
+            assert title == 'User not found.'
+            assert detail == 'The user ID you requested was not found.'
+        }
 
     }
 

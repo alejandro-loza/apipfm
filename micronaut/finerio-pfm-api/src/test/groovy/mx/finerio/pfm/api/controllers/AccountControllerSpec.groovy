@@ -98,11 +98,22 @@ class AccountControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=666").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(getReq,Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(getReq,Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().with {
+            assert code == 'user.notFound'
+            assert title == 'User not found.'
+            assert detail == 'The user ID you requested was not found.'
+        }
+
     }
 
     def "Should create an account"(){

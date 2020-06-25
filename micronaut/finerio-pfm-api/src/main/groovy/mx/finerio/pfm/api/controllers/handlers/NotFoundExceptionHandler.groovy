@@ -22,7 +22,7 @@ class NotFoundExceptionHandler  implements ExceptionHandler<ItemNotFoundExceptio
 
     @Override
     HttpResponse handle(HttpRequest request, ItemNotFoundException ex ) {
-        String message =  messageService.getMessage( ex.message )
+        def message = ex.message
         ErrorDto error = new ErrorDto()
         error.with {
             code = message
