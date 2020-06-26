@@ -46,9 +46,13 @@ class FinancialEntityControllerSpec extends Specification {
     @Shared
     String accessToken
 
+    @Shared
+    mx.finerio.pfm.api.domain.Client loggedInClient
+
+
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        loggedInClient = registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
@@ -67,11 +71,14 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT).bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(FinancialEntityDto))
+        def rspGET = client.toBlocking().exchange(getReq, Map)
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().isEmpty()
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data") == []
+        assert body.get("nextCursor") == null
     }
 
     def "Should create a financial entity"(){
@@ -147,7 +154,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should get an financial entity"(){
         given:'a saved financial entity'
-        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity)
 
         and:
@@ -172,7 +179,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should not get an deleted financial entity"(){
         given:'a saved financial entity'
-        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialEntity.dateDeleted = new Date()
         financialGormService.save(financialEntity)
 
@@ -221,7 +228,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should update an financial entity"(){
         given:'a saved financial entity'
-        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity)
 
         and:'an financial entity command to update data'
@@ -305,10 +312,10 @@ class FinancialEntityControllerSpec extends Specification {
     def "Should get a list of entities"(){
 
         given:'a entities list'
-        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
 
-        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialEntity2.dateDeleted = new Date()
         financialGormService.save(financialEntity2)
 
@@ -321,27 +328,30 @@ class FinancialEntityControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data")
         List<FinancialEntityDto> financialEntityDtos = body.get("data") as List<FinancialEntityDto>
+        assert !financialEntityDtos.isEmpty()
         assert !(financialEntity2.id in financialEntityDtos.id)
     }
 
     def "Should get a list of financial entities in a cursor point"(){
 
         given:'a entities list'
-        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
 
-        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialEntity2.dateDeleted = new Date()
         financialGormService.save(financialEntity2)
 
-        FinancialEntity financialEntity3 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity3 = new FinancialEntity(getWakandaTestBankCommand(),loggedInClient)
         financialGormService.save(financialEntity3)
 
-        FinancialEntity financialEntity4 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity4 = new FinancialEntity(getWakandaTestBankCommand(),loggedInClient)
         financialGormService.save(financialEntity4)
 
-        FinancialEntity financialEntity5 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity5 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity5)
 
 
@@ -379,7 +389,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should delete an financial entity"() {
         given:'a entity'
-        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
 
         and:'a client request'

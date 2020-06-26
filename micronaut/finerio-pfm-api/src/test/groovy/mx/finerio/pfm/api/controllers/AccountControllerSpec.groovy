@@ -121,12 +121,7 @@ class AccountControllerSpec extends Specification {
         given:'an saved user and financial entity'
         User user =  userService.save(new User('awesome user', loggedInClient))
 
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        entity = financialEntityService.save(entity)
+        FinancialEntity entity = generateEntity()
 
         and:'a command request body'
         AccountCreateCommand cmd = new AccountCreateCommand()
@@ -242,8 +237,7 @@ class AccountControllerSpec extends Specification {
         User user = generateUser()
 
         and: 'a financial entity'
-
-        FinancialEntity entity = getSavedFinancialEntity()
+        FinancialEntity entity = generateEntity()
 
         and:'a account request command body'
         AccountCreateCommand cmd = new AccountCreateCommand()
@@ -279,16 +273,6 @@ class AccountControllerSpec extends Specification {
         }
         !account.dateDeleted
 
-    }
-
-    private FinancialEntity getSavedFinancialEntity() {
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        entity = financialEntityService.save(entity)
-        entity
     }
 
     def "Should not get an account and throw 404"(){
@@ -334,12 +318,7 @@ class AccountControllerSpec extends Specification {
         User awesomeUser = generateUser()
 
         and:'a saved entity'
-        FinancialEntity entity1 = new FinancialEntity()
-        entity1.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        entity1 = financialEntityService.save(entity1)
+        FinancialEntity entity1 = generateEntity()
 
         and:'a saved account'
         Account account = new Account()
@@ -474,12 +453,7 @@ class AccountControllerSpec extends Specification {
         User user1 =generateUser()
 
         and:'a saved entity'
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        entity = financialEntityService.save(entity)
+        FinancialEntity entity = generateEntity()
 
         and:'account list'
         Account account = new Account()
@@ -524,12 +498,7 @@ class AccountControllerSpec extends Specification {
         User user1 =  generateUser()
 
         and:'a saved entity'
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        entity = financialEntityService.save(entity)
+        FinancialEntity entity = generateEntity()
 
         and:'a list of accounts'
         Account account = new Account()
@@ -598,12 +567,7 @@ class AccountControllerSpec extends Specification {
         User user1 = generateUser()
 
         and:'a saved entity'
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        entity = financialEntityService.save(entity)
+        FinancialEntity entity = generateEntity()
 
         and:'a saved account'
         Account account = new Account()
@@ -648,6 +612,7 @@ class AccountControllerSpec extends Specification {
         entity1.with {
             name = 'Gringotts'
             code = 'Gringotts Bank'
+            entity1.client = loggedInClient
         }
         financialEntityService.save(entity1)
     }

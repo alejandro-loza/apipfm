@@ -49,9 +49,11 @@ class FinancialEntityController {
     }
 
     @Get("{?cursor}")
-    Single<Map> showAll(@Nullable Long cursor) {
-        List<FinancialEntity> entities = cursor ? financialEntityService.findAllByCursor(cursor) : financialEntityService.getAll()
-        just(entities.isEmpty() ? [] :  new ResourcesDto(entities)) as Single<Map>
+    Single<ResourcesDto> showAll(@Nullable Long cursor) {
+        List<FinancialEntityDto> entities = cursor
+                ? financialEntityService.findAllByCursor(cursor)
+                : financialEntityService.getAll()
+        just( new ResourcesDto(entities))
     }
 
     @Delete("/{id}")

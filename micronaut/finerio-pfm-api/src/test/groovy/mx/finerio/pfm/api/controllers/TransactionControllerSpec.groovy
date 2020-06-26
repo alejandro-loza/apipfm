@@ -453,12 +453,7 @@ class TransactionControllerSpec extends Specification {
     private Account generateAccount() {
         User user1 = generateUser()
 
-        FinancialEntity entity = new FinancialEntity()
-        entity.with {
-            name = 'Gringotts'
-            code = 'Gringotts Bank'
-        }
-        financialEntityService.save(entity)
+        FinancialEntity entity = generateEntity()
 
         Account account1 = new Account()
         account1.with {
@@ -485,6 +480,16 @@ class TransactionControllerSpec extends Specification {
 
     private User generateUser() {
         userGormService.save(new User('awesome user', loggedInClient))
+    }
+
+    private FinancialEntity generateEntity() {
+        FinancialEntity entity1 = new FinancialEntity()
+        entity1.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+            entity1.client = loggedInClient
+        }
+        financialEntityService.save(entity1)
     }
 
 }

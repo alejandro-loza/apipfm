@@ -1,12 +1,14 @@
 package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
 
 import javax.inject.Inject
+import grails.gorm.transactions.Transactional
 
 class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEntityService {
 
@@ -18,7 +20,7 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
     @Override
     FinancialEntity create(FinancialEntityCommand cmd) {
         verifyBody(cmd)
-        financialEntityGormService.save(new FinancialEntity(cmd))
+        financialEntityGormService.save(new FinancialEntity(cmd, getCurrentLoggedClient()))
     }
 
     @Override
@@ -28,6 +30,7 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
     }
 
     @Override
+    @Transactional
     FinancialEntity update(FinancialEntityCommand cmd, Long id) {
         verifyBody(cmd)
         FinancialEntity financialEntity = getById(id)
@@ -39,16 +42,21 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
     }
 
     @Override
-    List<FinancialEntity> getAll() {
-        financialEntityGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+    List<FinancialEntityDto> getAll() {
+        financialEntityGormService
+                .findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new FinancialEntityDto(it)}
     }
 
     @Override
-    List<FinancialEntity> findAllByCursor(Long cursor) {
-        financialEntityGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+    List<FinancialEntityDto> findAllByCursor(Long cursor) {
+        financialEntityGormService
+                .findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new FinancialEntityDto(it)}
     }
 
     @Override
+    @Transactional
     void delete(Long id){
         FinancialEntity entity = getById(id)
         entity.dateDeleted = new Date()

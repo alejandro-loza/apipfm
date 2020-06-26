@@ -1,5 +1,7 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.security.utils.SecurityService
+import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
@@ -7,12 +9,18 @@ import mx.finerio.pfm.api.services.imp.FinancialEntityServiceImp
 import mx.finerio.pfm.api.validation.FinancialEntityCommand
 import spock.lang.Specification
 
+import java.security.Principal
+
+import static java.util.Optional.of
+
 class FinancialEntityServiceSpec extends Specification {
 
     FinancialEntityService financialEntityService = new FinancialEntityServiceImp()
 
     void setup(){
         financialEntityService.financialEntityGormService = Mock(FinancialEntityGormService)
+        financialEntityService.clientService = Mock(ClientService)
+        financialEntityService.securityService = Mock(SecurityService)
     }
 
     def 'Should save an financial entity'(){
@@ -24,6 +32,8 @@ class FinancialEntityServiceSpec extends Specification {
         }
 
         when:
+        1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
+        1 * financialEntityService.clientService.findByUsername(_ as String) >>  new Client()
         1 * financialEntityService.financialEntityGormService.save(_  as FinancialEntity) >> new FinancialEntity()
 
         def response = financialEntityService.create(cmd)

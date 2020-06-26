@@ -9,15 +9,17 @@ class FinancialEntity implements GormEntity<FinancialEntity> {
     Long id
     String name
     String code
+    Client client
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
 
     FinancialEntity (){}
 
-    FinancialEntity(FinancialEntityCommand cmd){
+    FinancialEntity(FinancialEntityCommand cmd, Client client){
         this.name = cmd.name
         this.code = cmd.code
+        this.client = client
     }
 
     static constraints = {
