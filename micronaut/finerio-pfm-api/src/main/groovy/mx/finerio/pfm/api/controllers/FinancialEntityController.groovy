@@ -11,11 +11,10 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.FinancialEntityService
-import mx.finerio.pfm.api.validation.FinancialEntityCommand
+import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -33,7 +32,7 @@ class FinancialEntityController {
     FinancialEntityService financialEntityService
 
     @Post("/")
-    Single<FinancialEntityDto> save(@Body @Valid FinancialEntityCommand cmd){
+    Single<FinancialEntityDto> save(@Body @Valid FinancialEntityCreateCommand cmd){
         just(new FinancialEntityDto(financialEntityService.create(cmd)))
     }
 
@@ -44,7 +43,7 @@ class FinancialEntityController {
     }
 
     @Put("/{id}")
-    Single<FinancialEntityDto> edit(@Body @Valid FinancialEntityCommand cmd, @NotNull Long id ) {
+    Single<FinancialEntityDto> edit(@Body @Valid FinancialEntityCreateCommand cmd, @NotNull Long id ) {
         just(new FinancialEntityDto(financialEntityService.update(cmd,id)))
     }
 

@@ -18,7 +18,7 @@ import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
-import mx.finerio.pfm.api.validation.FinancialEntityCommand
+import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -83,7 +83,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should create a financial entity"(){
         given:'an financial entity request body'
-        FinancialEntityCommand cmd = getWakandaTestBankCommand()
+        FinancialEntityCreateCommand cmd = getWakandaTestBankCommand()
 
         HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, cmd).bearerAuth(accessToken)
 
@@ -131,7 +131,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should not create a financial entity an throw bad request"() {
         given:'an financial entity empty request body'
-        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, new FinancialEntityCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, new FinancialEntityCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
@@ -254,7 +254,7 @@ class FinancialEntityControllerSpec extends Specification {
         financialGormService.save(financialEntity)
 
         and:'an financial entity command to update data'
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
             name = 'Gringotts'
             code = 'Gringotts magic bank'
@@ -280,7 +280,7 @@ class FinancialEntityControllerSpec extends Specification {
         given:'A not found entity id'
         Long id = 666
 
-        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${id}",  new FinancialEntityCommand())
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${id}",  new FinancialEntityCreateCommand())
                 .bearerAuth(accessToken)
 
         when:
@@ -309,7 +309,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should not update an financial entity and throw not found exception"(){
         given:
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
             name = 'Gringotts'
             code = 'Gringotts magic bank'
@@ -437,8 +437,8 @@ class FinancialEntityControllerSpec extends Specification {
 
     }
 
-    private static FinancialEntityCommand getWakandaTestBankCommand() {
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+    private static FinancialEntityCreateCommand getWakandaTestBankCommand() {
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
             name = 'National Bank of Wakanda'
             code = 'WAKANDA-NB'

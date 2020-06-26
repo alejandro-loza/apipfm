@@ -6,7 +6,7 @@ import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
-import mx.finerio.pfm.api.validation.FinancialEntityCommand
+import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 
 import javax.inject.Inject
 import grails.gorm.transactions.Transactional
@@ -19,13 +19,13 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
     FinancialEntityGormService financialEntityGormService
 
     @Override
-    FinancialEntity create(FinancialEntityCommand cmd) {
+    FinancialEntity create(FinancialEntityCreateCommand cmd) {
         verifyBody(cmd)
         def loggedClient = getCurrentLoggedClient()
         findByCode(cmd, loggedClient) ?: financialEntityGormService.save(new FinancialEntity(cmd, loggedClient))
     }
 
-    private FinancialEntity findByCode(FinancialEntityCommand cmd, Client loggedClient) {
+    private FinancialEntity findByCode(FinancialEntityCreateCommand cmd, Client loggedClient) {
         financialEntityGormService.findByCodeAndClientAndDateDeletedIsNull(cmd.code, loggedClient)
     }
 
@@ -38,7 +38,7 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
 
     @Override
     @Transactional
-    FinancialEntity update(FinancialEntityCommand cmd, Long id) {
+    FinancialEntity update(FinancialEntityCreateCommand cmd, Long id) {
         verifyBody(cmd)
         FinancialEntity financialEntity = getById(id)
         financialEntity.with {

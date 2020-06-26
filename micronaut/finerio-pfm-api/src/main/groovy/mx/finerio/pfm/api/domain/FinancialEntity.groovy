@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.FinancialEntityCommand
+import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
@@ -16,7 +16,7 @@ class FinancialEntity implements GormEntity<FinancialEntity> {
 
     FinancialEntity (){}
 
-    FinancialEntity(FinancialEntityCommand cmd, Client client){
+    FinancialEntity(FinancialEntityCreateCommand cmd, Client client){
         this.name = cmd.name
         this.code = cmd.code
         this.client = client

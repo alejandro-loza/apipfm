@@ -86,7 +86,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
 
     private void verifyLoggedClient(Client client) {
         if (client.id != getCurrentLoggedClient().id) {
-            throw new ItemNotFoundException('account.notFound')//todo check this
+            throw new ItemNotFoundException('account.notFound')
         }
     }
 

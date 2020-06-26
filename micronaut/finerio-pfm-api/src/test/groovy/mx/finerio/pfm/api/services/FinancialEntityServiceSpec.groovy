@@ -9,7 +9,7 @@ import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.imp.FinancialEntityServiceImp
-import mx.finerio.pfm.api.validation.FinancialEntityCommand
+import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import spock.lang.Specification
 
 import java.security.Principal
@@ -30,7 +30,7 @@ class FinancialEntityServiceSpec extends Specification {
 
     def 'Should save an financial entity'(){
         given:'an financial entity command request body'
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
             name = 'National Bank of Wakanda'
             code = 'WAKANDA-NB'
@@ -56,7 +56,7 @@ class FinancialEntityServiceSpec extends Specification {
 
     def 'Should not save an financial entity on previously saves and unique code'(){
         given:'an financial entity command request body'
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
             name = 'National Bank of Wakanda'
             code = 'WAKANDA-NB'

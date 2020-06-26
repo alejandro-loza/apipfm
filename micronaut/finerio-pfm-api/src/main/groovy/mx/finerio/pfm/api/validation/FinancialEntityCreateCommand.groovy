@@ -3,7 +3,7 @@ package mx.finerio.pfm.api.validation
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
-class FinancialEntityCommand extends ValidationCommand {
+class FinancialEntityCreateCommand extends ValidationCommand {
 
     @NotNull(message= 'financialEntity.name.null')
     @NotBlank(message= 'financialEntity.name.blank')
