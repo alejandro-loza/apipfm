@@ -52,9 +52,12 @@ class CategoryControllerSpec extends Specification {
     @Shared
     String accessToken
 
+    @Shared
+    mx.finerio.pfm.api.domain.Client loggedInClient
+
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        loggedInClient = clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
@@ -471,11 +474,7 @@ class CategoryControllerSpec extends Specification {
     }
 
     private User generateUser() {
-        userGormService.save(new User('awesome user', generateClient()))
-    }
-
-    private mx.finerio.pfm.api.domain.Client generateClient(){
-        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
+        userGormService.save(new User('awesome user', loggedInClient))
     }
 
     private static CategoryCommand generateCategoryCommand(User user1) {

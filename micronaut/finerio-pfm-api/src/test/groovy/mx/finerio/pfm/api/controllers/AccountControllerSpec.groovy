@@ -431,7 +431,7 @@ class AccountControllerSpec extends Specification {
     def "Should not update an account on band parameters and return Bad Request"(){
         given:'a saved user'
 
-        HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/666",  new AccountCreateCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/666", []).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request,AccountDto)
@@ -641,10 +641,6 @@ class AccountControllerSpec extends Specification {
 
     private User generateUser() {
         userService.save(new User('awesome user', loggedInClient))
-    }
-
-    private mx.finerio.pfm.api.domain.Client generateClient(){
-        clientService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
     }
 
     private FinancialEntity generateEntity() {

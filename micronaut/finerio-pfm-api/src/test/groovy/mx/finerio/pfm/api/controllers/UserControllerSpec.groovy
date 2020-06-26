@@ -159,7 +159,7 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("/users/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>,  Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,  Argument.of(ErrorDto))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -363,15 +363,6 @@ class UserControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
         assert userGormService.findById(user.id).dateDeleted
 
-        and:
-        HttpRequest.GET("/users/${id}").bearerAuth(accessToken)
-
-        when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<User>, Argument.of(ItemNotFoundException))
-
-        then:
-        def  e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.NOT_FOUND
 
     }
 

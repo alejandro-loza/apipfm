@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.security.utils.SecurityService
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
@@ -9,12 +10,18 @@ import mx.finerio.pfm.api.services.imp.UserServiceImp
 import mx.finerio.pfm.api.validation.UserCommand
 import spock.lang.Specification
 
+import java.security.Principal
+
+import static java.util.Optional.of
+
 class UserServiceSpec extends Specification {
 
     UserService userService = new UserServiceImp()
 
     void setup(){
         userService.userGormService = Mock(UserGormService)
+        userService.securityService = Mock(SecurityService)
+        userService.clientService = Mock(ClientService)
     }
 
     def 'Should save an user'(){
@@ -44,7 +51,9 @@ class UserServiceSpec extends Specification {
     def "Should get a user"(){
 
         when:
-        1 * userService.userGormService.findByIdAndDateDeletedIsNull(_ as Long) >> new User()
+        1 * userService.securityService.getAuthentication() >> of(Principal)
+        1 * userService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * userService.userGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client) >> new User()
 
         def result = userService.getUser(1L)
 
@@ -55,8 +64,10 @@ class UserServiceSpec extends Specification {
     def "Should not get a user and throw exception"(){
 
         when:
-        1 * userService.userGormService.findByIdAndDateDeletedIsNull(_ as Long) >> null
-        userService.getUser(666)
+        1 * userService.securityService.getAuthentication() >> of(Principal)
+        1 * userService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * userService.userGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client) >> null
+        userService.getUser(666L)
 
         then:
         ItemNotFoundException e = thrown()

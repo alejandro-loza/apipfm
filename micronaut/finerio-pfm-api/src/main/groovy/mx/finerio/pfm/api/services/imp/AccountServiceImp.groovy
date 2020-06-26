@@ -45,7 +45,6 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Override
     Account update(AccountUpdateCommand cmd, Long id){
         verifyBody(cmd)
-
         Account account = getAccount(id)
         account.with {
             user = cmd.userId ? userService.getUser(cmd.userId) : account.user
