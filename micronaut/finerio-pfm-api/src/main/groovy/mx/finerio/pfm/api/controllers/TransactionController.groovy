@@ -10,7 +10,8 @@ import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.TransactionService
-import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -29,7 +30,7 @@ class TransactionController {
     AccountService accountService
 
     @Post("/")
-    Single<TransactionDto> save(@Body @Valid TransactionCommand cmd){
+    Single<TransactionDto> save(@Body @Valid TransactionCreateCommand cmd){
         Single.just(new TransactionDto(transactionsService.create(cmd)))
     }
 
@@ -51,7 +52,7 @@ class TransactionController {
 
     @Put("/{id}")
     @Transactional
-    Single<TransactionDto> edit(@Body @Valid TransactionCommand cmd, @NotNull Long id ) {
+    Single<TransactionDto> edit(@Body TransactionUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new TransactionDto(transactionsService.update(cmd, id)))
     }
 

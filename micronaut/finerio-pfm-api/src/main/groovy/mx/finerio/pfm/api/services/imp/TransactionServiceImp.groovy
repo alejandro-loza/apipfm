@@ -10,7 +10,8 @@ import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
-import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
@@ -30,7 +31,7 @@ class TransactionServiceImp  implements TransactionService {
 
     @Override
     @Transactional
-    Transaction create(TransactionCommand cmd){
+    Transaction create(TransactionCreateCommand cmd){
         verifyBody(cmd)
         Transaction transaction = new Transaction(cmd, accountService.getAccount(cmd.accountId))
         transaction.category = findCategory(cmd)
@@ -38,21 +39,25 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     @Override
+    @Transactional
     Transaction find(Long id) {
         Optional.ofNullable(transactionGormService.findByIdAndDateDeletedIsNull(id))
                 .orElseThrow({ -> new ItemNotFoundException('transaction.notFound') })
     }
 
     @Override
-    Transaction update(TransactionCommand cmd, Long id){
+    @Transactional
+    Transaction update(TransactionUpdateCommand cmd, Long id){
         verifyBody(cmd)
         Transaction transaction = find(id)
         transaction.with {
-            account = accountService.getAccount(cmd.accountId)
-            date = new Date(cmd.date)
-            description = cmd.description
-            charge = cmd.charge
-            amount = cmd.amount
+            account = cmd.accountId
+                    ? accountService.getAccount(cmd.accountId)
+                    : transaction.account
+            date = cmd.date ? new Date(cmd.date) : new Date()
+            description = cmd.description ?: transaction.description
+            charge = cmd.charge != null? cmd.charge: transaction.charge
+            amount = cmd.amount ?: transaction.amount
         }
         transactionGormService.save(transaction)
     }
@@ -79,7 +84,7 @@ class TransactionServiceImp  implements TransactionService {
         transactionGormService.findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(account, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new TransactionDto(it)}
     }
 
-    private Category findCategory(TransactionCommand cmd){
+    private Category findCategory(TransactionCreateCommand cmd){
         if(!cmd.categoryId){
            return null
         }

@@ -9,7 +9,7 @@ import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.imp.TransactionServiceImp
-import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import spock.lang.Specification
 
 @Property(name = 'spec.name', value = 'transaction service')
@@ -26,7 +26,7 @@ class TransactionServiceSpec extends Specification {
 
     def 'Should save an transaction'(){
         given:'a transaction command request body'
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = 666
             date =  new Date().getTime()
@@ -44,7 +44,7 @@ class TransactionServiceSpec extends Specification {
     def
     'Should not save an transaction on category not found'(){
         given:'a transaction command request body'
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = 666
             date =  new Date().getTime()

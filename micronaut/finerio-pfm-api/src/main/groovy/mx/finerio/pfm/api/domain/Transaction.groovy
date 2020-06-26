@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
@@ -19,7 +19,7 @@ class Transaction implements GormEntity<Transaction> {
 
     Transaction(){}
 
-    Transaction(TransactionCommand cmd, Account account){
+    Transaction(TransactionCreateCommand cmd, Account account){
         this.account = account
         this.date = new Date(cmd.date)
         this.charge = cmd.charge

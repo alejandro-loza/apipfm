@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Positive
 
-class TransactionCommand extends ValidationCommand{
+class TransactionCreateCommand extends ValidationCommand{
 
     @NotNull(message= 'transaction.account.null')
     Long accountId

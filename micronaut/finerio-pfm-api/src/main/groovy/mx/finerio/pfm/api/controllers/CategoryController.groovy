@@ -8,10 +8,8 @@ import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
-import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.validation.CategoryCommand
-import mx.finerio.pfm.api.validation.TransactionCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject

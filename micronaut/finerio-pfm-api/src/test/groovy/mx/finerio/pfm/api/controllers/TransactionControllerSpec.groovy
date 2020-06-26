@@ -24,7 +24,8 @@ import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 import javax.inject.Inject
@@ -93,7 +94,7 @@ class TransactionControllerSpec extends Specification {
         Account account1 = generateAccount()
         Category category1 = generateCategory(generateUser())
         and:'a command request body'
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = account1.id
             date = 1587567125458
@@ -117,7 +118,7 @@ class TransactionControllerSpec extends Specification {
     def "Should not create a transaction and throw bad request on wrong params"(){
         given:'an transaction request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT,  new TransactionCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT,  new TransactionCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, TransactionDto)
@@ -143,7 +144,7 @@ class TransactionControllerSpec extends Specification {
     def "Should not create an transaction and throw not found exception on account not found"(){
         given:'an account request body with no found account id'
 
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = 666
             date = 1587567125458
@@ -166,7 +167,7 @@ class TransactionControllerSpec extends Specification {
 
         given:'an transaction request body with no found category id'
         Account account1 = generateAccount()
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = account1.id
             date = 1587567125458
@@ -265,7 +266,7 @@ class TransactionControllerSpec extends Specification {
         transactionGormService.save(transaction)
 
         and:'an account command to update data'
-        TransactionCommand cmd = generateTransactionCommand(account1)
+        TransactionCreateCommand cmd = generateTransactionCommand(account1)
 
         and:'a client'
         HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  cmd).bearerAuth(accessToken)
@@ -300,7 +301,7 @@ class TransactionControllerSpec extends Specification {
         }
         transactionGormService.save(transaction)
 
-        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  new TransactionCommand())
+        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}", [])
                 .bearerAuth(accessToken)
 
         when:
@@ -309,6 +310,47 @@ class TransactionControllerSpec extends Specification {
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
+    }
+
+    def "Should partially update an transaction"(){
+        given:'a saved user'
+        Account account1 = generateAccount()
+
+        and:'a saved transaction'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = account1
+            date = new Date()
+            charge = true
+            description = 'rapi'
+            amount = 100.00
+        }
+        transactionGormService.save(transaction)
+
+        and:'an account command to update data'
+        TransactionUpdateCommand cmd = new TransactionUpdateCommand()
+        cmd.with {
+            charge = false
+            description = "Rappi"
+            amount= 2234.56
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request,  Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ErrorDto))
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            assert accountId == transaction.account.id
+            assert date.toString() == transaction.date.toString()
+            assert description == cmd.description
+            assert amount == cmd.amount
+            assert charge == cmd.charge
+        }
+
     }
 
     def "Should not update an transaction and throw not found exception"(){
@@ -436,10 +478,10 @@ class TransactionControllerSpec extends Specification {
 
     }
 
-    private static TransactionCommand generateTransactionCommand(Account account1) {
+    private static TransactionCreateCommand generateTransactionCommand(Account account1) {
         def date1 = new Date()
 
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = account1.id
             date = date1.getTime()
