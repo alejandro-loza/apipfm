@@ -1,6 +1,9 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.context.annotation.Property
 import io.micronaut.security.utils.SecurityService
+import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -13,6 +16,8 @@ import java.security.Principal
 
 import static java.util.Optional.of
 
+@Property(name = 'spec.name', value = 'financial entity service')
+@MicronautTest(application = Application.class)
 class FinancialEntityServiceSpec extends Specification {
 
     FinancialEntityService financialEntityService = new FinancialEntityServiceImp()
@@ -56,7 +61,10 @@ class FinancialEntityServiceSpec extends Specification {
     def "Should get an financial entity"(){
 
         when:
-        1 * financialEntityService.financialEntityGormService.findByIdAndDateDeletedIsNull(_ as Long) >> new FinancialEntity()
+        1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
+        1 * financialEntityService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * financialEntityService.financialEntityGormService
+                .findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client) >> new FinancialEntity()
 
         def result = financialEntityService.getById(1L)
 
@@ -67,7 +75,10 @@ class FinancialEntityServiceSpec extends Specification {
     def "Should not get an financial entity and throw exception"(){
 
         when:
-        1 * financialEntityService.financialEntityGormService.findByIdAndDateDeletedIsNull(_ as Long) >> null
+        1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
+        1 * financialEntityService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * financialEntityService.financialEntityGormService
+                .findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client) >> null
         financialEntityService.getById(666)
 
         then:

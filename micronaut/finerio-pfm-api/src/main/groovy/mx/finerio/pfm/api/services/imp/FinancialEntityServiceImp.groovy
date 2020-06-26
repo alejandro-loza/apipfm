@@ -25,7 +25,7 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
 
     @Override
     FinancialEntity getById(Long id) {
-        Optional.ofNullable(financialEntityGormService.findByIdAndDateDeletedIsNull(id))
+        Optional.ofNullable(financialEntityGormService.findByIdAndClientAndDateDeletedIsNull(id, getCurrentLoggedClient()))
                 .orElseThrow({ -> new ItemNotFoundException('financialEntity.exist') })
     }
 
