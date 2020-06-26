@@ -19,6 +19,7 @@ import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
+import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -276,6 +277,33 @@ class FinancialEntityControllerSpec extends Specification {
 
     }
 
+    def "Should partially update an financial entity"(){
+        given:'a saved financial entity'
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
+        financialGormService.save(financialEntity)
+
+        and:'an financial entity command to update data'
+        FinancialEntityUpdateCommand cmd = new FinancialEntityUpdateCommand()
+        cmd.with {
+            name = 'Gringotts'
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${financialEntity.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, FinancialEntityDto)
+
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            assert name == cmd.name
+            assert code == financialEntity.code
+            assert lastUpdated
+        }
+
+    }
+
     def "Should not update an financial entity on band parameters and return Bad Request"(){
         given:'A not found entity id'
         Long id = 666
@@ -288,8 +316,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         then:
         def  e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.BAD_REQUEST
-
+        e.response.status == HttpStatus.NOT_FOUND
     }
 
     def "Should not update an financial entity on wrong band parameters and return Bad Request"(){

@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
+import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -43,7 +44,7 @@ class FinancialEntityController {
     }
 
     @Put("/{id}")
-    Single<FinancialEntityDto> edit(@Body @Valid FinancialEntityCreateCommand cmd, @NotNull Long id ) {
+    Single<FinancialEntityDto> edit(@Body FinancialEntityUpdateCommand cmd, @NotNull Long id ) {
         just(new FinancialEntityDto(financialEntityService.update(cmd,id)))
     }
 
