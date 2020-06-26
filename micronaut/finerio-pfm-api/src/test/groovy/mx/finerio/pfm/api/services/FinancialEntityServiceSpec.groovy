@@ -35,17 +35,48 @@ class FinancialEntityServiceSpec extends Specification {
             name = 'National Bank of Wakanda'
             code = 'WAKANDA-NB'
         }
+        def client = new Client()
+        def entity = new FinancialEntity(cmd,client)
+
 
         when:
         1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
-        1 * financialEntityService.clientService.findByUsername(_ as String) >>  new Client()
-        1 * financialEntityService.financialEntityGormService.save(_  as FinancialEntity) >> new FinancialEntity()
+        1 * financialEntityService.clientService.findByUsername(_ as String) >> client
+        1 * financialEntityService.financialEntityGormService
+                .findByCodeAndClientAndDateDeletedIsNull(_ as String, _ as Client) >> null
+        1 * financialEntityService.financialEntityGormService.save(_  as FinancialEntity) >> entity
 
         def response = financialEntityService.create(cmd)
 
         then:
-        response instanceof FinancialEntity
+        assert response instanceof FinancialEntity
+        assert response.id == entity.id
 
+    }
+
+    def 'Should not save an financial entity on previously saves and unique code'(){
+        given:'an financial entity command request body'
+        FinancialEntityCommand cmd = new FinancialEntityCommand()
+        cmd.with {
+            name = 'National Bank of Wakanda'
+            code = 'WAKANDA-NB'
+        }
+        def client = new Client()
+        def entity = new FinancialEntity(cmd,client)
+
+
+        when:
+        1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
+        1 * financialEntityService.clientService.findByUsername(_ as String) >> client
+        1 * financialEntityService.financialEntityGormService
+                .findByCodeAndClientAndDateDeletedIsNull(_ as String, _ as Client) >> entity
+        0 * financialEntityService.financialEntityGormService.save(_  as FinancialEntity)
+
+        def response = financialEntityService.create(cmd)
+
+        then:
+        assert response instanceof FinancialEntity
+        assert response.id == entity.id
     }
 
     def "Should throw exception on null body"() {
@@ -88,7 +119,10 @@ class FinancialEntityServiceSpec extends Specification {
 
     def "Should get all financial entities " () {
         when:
-        1 * financialEntityService.financialEntityGormService.findAllByDateDeletedIsNull(_ as Map) >> [new FinancialEntity()]
+        1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
+        1 * financialEntityService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * financialEntityService.financialEntityGormService
+                .findAllByClientAndDateDeletedIsNull(_ as Client ,_ as Map) >> [new FinancialEntity()]
         def response = financialEntityService.getAll()
 
         then:
@@ -97,7 +131,10 @@ class FinancialEntityServiceSpec extends Specification {
 
     def "Should not get all financial entities " () {
         when:
-        1 * financialEntityService.financialEntityGormService.findAllByDateDeletedIsNull(_ as Map) >> []
+        1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
+        1 * financialEntityService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * financialEntityService.financialEntityGormService
+                .findAllByClientAndDateDeletedIsNull(_ as Client,_ as Map) >> []
         def response = financialEntityService.getAll()
 
         then:

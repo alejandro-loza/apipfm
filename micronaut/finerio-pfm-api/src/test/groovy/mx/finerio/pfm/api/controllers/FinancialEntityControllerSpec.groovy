@@ -99,12 +99,34 @@ class FinancialEntityControllerSpec extends Specification {
             dateCreated
             lastUpdated
         }
+        when:
+        def rsp2 = client.toBlocking().exchange(request, FinancialEntityDto)
+
+        then:
+        rsp2.status == HttpStatus.OK
+        rsp2.body().with {
+            id
+            name == cmd.name
+            code == cmd.code
+            dateCreated
+            lastUpdated
+        }
+
+        when:
+        List<FinancialEntity> clientEntities = financialGormService
+                .findAllByClientAndDateDeletedIsNull(loggedInClient, [sort: 'id', order: 'desc'])
+
+        then:
+        clientEntities.findAll{
+            it.code == cmd.code
+        }.size() == 1
 
         when:
         FinancialEntity financialEntity = financialGormService.getById(rsp.body().id)
 
         then:'verify'
         !financialEntity.dateDeleted
+
     }
 
     def "Should not create a financial entity an throw bad request"() {

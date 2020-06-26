@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
+import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -20,12 +21,18 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
     @Override
     FinancialEntity create(FinancialEntityCommand cmd) {
         verifyBody(cmd)
-        financialEntityGormService.save(new FinancialEntity(cmd, getCurrentLoggedClient()))
+        def loggedClient = getCurrentLoggedClient()
+        findByCode(cmd, loggedClient) ?: financialEntityGormService.save(new FinancialEntity(cmd, loggedClient))
+    }
+
+    private FinancialEntity findByCode(FinancialEntityCommand cmd, Client loggedClient) {
+        financialEntityGormService.findByCodeAndClientAndDateDeletedIsNull(cmd.code, loggedClient)
     }
 
     @Override
     FinancialEntity getById(Long id) {
-        Optional.ofNullable(financialEntityGormService.findByIdAndClientAndDateDeletedIsNull(id, getCurrentLoggedClient()))
+        Optional.ofNullable(financialEntityGormService
+                .findByIdAndClientAndDateDeletedIsNull(id, getCurrentLoggedClient()))
                 .orElseThrow({ -> new ItemNotFoundException('financialEntity.exist') })
     }
 
@@ -44,7 +51,7 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
     @Override
     List<FinancialEntityDto> getAll() {
         financialEntityGormService
-                .findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .findAllByClientAndDateDeletedIsNull(getCurrentLoggedClient(),[max:MAX_ROWS, sort:'id', order:'desc'])
                 .collect{new FinancialEntityDto(it)}
     }
 
