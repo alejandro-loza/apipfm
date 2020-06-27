@@ -6,7 +6,6 @@ import javax.validation.constraints.NotNull
 
 class CategoryCommand extends ValidationCommand {
 
-    @NotNull(message= 'user.null')
     Long userId
 
     @NotNull(message= 'category.name.null')

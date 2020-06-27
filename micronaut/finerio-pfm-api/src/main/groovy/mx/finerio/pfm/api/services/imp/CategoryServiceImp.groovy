@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.CategoryService
@@ -76,5 +77,12 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
            return null
         }
         find(cmd.parentCategoryId)
+    }
+
+    private User findUser(CategoryCommand cmd) {
+        if(!cmd.userId){
+            return null
+        }
+        userService.getUser(cmd.userId)
     }
 }
