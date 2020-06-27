@@ -106,6 +106,31 @@ class CategoryControllerSpec extends Specification {
 
     }
 
+    def "Should create a category without user"() {
+
+        given: 'a command request body'
+        CategoryCommand cmd = new CategoryCommand()
+        cmd.with {
+            name = 'Shoes and clothes'
+            color = "#00FFAA"
+        }
+
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, CategoryDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        assert rsp.body().with {
+            assert cmd
+            assert id
+            assert dateCreated
+            assert lastUpdated
+        }
+
+    }
+
     def "Should create a category with parent category"() {
         given: 'an saved User '
         User user1 = generateUser()

@@ -23,7 +23,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     @Override
     Category create(CategoryCommand cmd){
         verifyBody(cmd)
-        Category category = new Category(cmd, userService.getUser(cmd.userId))
+        Category category = new Category(cmd, findUser(cmd))
         category.parent = findParentCategory(cmd)
         categoryGormService.save(category)
     }

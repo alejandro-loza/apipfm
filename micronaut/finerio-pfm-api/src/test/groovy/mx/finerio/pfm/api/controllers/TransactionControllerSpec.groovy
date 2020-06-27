@@ -17,6 +17,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
@@ -82,11 +83,17 @@ class TransactionControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT).bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(TransactionDto))
+        def rspGET = client.toBlocking().exchange(getReq, Map)
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().isEmpty()
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data") ==[]
+        assert body.get("nextCursor") == null
+
+        List<TransactionDto> transactionDtos= body.get("data") as List<TransactionDto>
+        assert transactionDtos.isEmpty()
     }
 
     def "Should create a transaction"(){

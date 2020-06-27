@@ -48,5 +48,4 @@ class CategoryCommandSpec extends Specification{
         violations.size() == 3
     }
 
-
 }

@@ -25,7 +25,7 @@ class Category implements GormEntity<Category> {
     Category(){}
 
     static constraints = {
-        user nullable: false
+        user nullable: true
         name nullable: false, blank:false
         color  nullable: false, blank:false
         dateDeleted nullable:true
@@ -34,6 +34,10 @@ class Category implements GormEntity<Category> {
 
     static mapping = {
         autoTimestamp true
+    }
+
+    boolean isSubcategory(){
+        this.parent
     }
 
 }

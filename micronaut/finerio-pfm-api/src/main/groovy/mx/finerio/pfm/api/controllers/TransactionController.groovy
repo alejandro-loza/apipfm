@@ -42,12 +42,12 @@ class TransactionController {
 
     @Get("{?cursor,accountId}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor, @Nullable Long accountId) {
+    Single<ResourcesDto> showAll(@Nullable Long cursor, @Nullable Long accountId) {
 
         List<TransactionDto> transactions = cursor ?
                 transactionsService.findAllByAccountAndCursor(accountService.getAccount(accountId), cursor)
                 : transactionsService.getAll()
-        Single.just(transactions.isEmpty() ? [] :  new ResourcesDto(transactions)) as Single<Map>
+        Single.just( new ResourcesDto(transactions))
     }
 
     @Put("/{id}")

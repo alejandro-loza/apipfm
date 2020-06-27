@@ -22,7 +22,7 @@ databaseChangeLog:
                   name: user_id
                   type: BIGINT
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: parent_id
                   type: BIGINT

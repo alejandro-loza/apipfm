@@ -35,9 +35,9 @@ class CategoryController {
         Single.just(new CategoryDto(categoryService.find(id)))
     }
 
-    @Get("{?cursor}")
+    @Get("{?cursor,userId}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor) {
+    Single<Map> showAll(@Nullable Long cursor, @Nullable Long userId) {
         List<CategoryDto> categoryDtos = cursor ? categoryService.findAllByCursor(cursor) : categoryService.getAll()
         Single.just(categoryDtos.isEmpty() ? [] :  new ResourcesDto(categoryDtos)) as Single<Map>
     }
