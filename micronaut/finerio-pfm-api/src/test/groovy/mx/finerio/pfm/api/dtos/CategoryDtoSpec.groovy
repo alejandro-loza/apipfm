@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.dtos
 
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.validation.CategoryCommand
 import spock.lang.Specification
@@ -24,9 +25,9 @@ class CategoryDtoSpec extends Specification{
             color = 'a beautiful one'
             parentCategoryId = 666
         }
-        Category category = new Category(cmd, user)
+        Category category = new Category(cmd, user, new Client())
         category.with {
-            parent = new Category(cmd, user)
+            parent = new Category(cmd, user, new Client())
         }
         expect:
         category.parent
@@ -52,7 +53,7 @@ class CategoryDtoSpec extends Specification{
             name = 'test category'
             color = 'a beautiful one'
         }
-        Category category = new Category(cmd, user)
+        Category category = new Category(cmd, user, new Client())
 
         expect:
         assert !category.parent

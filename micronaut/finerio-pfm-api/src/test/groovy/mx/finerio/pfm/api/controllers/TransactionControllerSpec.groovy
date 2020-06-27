@@ -523,6 +523,7 @@ class TransactionControllerSpec extends Specification {
             user =userToSet
             name = 'category test'
             color = '#12312'
+            category.client = loggedInClient
         }
         categoryGormService.save(category)
     }

@@ -403,6 +403,7 @@ class BudgetControllerSpec extends Specification {
             user = user1
             name = 'Shoes and clothes'
             color = "#00FFAA"
+            category1.client = loggedInClient
         }
         categoryGormService.save(category1)
         category1

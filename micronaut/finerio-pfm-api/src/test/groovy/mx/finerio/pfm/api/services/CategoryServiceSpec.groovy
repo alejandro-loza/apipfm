@@ -1,12 +1,18 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.security.utils.SecurityService
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.imp.CategoryServiceImp
 import mx.finerio.pfm.api.validation.CategoryCommand
 import spock.lang.Specification
+
+import java.security.Principal
+
+import static java.util.Optional.of
 
 class CategoryServiceSpec extends Specification {
 
@@ -15,6 +21,8 @@ class CategoryServiceSpec extends Specification {
     void setup(){
         categoryService.categoryGormService = Mock(CategoryGormService)
         categoryService.userService = Mock(UserService)
+        categoryService.securityService = Mock(SecurityService)
+        categoryService.clientService = Mock(ClientService)
     }
 
     def 'Should not save an category with parent category on parent category not found'(){
@@ -26,6 +34,7 @@ class CategoryServiceSpec extends Specification {
 
         when:
         1 * categoryService.userService.getUser(_ as Long) >> user
+        1 * categoryService.securityService.getAuthentication() >> of(Principal)
         1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long ) >> null
         0 * categoryService.categoryGormService.save()
 
@@ -40,13 +49,15 @@ class CategoryServiceSpec extends Specification {
         given:'an category command request body'
         CategoryCommand cmd = generateCommand()
         def user = new User()
-        def parentCategory = new Category(cmd, user)
+        def parentCategory = new Category(cmd, user, new Client())
         parentCategory.id = 1234
         cmd.parentCategoryId = parentCategory.id
-        def category = new Category(cmd, user)
+        def category = new Category(cmd, user, new Client())
         category.parent = parentCategory
+
         when:
         1 * categoryService.userService.getUser(_ as Long) >> user
+        1 * categoryService.securityService.getAuthentication() >> of(Principal)
         1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull( _ as Long) >> parentCategory
         1 * categoryService.categoryGormService.save(_  as Category) >> category
 

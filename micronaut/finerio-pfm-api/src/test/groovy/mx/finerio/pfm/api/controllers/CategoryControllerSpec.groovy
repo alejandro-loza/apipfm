@@ -139,12 +139,8 @@ class CategoryControllerSpec extends Specification {
         CategoryCommand cmd = generateCategoryCommand(user1)
 
         and:'a saved parent category'
-        Category parentCategory = new Category()
-        parentCategory.with {
-            user = user1
-            name = 'parent'
-            color = cmd.color
-        }
+        Category parentCategory =  generateCategory(user1)
+
         categoryGormService.save(parentCategory)
         cmd.parentCategoryId =  parentCategory.id
 
@@ -230,8 +226,7 @@ class CategoryControllerSpec extends Specification {
         User user = generateUser()
 
         and: 'a saved category'
-        Category category = new Category(generateCategoryCommand(user), user)
-        categoryGormService.save(category)
+        Category category = generateCategory(user)
 
         and:
         HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT + "/${category.id}").bearerAuth(accessToken)
@@ -281,13 +276,7 @@ class CategoryControllerSpec extends Specification {
         User user1 = generateUser()
 
         and: 'a saved category'
-        Category category = new Category()
-        category.with {
-            user = user1
-            name = 'awesome name'
-            color = '#12AD4D'
-        }
-        categoryGormService.save(category)
+        Category category = generateCategory(user1)
 
         and: 'an account command to update data'
         def cmd = generateCategoryCommand(user1)
@@ -311,13 +300,7 @@ class CategoryControllerSpec extends Specification {
         User user1 = generateUser()
 
         and: 'a saved category'
-        Category category = new Category()
-        category.with {
-            user = user1
-            name = 'awesome name'
-            color = '#12AD4D'
-        }
-        categoryGormService.save(category)
+        Category category = generateCategory(user1)
 
         and: 'an account command to update data'
         def cmd = generateCategoryCommand(user1)
@@ -341,13 +324,7 @@ class CategoryControllerSpec extends Specification {
         User user1 = generateUser()
 
         and: 'a saved category'
-        Category category = new Category()
-        category.with {
-            user = user1
-            name = 'awesome name'
-            color = Color.decode('#12AD4D')
-        }
-        categoryGormService.save(category)
+        Category category =  generateCategory(user1)
 
 
         HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${category.id}", []).bearerAuth(accessToken)
@@ -384,21 +361,14 @@ class CategoryControllerSpec extends Specification {
         given: 'a category list'
         User user1 = generateUser()
 
-        Category category1 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category1)
-
-        Category category2 = new Category(generateCategoryCommand(user1), user1)
+        Category category1 =  generateCategory(user1)
+        Category category2 = new Category(generateCategoryCommand(user1), user1,loggedInClient)
         category2.dateDeleted = new Date()
         categoryGormService.save(category2)
 
-        Category category3 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category3)
-
-        Category category4 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category4)
-
-        Category category5 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category5)
+        Category category3 =  generateCategory(user1)
+        Category category4 =  generateCategory(user1)
+        Category category5 =  generateCategory(user1)
 
         and:
         HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT).bearerAuth(accessToken)
@@ -420,21 +390,16 @@ class CategoryControllerSpec extends Specification {
         given: 'a category list'
         User user1 = generateUser()
 
-        Category category1 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category1)
+        Category category1 =  generateCategory(user1)
 
-        Category category2 = new Category(generateCategoryCommand(user1), user1)
+        Category category2 = new Category(generateCategoryCommand(user1), user1, loggedInClient)
         category2.dateDeleted = new Date()
         categoryGormService.save(category2)
 
-        Category category3 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category3)
+        Category category3 = generateCategory(user1)
+        Category category4 = generateCategory(user1)
 
-        Category category4 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category4)
-
-        Category category5 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category5)
+        Category category5 = generateCategory(user1)
 
         and:
         HttpRequest getReq = HttpRequest.GET("$CATEGORIES_ROOT?cursor=${category4.id}").bearerAuth(accessToken)
@@ -473,8 +438,7 @@ class CategoryControllerSpec extends Specification {
         given: 'a saved category'
         User user1 = generateUser()
 
-        Category category1 = new Category(generateCategoryCommand(user1), user1)
-        categoryGormService.save(category1)
+        Category category1 =  generateCategory(user1)
 
         and: 'a client request'
         HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${category1.id}").bearerAuth(accessToken)
@@ -510,6 +474,11 @@ class CategoryControllerSpec extends Specification {
             color = "#00FFAA"
         }
         cmd
+    }
+
+    private Category generateCategory(User user) {
+        Category category = new Category(generateCategoryCommand(user), user, loggedInClient)
+        categoryGormService.save(category)
     }
 
 }
