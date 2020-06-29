@@ -40,9 +40,9 @@ class BudgetsController {
 
     @Get("{?cursor}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor) {
+    Single<ResourcesDto> showAll(@Nullable Long cursor) {
         List<BudgetDto> budgetDtos = cursor ? budgetService.findAllByCursor(cursor) : budgetService.getAll()
-        Single.just(budgetDtos.isEmpty() ? [] :  new ResourcesDto(budgetDtos)) as Single<Map>
+        Single.just(new ResourcesDto(budgetDtos))
     }
 
     @Put("/{id}")

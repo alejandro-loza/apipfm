@@ -17,6 +17,7 @@ import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
@@ -75,11 +76,17 @@ class BudgetControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(BudgetDto))
+        def rspGET = client.toBlocking().exchange(getReq,  Map)
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().isEmpty()
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("nextCursor") == null
+
+        List<BudgetDto> budgetDtos= body.get("data") as List<BudgetDto>
+        assert budgetDtos.isEmpty()
+
     }
 
     def "Should create a budget"() {
