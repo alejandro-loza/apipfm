@@ -9,6 +9,7 @@ import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.CategoryService
+import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.CategoryCommand
 
 import javax.annotation.Nullable
@@ -24,6 +25,9 @@ class CategoryController {
     @Inject
     CategoryService categoryService
 
+    @Inject
+    UserService userService
+
     @Post("/")
     Single<CategoryDto> save(@Body @Valid CategoryCommand cmd){
         Single.just(new CategoryDto(categoryService.create(cmd)))
@@ -35,11 +39,17 @@ class CategoryController {
         Single.just(new CategoryDto(categoryService.find(id)))
     }
 
-    @Get("{?cursor,userId}")
+    @Get("{?userId}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor, @Nullable Long userId) {
-        List<CategoryDto> categoryDtos = cursor ? categoryService.findAllByCursor(cursor) : categoryService.getAll()
-        Single.just(categoryDtos.isEmpty() ? [] :  new ResourcesDto(categoryDtos)) as Single<Map>
+    Single<ResourcesDto> showAll( @Nullable Long userId) {
+        List<CategoryDto> clientCategories
+            clientCategories = categoryService.findAllByCurrentLoggedClient()
+        if(userId) {
+            clientCategories << categoryService.findAllByUser(userService.getUser(userId))
+        }
+        def response = new ResourcesDto(clientCategories)
+        response.nextCursor = null
+        Single.just(response)
     }
 
     @Put("/{id}")

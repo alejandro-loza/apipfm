@@ -100,12 +100,17 @@ class CategoryServiceSpec extends Specification {
         e.message == 'category.notFound'
     }
 
-    def "Should get all categories" () {
+    def
+    "Should get all categories" () {
         def category = new Category()
         category.user = new User()
+
         when:
-        1 * categoryService.categoryGormService.findAllByDateDeletedIsNull(_ as Map) >> [category]
-        def response = categoryService.getAll()
+        1 * categoryService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * categoryService.securityService.getAuthentication() >> of(Principal)
+        1 * categoryService.categoryGormService.findAllByClientAndDateDeletedIsNull(_ as Client, _ as Map) >> [category]
+
+        def response = categoryService.findAllByCurrentLoggedClient()
 
         then:
         response instanceof  List<Category>
@@ -113,24 +118,14 @@ class CategoryServiceSpec extends Specification {
 
     def "Should not get all categories" () {
         when:
-        1 * categoryService.categoryGormService.findAllByDateDeletedIsNull(_ as Map) >> []
-        def response = categoryService.getAll()
+        1 * categoryService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * categoryService.securityService.getAuthentication() >> of(Principal)
+        1 * categoryService.categoryGormService.findAllByClientAndDateDeletedIsNull(_ as Client , _ as Map) >> []
+        def response = categoryService.findAllByCurrentLoggedClient()
 
         then:
         response instanceof  List<Category>
         response.isEmpty()
-    }
-
-    def "Should get categories by a cursor " () {
-        given:
-        def category = new Category()
-        category.user = new User()
-        when:
-        1 * categoryService.categoryGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(_ as Long, _ as Map) >> [category]
-        def response = categoryService.findAllByCursor(2)
-
-        then:
-        response instanceof  List<org.junit.experimental.categories.Category>
     }
 
     private CategoryCommand generateCommand() {

@@ -9,6 +9,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.services.ClientService
 
 import java.awt.Color
@@ -70,17 +71,22 @@ class CategoryControllerSpec extends Specification {
         }
     }
 
-    def "Should get a empty list of categories"() {
+    def
+    "Should get a empty list of categories"() {
 
         given: 'a client'
         HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT).bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(CategoryDto))
+        def rspGET = client.toBlocking().exchange(getReq, Map)
 
         then:
-        rspGET.status == HttpStatus.OK
-        rspGET.body().isEmpty()
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("nextCursor") == null
+
+        List<CategoryDto> categoryDtos= body.get("data") as List<CategoryDto>
+        assert categoryDtos.isEmpty()
     }
 
     def "Should create a category"() {
@@ -382,7 +388,7 @@ class CategoryControllerSpec extends Specification {
         List<CategoryDto> categoryDtos = body.get("data") as List<CategoryDto>
         assert !(category2.id in categoryDtos.id)
 
-        assert body.get("nextCursor")
+        assert body.get("nextCursor") == null
     }
 
     def "Should get a list of categories in a cursor "() {
@@ -414,7 +420,7 @@ class CategoryControllerSpec extends Specification {
         assert !(category2.id in categoryDtos.id)
         assert !(category5.id in categoryDtos.id)
 
-        assert body.get("nextCursor")
+        assert body.get("nextCursor") == null
     }
 
 

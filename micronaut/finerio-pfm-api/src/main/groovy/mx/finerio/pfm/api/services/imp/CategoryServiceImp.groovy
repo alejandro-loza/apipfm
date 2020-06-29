@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -11,6 +12,7 @@ import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.validation.CategoryCommand
 
 import javax.inject.Inject
+import java.awt.Cursor
 
 class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
@@ -55,20 +57,16 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    List<CategoryDto> getAll() {
-        categoryGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+    List<CategoryDto> findAllByCurrentLoggedClient() {
+        categoryGormService
+                .findAllByClientAndDateDeletedIsNull(
+                        getCurrentLoggedClient(), [max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{new CategoryDto(it)}
     }
 
     @Override
-    List<CategoryDto> findAllByCursor(Long cursor) {
-        categoryGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort:'id',order:'desc'])
-                .collect{new CategoryDto(it)}
-    }
-
-    @Override
-    List<CategoryDto> findAllByAccount(Account account) {
-        categoryGormService.findAllByAccountAndDateDeletedIsNull(account, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+    List<CategoryDto> findAllByUser(User user) {
+        categoryGormService.findAllByUserAndDateDeletedIsNull(user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{new CategoryDto(it)}
     }
 
