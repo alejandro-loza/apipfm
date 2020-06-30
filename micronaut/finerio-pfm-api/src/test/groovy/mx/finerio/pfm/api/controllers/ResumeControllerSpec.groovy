@@ -10,6 +10,7 @@ import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
@@ -21,6 +22,7 @@ import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -29,6 +31,7 @@ import java.time.ZonedDateTime
 
 @Property(name = 'spec.name', value = 'resume controller')
 @MicronautTest(application = Application.class)
+@Ignore
 class ResumeControllerSpec extends Specification{
 
     public static final String RESUME_ROOT = "/resume"
@@ -40,7 +43,8 @@ class ResumeControllerSpec extends Specification{
     RxStreamingHttpClient client
 
     @Inject
-    AccountGormService accountService
+    @Shared
+    AccountGormService accountGormService
 
     @Inject
     UserGormService userGormService
@@ -52,6 +56,7 @@ class ResumeControllerSpec extends Specification{
     TransactionGormService transactionGormService
 
     @Inject
+    @Shared
     CategoryGormService categoryGormService
 
     @Inject
@@ -73,6 +78,17 @@ class ResumeControllerSpec extends Specification{
         accessToken = rsp.body.get().accessToken
     }
 
+    void cleanupSpec(){
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+        List<Account> accounts = accountGormService.findAll()
+        accounts.each { Account account ->
+            accountGormService.delete(account.id)
+        }
+    }
+
 
     def "Should get a list of transactions incomes"(){
 
@@ -81,7 +97,6 @@ class ResumeControllerSpec extends Specification{
         Account account1 = generateAccount(user1)
 
         Account account2 = generateAccount(user1)
-
 
         Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
         transactionGormService.save(transaction1)
@@ -123,7 +138,7 @@ class ResumeControllerSpec extends Specification{
             number = 123412341234
             balance = 0.0
         }
-        accountService.save(account1)
+        accountGormService.save(account1)
         account1
     }
 

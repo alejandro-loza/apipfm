@@ -1,10 +1,12 @@
 package mx.finerio.pfm.api.services.imp
 
-import mx.finerio.pfm.api.domain.Category
+
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.CategoryResumeDto
 import mx.finerio.pfm.api.dtos.MovementsDto
+import mx.finerio.pfm.api.dtos.SubCategoryResumeDto
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.dtos.TransactionsByDateDto
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ResumeService
 import  mx.finerio.pfm.api.services.TransactionService
@@ -41,8 +43,7 @@ class ResumeServiceImp implements ResumeService{
         }
     }
 
-    @Override
-    List<CategoryResumeDto> getTransactionsGroupByParentCategory(List<Transaction> transactionList){
+    private List<CategoryResumeDto> getTransactionsGroupByParentCategory(List<Transaction> transactionList){
         transactionList.groupBy { transaction ->
             transaction.category.parent.id
          }.collect{ parentId , transactions ->
@@ -50,28 +51,67 @@ class ResumeServiceImp implements ResumeService{
         }
     }
 
+    private List<SubCategoryResumeDto> getTransactionsGroupBySubCategory(List<Transaction> transactionList){
+        transactionList.groupBy { transaction ->
+            transaction.category.id
+        }.collect{ parentId , transactions ->
+            generateSubCategoryResume(parentId, transactions)
+        }
+    }
+
+    private List<TransactionsByDateDto> getTransactionsGroupByDay(List<Transaction> transactionList){
+        transactionList.groupBy { transaction ->
+            new SimpleDateFormat("yyyy-MM-dd").format(transaction.date)
+        }.collect{ stringDate , transactions ->
+            generateTransactionByDate(stringDate, transactions)
+        }
+    }
+
+    private TransactionsByDateDto generateTransactionByDate(String stringDate, List<Transaction> transactionList){
+        TransactionsByDateDto transactionsByDateDto = new TransactionsByDateDto()
+        transactionsByDateDto.with {
+            date = generateDate(stringDate).getTime()
+            transactionDtos = transactionList.collect{new TransactionDto(it)}
+        }
+        transactionsByDateDto
+    }
+
     private MovementsDto generateMovementDto(String stringDate, List<Transaction> transactions) {
         MovementsDto movementsDto = new MovementsDto()
         movementsDto.with {
-            date = generateDate(stringDate).getTime()
+            date = generateFixedDate(stringDate).getTime()
             categories = getTransactionsGroupByParentCategory( transactions)
             amount = transactions*.amount.sum() as float
         }
         movementsDto
     }
 
-    private static CategoryResumeDto generateParentCategoryResume(Long parentId, List<Transaction> transactions) {
+    private CategoryResumeDto generateParentCategoryResume(Long parentId, List<Transaction> transactions) {
         CategoryResumeDto parentCategory = new CategoryResumeDto()
         parentCategory.with {
             categoryId = parentId
-            subcategories = transactions
+            subcategories = getTransactionsGroupBySubCategory(transactions)
             amount = transactions*.amount.sum() as float
         }
         parentCategory
     }
 
-    private static Date generateDate(String rawDate){
-         Date.from(LocalDate.parse("${rawDate}-01").atStartOfDay(ZoneId.systemDefault()).toInstant())
+    private SubCategoryResumeDto generateSubCategoryResume(Long parentId, List<Transaction> transactions) {
+        SubCategoryResumeDto subCategoryResumeDto = new SubCategoryResumeDto()
+        subCategoryResumeDto.with {
+            categoryId = parentId
+            transactionsByDate = getTransactionsGroupByDay(transactions)
+            amount = transactions*.amount.sum() as float
+        }
+        subCategoryResumeDto
+    }
+
+    private static Date generateFixedDate(String rawDate){
+        generateDate("${rawDate}-01")
+    }
+
+    private static Date generateDate(String rawDate) {
+        Date.from(LocalDate.parse(rawDate).atStartOfDay(ZoneId.systemDefault()).toInstant())
     }
 
     private List<Transaction> getAccountsTransactions(Long userId, Boolean charge) {
