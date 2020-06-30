@@ -11,5 +11,6 @@ interface AccountService {
     Account update(AccountUpdateCommand cmd, Long id)
     void delete(Long id)
     List<AccountDto> findAllByUserAndCursor(Long userId, Long cursor)
-    List<AccountDto> findAllByUser(Long userId)
+    List<AccountDto> findAllAccountDtosByUser(Long userId)
+    List<Account> findAllByUserId(Long userId)
 }

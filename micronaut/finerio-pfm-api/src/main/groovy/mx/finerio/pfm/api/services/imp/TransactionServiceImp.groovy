@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
+import java.time.ZonedDateTime
 
 class TransactionServiceImp  implements TransactionService {
 
@@ -82,6 +83,17 @@ class TransactionServiceImp  implements TransactionService {
     @Override
     List<TransactionDto> findAllByAccountAndCursor(Account account, Long cursor) {
         transactionGormService.findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(account, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new TransactionDto(it)}
+    }
+
+    @Override
+    List<Transaction> findAllByAccountAndCharge(Account account, Boolean charge) {
+        transactionGormService
+                .findAllByAccountAndDateGreaterThanAndChargeAndDateDeletedIsNull(
+                        account,  dateSixMonthsAgo(),charge, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+    }
+
+    private static Date dateSixMonthsAgo() {
+        Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
     }
 
     private Category findCategory(TransactionCreateCommand cmd){

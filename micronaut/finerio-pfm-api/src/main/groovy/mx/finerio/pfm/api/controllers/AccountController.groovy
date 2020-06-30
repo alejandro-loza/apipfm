@@ -44,7 +44,7 @@ class AccountController {
     Single<ResourcesDto> showAll(@Nullable Long cursor, @Nullable Long userId ) {
         List<AccountDto> accounts = cursor ?
                 accountService.findAllByUserAndCursor(userId, cursor)
-                : accountService.findAllByUser(userId)
+                : accountService.findAllAccountDtosByUser(userId)
         Single.just( new ResourcesDto(accounts))
     }
 

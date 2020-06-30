@@ -17,7 +17,6 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService

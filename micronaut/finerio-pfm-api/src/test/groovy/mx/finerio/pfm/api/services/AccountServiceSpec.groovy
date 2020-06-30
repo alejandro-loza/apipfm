@@ -156,7 +156,7 @@ class AccountServiceSpec extends Specification {
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.accountGormService.findAllByUserAndDateDeletedIsNull(_ as User, _ as Map) >> [account]
-        def response = accountService.findAllByUser(account.user.id)
+        def response = accountService.findAllAccountDtosByUser(account.user.id)
 
         then:
         assert response instanceof  List<Account>
@@ -174,7 +174,7 @@ class AccountServiceSpec extends Specification {
         1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
         0 * accountService.accountGormService.findAllByUserAndDateDeletedIsNull(_ as User, _ as Map)
 
-        accountService.findAllByUser(account.user.id)
+        accountService.findAllAccountDtosByUser(account.user.id)
 
         then:
         ItemNotFoundException e = thrown()
