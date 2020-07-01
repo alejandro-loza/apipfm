@@ -10,6 +10,7 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
@@ -46,6 +47,7 @@ class BudgetControllerSpec extends Specification {
     UserGormService userGormService
 
     @Inject
+    @Shared
     CategoryGormService categoryGormService
 
     @Inject
@@ -68,11 +70,18 @@ class BudgetControllerSpec extends Specification {
                 .bearerAuth(accessToken)
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
+
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
     }
+
 
     def "Should get a empty list of budgets"() {
 
         given: 'a client'
+
         HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
 
         when:
@@ -184,7 +193,7 @@ class BudgetControllerSpec extends Specification {
 
     }
 
-    def "Should not get a transaction and throw 404"() {//TODO test the error body
+    def "Should not get a transaction and throw 404"() {
         given: 'a not found id request'
 
         HttpRequest request = HttpRequest.GET("${BUDGETS_ROOT}/0000").bearerAuth(accessToken)
@@ -217,7 +226,16 @@ class BudgetControllerSpec extends Specification {
         User user1 = generateUser()
 
         and: 'a saved category'
-        Category category1 = generateCategory(user1)
+        Category category1 = new Category()
+        category1.with {
+            user = user1
+            name = 'Shoes and clothes'
+            color = "#00FFAA"
+            category1.client = loggedInClient
+        }
+        categoryGormService.save(category1)
+
+        println ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"  + category1
 
         and:'a saved budget'
         Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
@@ -413,7 +431,6 @@ class BudgetControllerSpec extends Specification {
             category1.client = loggedInClient
         }
         categoryGormService.save(category1)
-        category1
     }
 
     private static BudgetCommand generateBudgetCommand(User user, Category category) {

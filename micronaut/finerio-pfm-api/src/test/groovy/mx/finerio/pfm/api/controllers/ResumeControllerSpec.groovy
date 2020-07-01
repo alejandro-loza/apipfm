@@ -22,7 +22,6 @@ import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
-import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -31,7 +30,6 @@ import java.time.ZonedDateTime
 
 @Property(name = 'spec.name', value = 'resume controller')
 @MicronautTest(application = Application.class)
-@Ignore
 class ResumeControllerSpec extends Specification{
 
     public static final String RESUME_ROOT = "/resume"
@@ -78,7 +76,7 @@ class ResumeControllerSpec extends Specification{
         accessToken = rsp.body.get().accessToken
     }
 
-    void cleanupSpec(){
+    void setup(){
         List<Category> categories = categoryGormService.findAll()
         categories.each { Category category ->
             categoryGormService.delete(category.id)
@@ -88,7 +86,6 @@ class ResumeControllerSpec extends Specification{
             accountGormService.delete(account.id)
         }
     }
-
 
     def "Should get a list of transactions incomes"(){
 

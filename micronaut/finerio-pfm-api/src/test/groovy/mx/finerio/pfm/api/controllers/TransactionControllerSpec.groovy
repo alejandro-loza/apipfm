@@ -53,9 +53,11 @@ class TransactionControllerSpec extends Specification {
     FinancialEntityGormService financialEntityService
 
     @Inject
+    @Shared
     TransactionGormService transactionGormService
 
     @Inject
+    @Shared
     CategoryGormService categoryGormService
 
     @Inject
@@ -75,12 +77,23 @@ class TransactionControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
+    }
+
+    void setup(){
+
     }
 
     def "Should get a empty list of transactions"(){
 
         given:'a client'
-        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT).bearerAuth(accessToken)
+        Account account1 = generateAccount()
+
+        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?accountId=${account1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -376,7 +389,7 @@ class TransactionControllerSpec extends Specification {
 
     }
 
-    def "Should get a list of transactions"(){
+    def "Should get a list of transactions by account"(){
 
         given:'a transaction list'
         Account account1 = generateAccount()
@@ -392,7 +405,7 @@ class TransactionControllerSpec extends Specification {
         transactionGormService.save(transaction4)
 
         and:
-        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT).bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?accountId=${account1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -403,7 +416,7 @@ class TransactionControllerSpec extends Specification {
         List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
         assert !(transaction2.id in transactionDtos.id)
 
-        assert !body.get("nextCursor")
+        assert body.get("nextCursor")
     }
 
     def "Should get a list of transactions of an account on a cursor point"(){

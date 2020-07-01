@@ -1,6 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
-
+import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.CategoryResumeDto
 import mx.finerio.pfm.api.dtos.MovementsDto
@@ -25,16 +25,19 @@ class ResumeServiceImp implements ResumeService{
     TransactionService transactionsService
 
     @Override
+    @Transactional
     List<Transaction> getExpenses(Long userId) {
         getAccountsTransactions(userId, true)
     }
 
     @Override
+    @Transactional
     List<Transaction> getIncomes(Long userId) {
         getAccountsTransactions(userId, false)
     }
 
     @Override
+    @Transactional
     List<MovementsDto> getTransactionsGroupByMonth(List<Transaction> transactionList){
         transactionList.groupBy { transaction ->
             new SimpleDateFormat("yyyy-MM").format(transaction.date)

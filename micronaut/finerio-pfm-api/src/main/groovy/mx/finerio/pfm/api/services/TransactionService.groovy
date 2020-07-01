@@ -14,5 +14,6 @@ interface TransactionService {
     List<TransactionDto> getAll()
     List<TransactionDto> findAllByCursor(Long cursor)
     List<TransactionDto> findAllByAccountAndCursor(Account account, Long cursor)
+    List<TransactionDto> findAllByAccount(Account account)
     List<Transaction> findAllByAccountAndCharge(Account account, Boolean charge)
 }

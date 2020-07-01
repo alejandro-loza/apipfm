@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.services.AccountService
@@ -43,10 +44,10 @@ class TransactionController {
     @Get("{?cursor,accountId}")
     @Transactional
     Single<ResourcesDto> showAll(@Nullable Long cursor, @Nullable Long accountId) {
-
+        Account account = accountService.getAccount(accountId)
         List<TransactionDto> transactions = cursor ?
-                transactionsService.findAllByAccountAndCursor(accountService.getAccount(accountId), cursor)
-                : transactionsService.getAll()
+                transactionsService.findAllByAccountAndCursor(account, cursor)
+                : transactionsService.findAllByAccount(account)
         Single.just( new ResourcesDto(transactions))
     }
 

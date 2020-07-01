@@ -44,7 +44,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         Budget budget = find(id)
         budget.with {
             user = userService.getUser(cmd.userId)
-            category = categoryService.find(cmd.userId)
+            category = categoryService.find(cmd.categoryId)
             name = cmd.name
             parentBudgetId = cmd.parentBudgetId
             amount = cmd.amount

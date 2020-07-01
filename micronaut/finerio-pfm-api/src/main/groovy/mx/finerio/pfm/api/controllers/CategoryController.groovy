@@ -45,7 +45,7 @@ class CategoryController {
         List<CategoryDto> clientCategories
             clientCategories = categoryService.findAllByCurrentLoggedClient()
         if(userId) {
-            clientCategories << categoryService.findAllByUser(userService.getUser(userId))
+            clientCategories.addAll( categoryService.findAllByUser(userService.getUser(userId)))
         }
         def response = new ResourcesDto(clientCategories)
         response.nextCursor = null
