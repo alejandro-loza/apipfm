@@ -83,7 +83,7 @@ class CategoryServiceSpec extends Specification {
         when:
         1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long) >> new Category()
 
-        def result = categoryService.find(1L)
+        def result = categoryService.getById(1L)
 
         then:
         result instanceof Category
@@ -93,7 +93,7 @@ class CategoryServiceSpec extends Specification {
 
         when:
         1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long) >> null
-        categoryService.find(666)
+        categoryService.getById(666)
 
         then:
         ItemNotFoundException e = thrown()

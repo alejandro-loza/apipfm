@@ -171,6 +171,7 @@ class TransactionControllerSpec extends Specification {
             charge = true
             description = 'UBER EATS'
             amount = 100.00
+            categoryId = 123
         }
 
         HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
@@ -394,14 +395,16 @@ class TransactionControllerSpec extends Specification {
         given:'a transaction list'
         Account account1 = generateAccount()
 
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        Category category = generateCategory(account1.user)
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1, category)
         transactionGormService.save(transaction1)
-        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1, category)
         transaction2.dateDeleted = new Date()
         transactionGormService.save(transaction2)
-        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1, category)
         transactionGormService.save(transaction3)
-        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1, category)
         transactionGormService.save(transaction4)
 
         and:
@@ -425,14 +428,17 @@ class TransactionControllerSpec extends Specification {
         Account account1 = generateAccount()
         Account account2 = generateAccount()
 
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
+        Category category = generateCategory(account1.user)
+
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2, category)
         transactionGormService.save(transaction1)
-        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1, category)
         transaction2.dateDeleted = new Date()
         transactionGormService.save(transaction2)
-        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1, category)
         transactionGormService.save(transaction3)
-        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1, category)
         transactionGormService.save(transaction4)
 
         and:
@@ -473,7 +479,10 @@ class TransactionControllerSpec extends Specification {
         given:'a transaction'
         Account account1 = generateAccount()
 
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        Category category = generateCategory(account1.user)
+
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1, category)
         transactionGormService.save(transaction1)
 
         and:'a client request'

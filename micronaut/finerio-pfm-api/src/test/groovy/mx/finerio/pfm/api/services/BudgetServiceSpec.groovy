@@ -29,7 +29,7 @@ class BudgetServiceSpec extends Specification {
 
         when:
         1 * budgetService.userService.getUser(_ as Long) >> user
-        1 * budgetService.categoryService.find(_ as Long) >> category
+        1 * budgetService.categoryService.getById(_ as Long) >> category
 
         1 * budgetService.budgetGormService.save(_  as Budget) >> new Budget(cmd, user, category)
 

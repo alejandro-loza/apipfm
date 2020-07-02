@@ -11,7 +11,7 @@ import java.awt.Cursor
 
 interface CategoryService {
     Category create(CategoryCommand cmd)
-    Category find(Long id)
+    Category getById(Long id)
     Category update(CategoryCommand cmd, Long id)
     void delete(Long id)
     List<CategoryDto> findAllByCurrentLoggedClient()

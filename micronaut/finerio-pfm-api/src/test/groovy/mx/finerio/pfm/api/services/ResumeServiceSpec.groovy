@@ -6,7 +6,9 @@ import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.BalancesDto
 import mx.finerio.pfm.api.dtos.MovementsDto
+import mx.finerio.pfm.api.dtos.ResumeDto
 import spock.lang.Specification
 import javax.inject.Inject
 import java.text.SimpleDateFormat
@@ -105,6 +107,53 @@ class ResumeServiceSpec extends Specification {
         assert movementsByMonth.last().categories.first().amount == 100
         assert movementsByMonth.last().categories.last().amount == 100
 
+    }
+
+
+    def "Should get the balance"(){
+        given:
+
+        Date december98Date = new SimpleDateFormat("dd/MM/yyyy").parse("13/12/1998")
+        Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
+
+        MovementsDto incomeMovements98 = new MovementsDto()
+        incomeMovements98.with {
+            date = december98Date.getTime()
+            amount = 235.35
+        }
+
+        MovementsDto incomeMovements20 = new MovementsDto()
+        incomeMovements20.with {
+            date = december20Date.getTime()
+            amount = 300.00
+        }
+
+        MovementsDto expensesMovements98 = new MovementsDto()
+        expensesMovements98.with {
+            date = december98Date.getTime()
+            amount = 100.00
+        }
+
+        MovementsDto expensesMovements20 = new MovementsDto()
+        expensesMovements20.with {
+            date = december20Date.getTime()
+            amount = 99.99
+        }
+
+        when:
+        List<BalancesDto> result =resumeService
+                .getBalance([incomeMovements98, incomeMovements20],  [expensesMovements98, expensesMovements20])
+
+        then:
+        assert result instanceof List<BalancesDto>
+        assert !result.isEmpty()
+        assert result.first().date == december98Date.getTime()
+        assert result.first().incomes == 235.35F
+        assert result.first().expenses == 100.00F
+
+        assert result.last().date == december20Date.getTime()
+        assert result.last().incomes == 300.00F
+        assert result.last().expenses == 99.99F
     }
 
     private static Transaction generateTransaction(Date date1, Category category1) {

@@ -2,8 +2,10 @@ package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.BalancesDto
 import mx.finerio.pfm.api.dtos.CategoryResumeDto
 import mx.finerio.pfm.api.dtos.MovementsDto
+import mx.finerio.pfm.api.dtos.ResumeDto
 import mx.finerio.pfm.api.dtos.SubCategoryResumeDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.dtos.TransactionsByDateDto
@@ -46,10 +48,36 @@ class ResumeServiceImp implements ResumeService{
         }
     }
 
+    @Override
+    @Transactional
+    ResumeDto getResume(Long userId) {
+
+        List<MovementsDto> incomesResult = getTransactionsGroupByMonth(getIncomes(userId))
+        List<MovementsDto> expensesResult = getTransactionsGroupByMonth( getExpenses(userId))
+
+        ResumeDto resumeDto = new ResumeDto()
+        resumeDto.with {
+            incomes = incomesResult
+            expenses = expensesResult
+            balances =  getBalance(incomesResult, expensesResult)
+        }
+        resumeDto
+    }
+
+    @Override
+    List<BalancesDto> getBalance(List<MovementsDto> incomesResult, List<MovementsDto> expensesResult) {
+        [incomesResult.collect {
+            [date: it.date, incomes: it.amount]
+        },
+         expensesResult.collect {
+             [date: it.date, expenses: it.amount]
+         }].transpose()*.sum() as List<BalancesDto>
+    }
+
     private List<CategoryResumeDto> getTransactionsGroupByParentCategory(List<Transaction> transactionList){
         transactionList.groupBy { transaction ->
             transaction.category.parent.id
-         }.collect{ parentId , transactions ->
+        }.collect{ parentId , transactions ->
             generateParentCategoryResume(parentId, transactions)
         }
     }

@@ -5,7 +5,8 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
-import mx.finerio.pfm.api.domain.Transaction
+import javax.annotation.Nullable
+import mx.finerio.pfm.api.dtos.ResumeDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.services.ResumeService
 
@@ -19,11 +20,16 @@ class ResumeController {
     @Inject
     ResumeService resumeService
 
-    @Get("/expenses/account/{accountId}")
+    @Get("/expenses/user/{userId}")
     @Transactional
-    List<TransactionDto> expenses(Long accountId) {
-        List<Transaction> response = resumeService.getExpenses(accountId)
-        response.collect{new TransactionDto(it)}
+    List<TransactionDto> expenses(Long userId) {
+        resumeService.getExpenses(userId).collect{new TransactionDto(it)}
+    }
+
+    @Get("{?userId}")
+    @Transactional
+    ResumeDto resume(@Nullable Long userId) {
+        resumeService.getResume(userId)
     }
 
 }

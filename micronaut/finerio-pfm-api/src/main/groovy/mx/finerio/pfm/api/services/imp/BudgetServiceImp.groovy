@@ -28,7 +28,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         budgetGormService.save(
                 new Budget(cmd,
                         userService.getUser(cmd.userId),
-                        categoryService.find(cmd.categoryId))
+                        categoryService.getById(cmd.categoryId))
         )
     }
 
@@ -44,7 +44,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         Budget budget = find(id)
         budget.with {
             user = userService.getUser(cmd.userId)
-            category = categoryService.find(cmd.categoryId)
+            category = categoryService.getById(cmd.categoryId)
             name = cmd.name
             parentBudgetId = cmd.parentBudgetId
             amount = cmd.amount

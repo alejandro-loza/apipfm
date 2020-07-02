@@ -6,13 +6,10 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.validation.BudgetCommand
-import mx.finerio.pfm.api.validation.CategoryCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject

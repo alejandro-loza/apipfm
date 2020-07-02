@@ -14,18 +14,18 @@ import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.dtos.ResumeDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Inject
+import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 
 @Property(name = 'spec.name', value = 'resume controller')
@@ -34,6 +34,8 @@ class ResumeControllerSpec extends Specification{
 
     public static final String RESUME_ROOT = "/resume"
     public static final String LOGIN_ROOT = "/login"
+    public static final boolean EXPENSE = true
+    public static final boolean INCOME = false
 
     @Shared
     @Inject
@@ -87,39 +89,62 @@ class ResumeControllerSpec extends Specification{
         }
     }
 
-    def "Should get a list of transactions incomes"(){
+    def "Should get a list of transactions incomes of the accounts of the user"(){
 
         given:'a transaction list'
         User user1 = generateUser()
         Account account1 = generateAccount(user1)
-
         Account account2 = generateAccount(user1)
+        Category category1 = generateCategory(user1)
+        Category category2 = generateCategory(user1)
 
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
-        transactionGormService.save(transaction1)
-        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
-        transaction2.dateDeleted = new Date()
-        transactionGormService.save(transaction2)
-        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
-        transactionGormService.save(transaction3)
-        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+
+        Date jan98Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/01/2020")//TODO fails search getAccountsTransactions om dates less than 2020
+        Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
+
+        Transaction transaction1 = generateTransaction(account2, jan98Date, category2, EXPENSE)
+        Transaction transaction2 = generateTransaction(account2, jan98Date, category1, INCOME)
+        Transaction transaction3 =  generateTransaction(account2, jan98Date, category2, EXPENSE)
+
+        Transaction transaction4 =  generateTransaction(account1, december20Date, category1, EXPENSE)
         transaction4.date =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
         transactionGormService.save(transaction4)
 
+        Transaction transaction5 =  generateTransaction(account1, december20Date, category1, INCOME)
+        Transaction transaction6 =  generateTransaction(account2, december20Date, category2, EXPENSE)
+
+        Transaction transaction7 =  generateTransaction(account2, december20Date, category1, INCOME)
+        transaction7.dateDeleted = new Date()
+        transactionGormService.save(transaction7)
+
         and:
-        HttpRequest getReq = HttpRequest.GET("${RESUME_ROOT}/expenses/account/${account1.id}").bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("${RESUME_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(TransactionDto))
+        def rspGET = client.toBlocking().exchange(getReq, Argument.of(ResumeDto))
 
         then:
         rspGET.status == HttpStatus.OK
-        List<TransactionDto> body = rspGET.body()
+        ResumeDto body = rspGET.body()
 
-        assert body.stream().noneMatch{it.id == transaction2.id}
-        assert body.stream().noneMatch{it.id == transaction4.id}
-        assert body.stream().anyMatch{it.id == transaction1.id}
-        assert body.stream().anyMatch{it.id == transaction3.id}
+        Date incomeFirstDate = new Date( body.incomes.first().date)
+
+        assert incomeFirstDate.month == jan98Date.month
+        assert incomeFirstDate.year == jan98Date.year
+
+        Date incomeLastDate = new Date( body.incomes.last().date)
+        assert incomeLastDate.month == december20Date.month
+        assert incomeLastDate.year == december20Date.year
+
+        assert body.expenses.size() == 2
+        assert body.expenses.first().date
+        assert body.incomes.size() == 2
+
+        assert body.balances.size() == 2
+        assert  body.balances.first().date == body.incomes.last().date
+        assert  body.balances.first().date == body.expenses.first().date
+        assert  body.balances*.incomes
+        assert  body.balances*.expenses
 
     }
 
@@ -153,18 +178,39 @@ class ResumeControllerSpec extends Specification{
         financialEntityService.save(entity1)
     }
 
-    private static TransactionCreateCommand generateTransactionCommand(Account account1) {
-        def date1 = new Date()
-
-        TransactionCreateCommand cmd = new TransactionCreateCommand()
-        cmd.with {
-            accountId = account1.id
-            date = date1.getTime()
-            charge = true
-            description = "UBER EATS"
-            amount= 1234.56
+    private Transaction generateTransaction(Account accountToSet, Date date1, Category category1, Boolean chargeToSet) {
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = accountToSet
+            charge = chargeToSet
+            description = 'rapi'
+            amount = 100.00
+            date = date1
+            category = category1
         }
-        cmd
+        transactionGormService.save(transaction)
+    }
+
+    private  Category generateCategory(User user1) {
+        Category parentCat = new Category()
+        parentCat.with {
+            user = user1
+            name = 'test parent category'
+            color = 'test parent  color'
+            parentCat.client = loggedInClient
+        }
+
+        categoryGormService.save(parentCat)
+
+        Category category = new Category()
+        category.with {
+            user = user1
+            name = 'test category'
+            color = 'test color'
+            category.client = loggedInClient
+            parent = parentCat
+        }
+        categoryGormService.save(category)
     }
 
 }

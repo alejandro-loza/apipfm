@@ -30,6 +30,7 @@ class TransactionCommandSpec extends Specification{
             charge = true
             description = 'wild description appears'
             amount = 100.00
+            categoryId =2
         }
         when:
         Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
@@ -47,7 +48,7 @@ class TransactionCommandSpec extends Specification{
 
         then:
         assert !violations.isEmpty()
-        violations.size() == 5
+        violations.size() == 6
     }
 
 

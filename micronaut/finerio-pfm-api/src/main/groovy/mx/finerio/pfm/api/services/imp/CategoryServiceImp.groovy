@@ -1,8 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
-import mx.finerio.pfm.api.domain.Account
+
 import mx.finerio.pfm.api.domain.Category
-import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -12,7 +11,6 @@ import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.validation.CategoryCommand
 
 import javax.inject.Inject
-import java.awt.Cursor
 
 class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
@@ -31,7 +29,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    Category find(Long id) {
+    Category getById(Long id) {
         Optional.ofNullable(categoryGormService.findByIdAndDateDeletedIsNull(id))
                 .orElseThrow({ -> new ItemNotFoundException('category.notFound') })
     }
@@ -39,7 +37,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     @Override
     Category update(CategoryCommand cmd, Long id){
         verifyBody(cmd)
-        Category category = find(id)
+        Category category = getById(id)
         category.with {
             user = userService.getUser(cmd.userId)
             name = cmd.name
@@ -51,7 +49,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
     @Override
     void delete(Long id){
-        Category category = find(id)
+        Category category = getById(id)
         category.dateDeleted = new Date()
         categoryGormService.save(category)
     }
@@ -74,7 +72,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
         if(!cmd.parentCategoryId){
            return null
         }
-        find(cmd.parentCategoryId)
+        getById(cmd.parentCategoryId)
     }
 
     private User findUser(CategoryCommand cmd) {

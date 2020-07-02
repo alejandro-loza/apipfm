@@ -3,7 +3,6 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
@@ -34,8 +33,7 @@ class TransactionServiceImp  implements TransactionService {
     @Transactional
     Transaction create(TransactionCreateCommand cmd){
         verifyBody(cmd)
-        Transaction transaction = new Transaction(cmd, accountService.getAccount(cmd.accountId))
-        transaction.category = findCategory(cmd)
+        Transaction transaction = new Transaction( cmd, accountService.getAccount(cmd.accountId), categoryService.getById(cmd.categoryId))
         transactionGormService.save(transaction)
     }
 
@@ -98,18 +96,11 @@ class TransactionServiceImp  implements TransactionService {
     List<Transaction> findAllByAccountAndCharge(Account account, Boolean charge) {
         transactionGormService
                 .findAllByAccountAndDateGreaterThanAndChargeAndDateDeletedIsNull(
-                        account,  dateSixMonthsAgo(),charge, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                        account,  dateSixMonthsAgo(),charge, [ sort: 'id', order: 'desc'])
     }
 
     private static Date dateSixMonthsAgo() {
         Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
-    }
-
-    private Category findCategory(TransactionCreateCommand cmd){
-        if(!cmd.categoryId){
-           return null
-        }
-         return categoryService.find(cmd.categoryId)
     }
 
     static void verifyBody(ValidationCommand cmd) {

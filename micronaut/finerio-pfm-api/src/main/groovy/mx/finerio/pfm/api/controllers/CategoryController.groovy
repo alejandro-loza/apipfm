@@ -36,7 +36,7 @@ class CategoryController {
     @Get("/{id}")
     @Transactional
     Single<CategoryDto> show(@NotNull Long id) {
-        Single.just(new CategoryDto(categoryService.find(id)))
+        Single.just(new CategoryDto(categoryService.getById(id)))
     }
 
     @Get("{?userId}")

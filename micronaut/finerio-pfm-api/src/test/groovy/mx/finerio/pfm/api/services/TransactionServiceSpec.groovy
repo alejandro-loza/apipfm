@@ -52,7 +52,7 @@ class TransactionServiceSpec extends Specification {
         }
         when:
         1 * transactionService.accountService.getAccount(_ as Long)
-        1 * transactionService.categoryService.find(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }
+        1 * transactionService.categoryService.getById(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }
 
         def response = transactionService.create(cmd)
 
