@@ -1,0 +1,79 @@
+package db
+
+databaseChangeLog:
+  - changeSet:
+      id: client_profile
+      author: alejandro.hernandez
+      changes:
+        - createTable:
+            tableName: client_profile
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: client_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: java.sql.Types.VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_last_name
+                  type: java.sql.Types.VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: second_last_name
+                  type: java.sql.Types.VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: java.sql.Types.VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: company_name
+                  type: java.sql.Types.VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_deleted
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: client_profile_client_fk
+      author: alejandro.garcia
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: client_id
+            baseTableName: client_profile
+            constraintName: fk_client_profile_client
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: client
