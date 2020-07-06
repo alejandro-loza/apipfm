@@ -1,7 +1,9 @@
 package mx.finerio.pfm.api.dtos
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import mx.finerio.pfm.api.domain.Category
 
+@JsonInclude(JsonInclude.Include.ALWAYS)
 class CategoryDto extends ResourceDto{
 
     Long userId

@@ -84,10 +84,6 @@ class TransactionControllerSpec extends Specification {
 
     }
 
-    void setup(){
-
-    }
-
     def "Should get a empty list of transactions"(){
 
         given:'a client'
@@ -112,7 +108,12 @@ class TransactionControllerSpec extends Specification {
     def "Should create a transaction"(){
         given:'an saved Account '
         Account account1 = generateAccount()
-        Category category1 = generateCategory(generateUser())
+        def user = generateUser()
+
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
         and:'a command request body'
         TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
@@ -123,6 +124,7 @@ class TransactionControllerSpec extends Specification {
             amount= 1234.56
             categoryId = category1.id
         }
+
 
         HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
 

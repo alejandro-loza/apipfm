@@ -2,5 +2,5 @@ package mx.finerio.pfm.api.dtos
 
 class TransactionsByDateDto {
     Long date
-    List<TransactionDto> transactionDtos
+    List<TransactionDto> transactions
 }

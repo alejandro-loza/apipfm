@@ -2,8 +2,10 @@ package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.CategoryService
@@ -33,7 +35,11 @@ class TransactionServiceImp  implements TransactionService {
     @Transactional
     Transaction create(TransactionCreateCommand cmd){
         verifyBody(cmd)
-        Transaction transaction = new Transaction( cmd, accountService.getAccount(cmd.accountId), categoryService.getById(cmd.categoryId))
+        Category category = categoryService.getById(cmd.categoryId)
+        if(!category?.parent){
+            throw new BadRequestException("The provided category is not a subcategory")
+        }
+        Transaction transaction = new Transaction( cmd, accountService.getAccount(cmd.accountId), category)
         transactionGormService.save(transaction)
     }
 

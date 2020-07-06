@@ -4,8 +4,10 @@ import io.micronaut.context.annotation.Property
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.imp.TransactionServiceImp
@@ -19,26 +21,62 @@ class TransactionServiceSpec extends Specification {
     TransactionService transactionService = new TransactionServiceImp()
 
     void setup(){
+        transactionService.categoryService = Mock(CategoryService)
         transactionService.transactionGormService = Mock(TransactionGormService)
         transactionService.accountService = Mock(AccountService)
-        transactionService.categoryService = Mock(CategoryService)
     }
 
     def 'Should save an transaction'(){
         given:'a transaction command request body'
+        Category category = generateCategory()
+
         TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = 666
             date =  new Date().getTime()
+            categoryId = category.id
         }
+
         when:
-        1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
-        1 * transactionService.transactionGormService.save(_  as Transaction) >> new Transaction()
+
+        1 * transactionService.categoryService.getById( _ as Long) >> category
+        1 * transactionService.accountService.getAccount( _ as Long) >> new Account()
+        1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
 
         def response = transactionService.create(cmd)
 
         then:
         response instanceof Transaction
+    }
+
+    def 'Should not save an transaction on no parent category'(){
+        given:'a transaction command request body'
+        Category category = generateCategory()
+        category.parent = null
+
+        def account = new Account()
+        account.id = 666
+        def transaction = new Transaction()
+        transaction.account =  account
+
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId =  account.id
+            date =  new Date().getTime()
+            categoryId = category.id
+        }
+
+        when:
+
+        1 * transactionService.categoryService.getById( _ as Long) >> category
+        0 * transactionService.accountService.getAccount(_ as Long)
+        0 * transactionService.transactionGormService.save(_  as Transaction)
+
+        transactionService.create(cmd)
+
+        then:
+        BadRequestException e = thrown()
+        e.message == 'The provided category is not a subcategory'
     }
 
     def
@@ -51,10 +89,10 @@ class TransactionServiceSpec extends Specification {
             categoryId = 666
         }
         when:
-        1 * transactionService.accountService.getAccount(_ as Long)
         1 * transactionService.categoryService.getById(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }
+        0 * transactionService.accountService.getAccount(_ as Long)
 
-        def response = transactionService.create(cmd)
+        transactionService.create(cmd)
 
         then:
         ItemNotFoundException e = thrown()
@@ -126,6 +164,24 @@ class TransactionServiceSpec extends Specification {
 
         then:
         response instanceof  List<TransactionDto>
+    }
+
+
+    private Category generateCategory() {
+        Category category1 = new Category()
+        category1.with {
+            name: 'sub category'
+            category1.id = 666
+        }
+
+
+        Category category = new Category()
+        category.with {
+            parent = category1
+            name = 'parent'
+            category.id = 333
+        }
+        category
     }
 
 }

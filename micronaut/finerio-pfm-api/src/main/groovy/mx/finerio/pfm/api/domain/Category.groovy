@@ -39,7 +39,7 @@ class Category implements GormEntity<Category> {
     }
 
     boolean isSubcategory(){
-        this.parent
+        this?.parent
     }
 
 }

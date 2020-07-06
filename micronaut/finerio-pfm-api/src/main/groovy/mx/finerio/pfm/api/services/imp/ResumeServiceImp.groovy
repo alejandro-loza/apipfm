@@ -102,7 +102,7 @@ class ResumeServiceImp implements ResumeService{
         TransactionsByDateDto transactionsByDateDto = new TransactionsByDateDto()
         transactionsByDateDto.with {
             date = generateDate(stringDate).getTime()
-            transactionDtos = transactionList.collect{new TransactionDto(it)}
+            transactions = transactionList.collect{new TransactionDto(it)}
         }
         transactionsByDateDto
     }
