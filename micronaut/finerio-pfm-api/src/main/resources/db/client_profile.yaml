@@ -63,3 +63,15 @@ databaseChangeLog:
                   type: DATETIME(6)
                   constraints:
                     nullable: true
+  - changeSet:
+      id: client_profile_client_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: client_id
+            baseTableName: client_profile
+            constraintName: fk_client_profile_client
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: client
