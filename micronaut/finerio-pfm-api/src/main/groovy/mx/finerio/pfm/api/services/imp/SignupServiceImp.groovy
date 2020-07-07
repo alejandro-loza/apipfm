@@ -59,8 +59,12 @@ class SignupServiceImpl implements SignupService {
                                               Client client ) throws Exception {
 
         ClientProfile clientProfile = new ClientProfile()
-        clientProfile.with {dto}
         clientProfile.client = client
+        clientProfile.name = dto.name
+        clientProfile.firstLastName = dto.firstLastName
+        clientProfile.secondLastName = dto.secondLastName
+        clientProfile.email = dto.email
+        clientProfile.companyName = dto.companyName
         clientProfileGormService.save( clientProfile )
     }
 

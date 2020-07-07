@@ -18,7 +18,7 @@ class GenerateDefaultClient implements ApplicationEventListener<ServerStartupEve
 
     @Override
     void onApplicationEvent(ServerStartupEvent event) {
-        registerService.register("sherlock", 'elementary', ['ROLE_DETECTIVE'])
+        registerService.register("sherlock", 'elementary', ['ROLE_CLIENT'])
     }
 
 }
