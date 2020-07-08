@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
@@ -17,7 +17,7 @@ class Category implements GormEntity<Category> {
     Date dateDeleted
     Client client
 
-    Category(CategoryCommand cmd, User user, Client client) {
+    Category(CategoryCreateCommand cmd, User user, Client client) {
         this.user = user
         this.name = cmd.name
         this.color = cmd.color

@@ -10,7 +10,8 @@ import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.UserService
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
+import mx.finerio.pfm.api.validation.CategoryUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -29,7 +30,7 @@ class CategoryController {
     UserService userService
 
     @Post("/")
-    Single<CategoryDto> save(@Body @Valid CategoryCommand cmd){
+    Single<CategoryDto> save(@Body @Valid CategoryCreateCommand cmd){
         Single.just(new CategoryDto(categoryService.create(cmd)))
     }
 
@@ -54,7 +55,7 @@ class CategoryController {
 
     @Put("/{id}")
     @Transactional
-    Single<CategoryDto> edit(@Body @Valid CategoryCommand cmd, @NotNull Long id ) {
+    Single<CategoryDto> edit(@Body @Valid CategoryUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new CategoryDto(categoryService.update(cmd, id)))
     }
 

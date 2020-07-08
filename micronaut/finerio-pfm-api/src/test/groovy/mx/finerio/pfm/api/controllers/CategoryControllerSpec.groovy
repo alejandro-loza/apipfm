@@ -9,10 +9,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
-import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.services.ClientService
-
-import java.awt.Color
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
@@ -22,7 +19,8 @@ import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
+import mx.finerio.pfm.api.validation.CategoryUpdateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -94,7 +92,7 @@ class CategoryControllerSpec extends Specification {
         User user1 = generateUser()
 
         and: 'a command request body'
-        CategoryCommand cmd = generateCategoryCommand(user1)
+        CategoryCreateCommand cmd = generateCategoryCommand(user1)
 
         HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
 
@@ -115,7 +113,7 @@ class CategoryControllerSpec extends Specification {
     def "Should create a category without user"() {
 
         given: 'a command request body'
-        CategoryCommand cmd = new CategoryCommand()
+        CategoryCreateCommand cmd = new CategoryCreateCommand()
         cmd.with {
             name = 'Shoes and clothes'
             color = "#00FFAA"
@@ -142,7 +140,7 @@ class CategoryControllerSpec extends Specification {
         User user1 = generateUser()
 
         and: 'a command request body'
-        CategoryCommand cmd = generateCategoryCommand(user1)
+        CategoryCreateCommand cmd = generateCategoryCommand(user1)
 
         and:'a saved parent category'
         Category parentCategory =  generateCategory(user1)
@@ -170,7 +168,7 @@ class CategoryControllerSpec extends Specification {
     def "Should not create a category and throw bad request on wrong params"() {
         given: 'a category request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, new CategoryCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, new CategoryCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
@@ -198,7 +196,7 @@ class CategoryControllerSpec extends Specification {
 
         def user = new User()
         user.id = 666
-        CategoryCommand cmd = generateCategoryCommand(user)
+        CategoryCreateCommand cmd = generateCategoryCommand(user)
 
         HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
 
@@ -214,7 +212,7 @@ class CategoryControllerSpec extends Specification {
         given: 'a saved user'
         User user = generateUser()
 
-        CategoryCommand cmd = generateCategoryCommand(user)
+        CategoryCreateCommand cmd = generateCategoryCommand(user)
         cmd.parentCategoryId = 666
 
         HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
@@ -297,6 +295,37 @@ class CategoryControllerSpec extends Specification {
         resp.status == HttpStatus.OK
         resp.body().with {
            cmd
+        }
+
+    }
+
+    def "Should partially update an category"() {
+        given: 'a saved user'
+        User user1 = generateUser()
+        User user2 = generateUser()
+
+
+        and: 'a saved category'
+        Category category = generateCategory(user1)
+
+        and: 'an account command to update data'
+        CategoryUpdateCommand cmd = new CategoryUpdateCommand()
+        cmd.with {
+            userId = user2.id
+            name = 'Shoes and clothes changed'
+        }
+        cmd
+
+        and: 'a client'
+        HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${category.id}", cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
+                Argument.of(ErrorDto))
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            cmd
         }
 
     }
@@ -472,8 +501,8 @@ class CategoryControllerSpec extends Specification {
         userGormService.save(new User('awesome user', loggedInClient))
     }
 
-    private static CategoryCommand generateCategoryCommand(User user1) {
-        CategoryCommand cmd = new CategoryCommand()
+    private static CategoryCreateCommand generateCategoryCommand(User user1) {
+        CategoryCreateCommand cmd = new CategoryCreateCommand()
         cmd.with {
             userId = user1.id
             name = 'Shoes and clothes'

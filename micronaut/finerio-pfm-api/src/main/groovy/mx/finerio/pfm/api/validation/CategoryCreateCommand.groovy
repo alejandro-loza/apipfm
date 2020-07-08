@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 
-class CategoryCommand extends ValidationCommand {
+class CategoryCreateCommand extends ValidationCommand {
 
     Long userId
 

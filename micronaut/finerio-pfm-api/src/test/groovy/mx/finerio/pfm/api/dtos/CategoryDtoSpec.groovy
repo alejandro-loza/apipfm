@@ -4,7 +4,7 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import spock.lang.Specification
 import mx.finerio.pfm.api.domain.Category
 
@@ -18,7 +18,7 @@ class CategoryDtoSpec extends Specification{
            name = 'test'
             id = 666
         }
-        CategoryCommand cmd = new CategoryCommand()
+        CategoryCreateCommand cmd = new CategoryCreateCommand()
         cmd.with {
             userId = user.id
             name = 'test category'
@@ -47,7 +47,7 @@ class CategoryDtoSpec extends Specification{
             name = 'test'
             id = 666
         }
-        CategoryCommand cmd = new CategoryCommand()
+        CategoryCreateCommand cmd = new CategoryCreateCommand()
         cmd.with {
             userId = user.id
             name = 'test category'

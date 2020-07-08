@@ -8,7 +8,9 @@ import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
+import mx.finerio.pfm.api.validation.CategoryUpdateCommand
+import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
 
@@ -21,7 +23,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     UserService userService
 
     @Override
-    Category create(CategoryCommand cmd){
+    Category create(CategoryCreateCommand cmd){
         verifyBody(cmd)
         Category category = new Category(cmd, findUser(cmd), getCurrentLoggedClient())
         category.parent = findParentCategory(cmd)
@@ -35,13 +37,13 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    Category update(CategoryCommand cmd, Long id){
+    Category update(CategoryUpdateCommand cmd, Long id){
         verifyBody(cmd)
         Category category = getById(id)
         category.with {
-            user = userService.getUser(cmd.userId)
-            name = cmd.name
-            color = cmd.color
+            user = cmd.userId ?userService.getUser(cmd.userId) : category.user
+            name = cmd.name ?: category.name
+            color = cmd.color ?: category.color
         }
         category.parent = findParentCategory(cmd)
         categoryGormService.save(category)
@@ -68,14 +70,15 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
                 .collect{new CategoryDto(it)}
     }
 
-    private Category findParentCategory(CategoryCommand cmd) {
-        if(!cmd.parentCategoryId){
+    private Category findParentCategory(ValidationCommand cmd) {
+        Long parentCategoryId = cmd["parentCategoryId"] as Long
+        if(!parentCategoryId){
            return null
         }
-        getById(cmd.parentCategoryId)
+        getById(parentCategoryId )
     }
 
-    private User findUser(CategoryCommand cmd) {
+    private User findUser(CategoryCreateCommand cmd) {
         if(!cmd.userId){
             return null
         }

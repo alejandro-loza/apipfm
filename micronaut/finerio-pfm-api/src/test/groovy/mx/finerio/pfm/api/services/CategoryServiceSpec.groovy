@@ -7,7 +7,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.imp.CategoryServiceImp
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import spock.lang.Specification
 
 import java.security.Principal
@@ -28,7 +28,7 @@ class CategoryServiceSpec extends Specification {
     def 'Should not save an category with parent category on parent category not found'(){
 
         given:'an category command request body'
-        CategoryCommand cmd = generateCommand()
+        CategoryCreateCommand cmd = generateCommand()
         cmd.parentCategoryId = 888
         def user = new User()
 
@@ -47,7 +47,7 @@ class CategoryServiceSpec extends Specification {
 
     def 'Should save an category with parent category'(){
         given:'an category command request body'
-        CategoryCommand cmd = generateCommand()
+        CategoryCreateCommand cmd = generateCommand()
         def user = new User()
         def parentCategory = new Category(cmd, user, new Client())
         parentCategory.id = 1234
@@ -128,8 +128,8 @@ class CategoryServiceSpec extends Specification {
         response.isEmpty()
     }
 
-    private CategoryCommand generateCommand() {
-        CategoryCommand cmd = new CategoryCommand()
+    private CategoryCreateCommand generateCommand() {
+        CategoryCreateCommand cmd = new CategoryCreateCommand()
         cmd.with {
             userId = 123
             name = "Ropa y Calzado"

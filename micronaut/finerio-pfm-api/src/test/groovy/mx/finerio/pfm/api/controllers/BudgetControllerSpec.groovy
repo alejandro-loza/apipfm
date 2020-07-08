@@ -10,7 +10,6 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
@@ -18,14 +17,13 @@ import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.BudgetCommand
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -125,7 +123,7 @@ class BudgetControllerSpec extends Specification {
     def "Should not create a budget and throw bad request on wrong params"() {
         given: 'a budget request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, new CategoryCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, new CategoryCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
