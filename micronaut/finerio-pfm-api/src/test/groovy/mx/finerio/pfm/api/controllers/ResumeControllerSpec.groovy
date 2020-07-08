@@ -117,6 +117,10 @@ class ResumeControllerSpec extends Specification{
         transaction7.dateDeleted = new Date()
         transactionGormService.save(transaction7)
 
+        Date sevenMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
+        Transaction transaction8 =  generateTransaction(account2, sevenMonthAgo, category1, INCOME)
+
+
         and:
         HttpRequest getReq = HttpRequest.GET("${RESUME_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
 
