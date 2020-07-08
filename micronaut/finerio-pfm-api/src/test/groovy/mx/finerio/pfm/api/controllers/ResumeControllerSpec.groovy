@@ -66,7 +66,6 @@ class ResumeControllerSpec extends Specification{
     @Shared
     mx.finerio.pfm.api.domain.Client loggedInClient
 
-
     @Shared
     String accessToken
 
@@ -98,22 +97,23 @@ class ResumeControllerSpec extends Specification{
         Category category1 = generateCategory(user1)
         Category category2 = generateCategory(user1)
 
+        Date sixMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(4).toInstant())
 
-        Date jan98Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/01/2020")//TODO fails search getAccountsTransactions om dates less than 2020
-        Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
+        Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
 
-        Transaction transaction1 = generateTransaction(account2, jan98Date, category2, EXPENSE)
-        Transaction transaction2 = generateTransaction(account2, jan98Date, category1, INCOME)
-        Transaction transaction3 =  generateTransaction(account2, jan98Date, category2, EXPENSE)
 
-        Transaction transaction4 =  generateTransaction(account1, december20Date, category1, EXPENSE)
+        Transaction transaction1 = generateTransaction(account2, sixMonthAgo, category2, EXPENSE)
+        Transaction transaction2 = generateTransaction(account2, sixMonthAgo, category1, INCOME)
+        Transaction transaction3 =  generateTransaction(account2, sixMonthAgo, category2, EXPENSE)
+
+        Transaction transaction4 =  generateTransaction(account1, oneMonthAgo, category1, EXPENSE)
         transaction4.date =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
         transactionGormService.save(transaction4)
 
-        Transaction transaction5 =  generateTransaction(account1, december20Date, category1, INCOME)
-        Transaction transaction6 =  generateTransaction(account2, december20Date, category2, EXPENSE)
+        Transaction transaction5 =  generateTransaction(account1, oneMonthAgo, category1, INCOME)
+        Transaction transaction6 =  generateTransaction(account2, oneMonthAgo, category2, EXPENSE)
 
-        Transaction transaction7 =  generateTransaction(account2, december20Date, category1, INCOME)
+        Transaction transaction7 =  generateTransaction(account2, oneMonthAgo, category1, INCOME)
         transaction7.dateDeleted = new Date()
         transactionGormService.save(transaction7)
 
@@ -126,15 +126,6 @@ class ResumeControllerSpec extends Specification{
         then:
         rspGET.status == HttpStatus.OK
         ResumeDto body = rspGET.body()
-
-        Date incomeFirstDate = new Date( body.incomes.first().date)
-
-        assert incomeFirstDate.month == jan98Date.month
-        assert incomeFirstDate.year == jan98Date.year
-
-        Date incomeLastDate = new Date( body.incomes.last().date)
-        assert incomeLastDate.month == december20Date.month
-        assert incomeLastDate.year == december20Date.year
 
         assert body.expenses.size() == 2
         assert body.expenses.first().date

@@ -20,12 +20,6 @@ class ResumeController {
     @Inject
     ResumeService resumeService
 
-    @Get("/expenses/user/{userId}")
-    @Transactional
-    List<TransactionDto> expenses(Long userId) {
-        resumeService.getExpenses(userId).collect{new TransactionDto(it)}
-    }
-
     @Get("{?userId}")
     @Transactional
     ResumeDto resume(@Nullable Long userId) {
