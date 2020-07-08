@@ -9,7 +9,8 @@ import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.services.BudgetService
-import mx.finerio.pfm.api.validation.BudgetCommand
+import mx.finerio.pfm.api.validation.BudgetCreateCommand
+import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -25,7 +26,7 @@ class BudgetsController {
     BudgetService budgetService
 
     @Post("/")
-    Single<BudgetDto> save(@Body @Valid BudgetCommand cmd){
+    Single<BudgetDto> save(@Body @Valid BudgetCreateCommand cmd){
         Single.just(new BudgetDto(budgetService.create(cmd)))
     }
 
@@ -44,7 +45,7 @@ class BudgetsController {
 
     @Put("/{id}")
     @Transactional
-    Single<BudgetDto> edit(@Body @Valid BudgetCommand cmd, @NotNull Long id ) {
+    Single<BudgetDto> edit(@Body @Valid BudgetUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new BudgetDto(budgetService.update(cmd, id)))
     }
 

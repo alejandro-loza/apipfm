@@ -22,7 +22,8 @@ import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.BudgetCommand
+import mx.finerio.pfm.api.validation.BudgetCreateCommand
+import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
@@ -102,7 +103,7 @@ class BudgetControllerSpec extends Specification {
         Category category1 = generateCategory(user1)
 
         and: 'a command request body'
-        BudgetCommand cmd = generateBudgetCommand(user1, category1)
+        BudgetCreateCommand cmd = generateBudgetCommand(user1, category1)
 
         HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
 
@@ -153,7 +154,7 @@ class BudgetControllerSpec extends Specification {
         user.id = 666
         Category category = new Category()
         category.id = 666
-        BudgetCommand cmd = generateBudgetCommand(user, category)
+        BudgetCreateCommand cmd = generateBudgetCommand(user, category)
 
         HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
 
@@ -233,14 +234,12 @@ class BudgetControllerSpec extends Specification {
         }
         categoryGormService.save(category1)
 
-        println ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"  + category1
-
         and:'a saved budget'
         Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
         budgetGormService.save(budget)
 
         and:'a update command'
-        BudgetCommand cmd = new BudgetCommand()
+        BudgetCreateCommand cmd = new BudgetCreateCommand()
         cmd.with {
             userId = user1.id
             categoryId = category1.id
@@ -262,6 +261,51 @@ class BudgetControllerSpec extends Specification {
         }
 
     }
+
+    def "Should partially an budget"() {
+        given: 'a saved user'
+        User user1 = generateUser()
+
+        and: 'a saved category'
+        Category category1 = new Category()
+        category1.with {
+            user = user1
+            name = 'Shoes and clothes'
+            color = "#00FFAA"
+            category1.client = loggedInClient
+        }
+        categoryGormService.save(category1)
+
+        and:'a saved budget'
+        Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
+        budgetGormService.save(budget)
+
+        and:'a update command'
+        BudgetUpdateCommand cmd = new BudgetUpdateCommand()
+        cmd.with {
+            userId = user1.id
+            categoryId = category1.id
+            name = 'partially updated'
+        }
+
+        and: 'a client'
+        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
+                Argument.of(ErrorDto))
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            assert userId == cmd.userId
+            assert categoryId == cmd.categoryId
+            assert name == cmd.name
+            assert amount == budget.amount
+            assert parentBudgetId == budget.parentBudgetId
+        }
+
+    }
+
 
     def "Should not update a budget on band parameters and return Bad Request"() {
         given: 'a saved user'
@@ -431,8 +475,8 @@ class BudgetControllerSpec extends Specification {
         categoryGormService.save(category1)
     }
 
-    private static BudgetCommand generateBudgetCommand(User user, Category category) {
-        BudgetCommand cmd = new BudgetCommand()
+    private static BudgetCreateCommand generateBudgetCommand(User user, Category category) {
+        BudgetCreateCommand cmd = new BudgetCreateCommand()
         cmd.with {
             userId = user.id
             categoryId = category.id

@@ -7,7 +7,8 @@ import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
-import mx.finerio.pfm.api.validation.BudgetCommand
+import mx.finerio.pfm.api.validation.BudgetCreateCommand
+import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 
 import javax.inject.Inject
 
@@ -23,7 +24,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     CategoryService categoryService
 
     @Override
-    Budget create(BudgetCommand cmd){
+    Budget create(BudgetCreateCommand cmd){
         verifyBody(cmd)
         budgetGormService.save(
                 new Budget(cmd,
@@ -39,15 +40,15 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     }
 
     @Override
-    Budget update(BudgetCommand cmd, Long id){
+    Budget update(BudgetUpdateCommand cmd, Long id){
         verifyBody(cmd)
         Budget budget = find(id)
         budget.with {
-            user = userService.getUser(cmd.userId)
-            category = categoryService.getById(cmd.categoryId)
-            name = cmd.name
-            parentBudgetId = cmd.parentBudgetId
-            amount = cmd.amount
+            user = cmd.userId ? userService.getUser(cmd.userId): budget.user
+            category = cmd.categoryId ? categoryService.getById(cmd.categoryId): budget.category
+            name = cmd.name ?: budget.name
+            parentBudgetId = cmd.parentBudgetId ?: budget.parentBudgetId
+            amount = cmd.amount ?: budget.amount
         }
         budgetGormService.save(budget)
     }

@@ -307,12 +307,15 @@ class CategoryControllerSpec extends Specification {
 
         and: 'a saved category'
         Category category = generateCategory(user1)
+        Category parent = generateCategory(user1)
+
 
         and: 'an account command to update data'
         CategoryUpdateCommand cmd = new CategoryUpdateCommand()
         cmd.with {
             userId = user2.id
             name = 'Shoes and clothes changed'
+            parentCategoryId = parent.id
         }
         cmd
 
@@ -325,7 +328,10 @@ class CategoryControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            cmd
+            assert userId == cmd.userId
+            assert name == cmd.name
+            assert color == category.color
+            assert parentCategoryId == parent.id
         }
 
     }

@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Positive
 
-class BudgetCommand extends ValidationCommand{
+class BudgetCreateCommand extends ValidationCommand{
 
     @NotNull(message= 'user.null')
     Long userId

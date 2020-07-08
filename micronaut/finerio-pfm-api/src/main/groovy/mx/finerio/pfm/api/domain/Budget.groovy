@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.BudgetCommand
+import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
@@ -18,7 +18,7 @@ class Budget implements GormEntity<Budget> {
 
     Budget(){}
 
-    Budget(BudgetCommand cmd, User user, Category category){
+    Budget(BudgetCreateCommand cmd, User user, Category category){
         this.user = user
         this.category = category
         this.name = cmd.name

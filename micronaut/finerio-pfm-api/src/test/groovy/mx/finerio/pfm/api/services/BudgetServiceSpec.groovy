@@ -8,7 +8,7 @@ import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.imp.BudgetServiceImp
-import mx.finerio.pfm.api.validation.BudgetCommand
+import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import spock.lang.Specification
 
 class BudgetServiceSpec extends Specification {
@@ -23,7 +23,7 @@ class BudgetServiceSpec extends Specification {
 
     def 'Should save an budget'(){
         given:'a budget command request body'
-        BudgetCommand cmd = generateCommand()
+        BudgetCreateCommand cmd = generateCommand()
         def user = new User()
         def category = new Category()
 
@@ -106,8 +106,8 @@ class BudgetServiceSpec extends Specification {
         response instanceof  List<BudgetDto>
     }
 
-    private static BudgetCommand generateCommand() {
-        BudgetCommand cmd = new BudgetCommand()
+    private static BudgetCreateCommand generateCommand() {
+        BudgetCreateCommand cmd = new BudgetCreateCommand()
         cmd.with {
             userId= 123
             categoryId = 123
