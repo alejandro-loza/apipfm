@@ -69,6 +69,19 @@ class CategoryControllerSpec extends Specification {
         }
     }
 
+    def "Should get unauthorized"() {
+
+        given:
+        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT)
+
+        when:
+        client.toBlocking().exchange(getReq, Map)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
+    }
+
     def
     "Should get a empty list of categories"() {
 

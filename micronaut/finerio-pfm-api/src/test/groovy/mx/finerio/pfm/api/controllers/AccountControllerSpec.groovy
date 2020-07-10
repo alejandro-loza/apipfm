@@ -74,6 +74,19 @@ class AccountControllerSpec extends Specification {
         }
     }
 
+    def "Should get unauthorized"() {
+
+        given:
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT)
+
+        when:
+        client.toBlocking().exchange(getReq, Map)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
+    }
+
     def "Should get a empty list of accounts"() {
 
         given:'a user'

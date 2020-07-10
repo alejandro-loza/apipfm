@@ -76,6 +76,19 @@ class BudgetControllerSpec extends Specification {
         }
     }
 
+    def "Should get unauthorized"() {
+
+        given:
+        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT)
+
+        when:
+        client.toBlocking().exchange(getReq, Map)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
+    }
+
 
     def "Should get a empty list of budgets"() {
 

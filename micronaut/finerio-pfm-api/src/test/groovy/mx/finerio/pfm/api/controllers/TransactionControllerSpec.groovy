@@ -84,6 +84,19 @@ class TransactionControllerSpec extends Specification {
 
     }
 
+    def "Should get unauthorized"() {
+
+        given:
+        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT)
+
+        when:
+        client.toBlocking().exchange(getReq, Map)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
+    }
+
     def "Should get a empty list of transactions"(){
 
         given:'a client'

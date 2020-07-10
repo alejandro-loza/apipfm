@@ -21,8 +21,7 @@ class SignupController {
 
     @Post('/signup')
     @PermitAll
-    public HttpResponse<ClientDto> signup(
-            @Valid @Body SignupCommand dto ) {
+    HttpResponse<ClientDto> signup(@Valid @Body SignupCommand dto ) {
         HttpResponse.ok( signupService.create( dto ) )
     }
 

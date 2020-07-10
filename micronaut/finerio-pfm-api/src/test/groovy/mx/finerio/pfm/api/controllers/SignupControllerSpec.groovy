@@ -5,11 +5,8 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
-import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.validation.SignupCommand
 import spock.lang.Shared
 import spock.lang.Specification
