@@ -14,20 +14,14 @@ import grails.gorm.transactions.Transactional
 
 class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEntityService {
 
-    public static final int MAX_ROWS = 100
-
     @Inject
     FinancialEntityGormService financialEntityGormService
 
     @Override
     FinancialEntity create(FinancialEntityCreateCommand cmd) {
         verifyBody(cmd)
-        def loggedClient = getCurrentLoggedClient()
+        Client loggedClient = getCurrentLoggedClient()
         findByCode(cmd, loggedClient) ?: financialEntityGormService.save(new FinancialEntity(cmd, loggedClient))
-    }
-
-    private FinancialEntity findByCode(FinancialEntityCreateCommand cmd, Client loggedClient) {
-        financialEntityGormService.findByCodeAndClientAndDateDeletedIsNull(cmd.code, loggedClient)
     }
 
     @Override
@@ -70,6 +64,10 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
         FinancialEntity entity = getById(id)
         entity.dateDeleted = new Date()
         financialEntityGormService.save(entity)
+    }
+
+    private FinancialEntity findByCode(FinancialEntityCreateCommand cmd, Client loggedClient) {
+        financialEntityGormService.findByCodeAndClientAndDateDeletedIsNull(cmd.code, loggedClient)
     }
 
 }

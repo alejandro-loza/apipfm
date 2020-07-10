@@ -68,8 +68,8 @@ class SignupServiceImpl implements SignupService {
         clientProfileGormService.save( clientProfile )
     }
 
-    private ClientDto createClientDto( Client client,
-                                       ClientProfile clientProfile ) throws Exception {
+    private static ClientDto createClientDto(Client client,
+                                             ClientProfile clientProfile ) throws Exception {
 
         ClientDto clientDto = new ClientDto()
         clientDto.id = client.id

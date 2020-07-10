@@ -56,8 +56,7 @@ class ClientServiceImp implements ClientService {
             if (!role) {
                 role = roleGormService.save(authority)
             }
-            ClientRole clientRole = clientRoleGormService.find(client, role)
-            if (!clientRole) {
+            if (!clientRoleGormService.find(client, role)) {
                 clientRoleGormService.save(client, role)
             }
         }

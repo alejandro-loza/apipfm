@@ -83,12 +83,18 @@ class TransactionServiceImp  implements TransactionService {
 
     @Override
     List<TransactionDto> findAllByCursor(Long cursor) {
-        transactionGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new TransactionDto(it)}
+        transactionGormService
+                .findAllByDateDeletedIsNullAndIdLessThanEquals(
+                        cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new TransactionDto(it)}
     }
 
     @Override
     List<TransactionDto> findAllByAccountAndCursor(Account account, Long cursor) {
-        transactionGormService.findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(account, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new TransactionDto(it)}
+        transactionGormService
+                .findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(
+                        account, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new TransactionDto(it)}
     }
 
     @Override

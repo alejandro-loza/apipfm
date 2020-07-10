@@ -35,7 +35,7 @@ class UserServiceImp extends ServiceTemplate implements UserService {
             user = new User(cmd.name, client)
             return userGormService.save(user)
         }
-        return user
+        user
     }
 
     @Override
