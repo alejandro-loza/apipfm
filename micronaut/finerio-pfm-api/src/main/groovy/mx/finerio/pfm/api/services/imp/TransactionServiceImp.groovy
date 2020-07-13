@@ -39,8 +39,7 @@ class TransactionServiceImp  implements TransactionService {
         if(!category?.parent){
             throw new BadRequestException("The provided category is not a subcategory")
         }
-        Transaction transaction = new Transaction( cmd, accountService.getAccount(cmd.accountId), category)
-        transactionGormService.save(transaction)
+        transactionGormService.save(new Transaction( cmd, accountService.getAccount(cmd.accountId), category))
     }
 
     @Override
@@ -56,9 +55,7 @@ class TransactionServiceImp  implements TransactionService {
         verifyBody(cmd)
         Transaction transaction = find(id)
         transaction.with {
-            account = cmd.accountId
-                    ? accountService.getAccount(cmd.accountId)
-                    : transaction.account
+            account = cmd.accountId ? accountService.getAccount(cmd.accountId) : transaction.account
             date = cmd.date ? new Date(cmd.date) : new Date()
             description = cmd.description ?: transaction.description
             charge = cmd.charge != null? cmd.charge: transaction.charge

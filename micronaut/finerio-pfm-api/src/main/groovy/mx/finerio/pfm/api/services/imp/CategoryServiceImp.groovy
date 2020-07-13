@@ -1,6 +1,5 @@
 package mx.finerio.pfm.api.services.imp
 
-
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.CategoryDto
@@ -72,16 +71,10 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
     private Category findParentCategory(ValidationCommand cmd) {
         Long parentCategoryId = cmd["parentCategoryId"] as Long
-        if(!parentCategoryId){
-           return null
-        }
-        getById(parentCategoryId )
+        !parentCategoryId ? null : getById(parentCategoryId)
     }
 
     private User findUser(CategoryCreateCommand cmd) {
-        if(!cmd.userId){
-            return null
-        }
-        userService.getUser(cmd.userId)
+        !cmd.userId ? null : userService.getUser(cmd.userId)
     }
 }

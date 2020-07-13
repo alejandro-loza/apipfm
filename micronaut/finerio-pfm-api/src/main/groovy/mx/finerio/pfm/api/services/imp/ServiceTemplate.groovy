@@ -17,7 +17,6 @@ class ServiceTemplate {
     @Inject
     SecurityService securityService
 
-
     static void verifyBody(ValidationCommand cmd) {
         if (!cmd) {
             throw new IllegalArgumentException(

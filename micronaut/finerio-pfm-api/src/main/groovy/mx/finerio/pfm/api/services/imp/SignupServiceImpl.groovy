@@ -72,13 +72,15 @@ class SignupServiceImpl implements SignupService {
                                              ClientProfile clientProfile ) throws Exception {
 
         ClientDto clientDto = new ClientDto()
-        clientDto.id = client.id
-        clientDto.name = clientProfile.name
-        clientDto.firstLastName = clientProfile.firstLastName
-        clientDto.secondLastName = clientProfile.secondLastName
-        clientDto.email = clientProfile.email
-        clientDto.companyName = clientProfile.companyName
-        clientDto.username = client.username
+        clientDto.with {
+            id = client.id
+            name = clientProfile.name
+            firstLastName = clientProfile.firstLastName
+            secondLastName = clientProfile.secondLastName
+            email = clientProfile.email
+            companyName = clientProfile.companyName
+            username = client.username
+        }
         clientDto
     }
 

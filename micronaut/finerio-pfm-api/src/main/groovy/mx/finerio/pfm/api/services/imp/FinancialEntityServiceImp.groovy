@@ -47,7 +47,7 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
     @Override
     List<FinancialEntityDto> getAll() {
         financialEntityGormService
-                .findAllByClientAndDateDeletedIsNull(getCurrentLoggedClient(),[max:MAX_ROWS, sort:'id', order:'desc'])
+                .findAllByClientAndDateDeletedIsNull(getCurrentLoggedClient(), [max:MAX_ROWS, sort:'id', order:'desc'])
                 .collect{new FinancialEntityDto(it)}
     }
 

@@ -48,8 +48,8 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
         Account account = getAccount(id)
         account.with {
             user = cmd.userId ? userService.getUser(cmd.userId) : account.user
-            financialEntity = cmd.financialEntityId ?
-                    financialEntityService.getById(cmd.financialEntityId)
+            financialEntity = cmd.financialEntityId
+                    ? financialEntityService.getById(cmd.financialEntityId)
                     : account.financialEntity
             nature = cmd.nature ?: account.nature
             name = cmd.name ?: account.name

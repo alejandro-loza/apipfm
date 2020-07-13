@@ -27,8 +27,7 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     @Override
     User create(UserCommand cmd, Client client) {
         if ( !cmd  ) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid' )
+            throw new IllegalArgumentException('request.body.invalid' )
         }
         User user = userGormService.findByNameAndAndClientAndDateDeletedIsNull(cmd.name, client)
         if(!user){
