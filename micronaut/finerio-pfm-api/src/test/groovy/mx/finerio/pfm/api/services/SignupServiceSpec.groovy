@@ -75,7 +75,7 @@ class SignupServiceSpec extends Specification {
         service.create( dto )
         then:
         IllegalArgumentException e = thrown()
-        e.message == 'signupService.create.dto.null'
+        e.message == 'signup.create.dto.null'
 
     }
 }

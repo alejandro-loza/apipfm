@@ -6,6 +6,7 @@ import org.grails.datastore.gorm.GormEntity
 @Entity
 class ClientProfile implements GormEntity<ClientProfile> {
 
+    Long id
     Client client
     String name
     String firstLastName

@@ -12,6 +12,7 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.CategoryDto
@@ -21,6 +22,7 @@ import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
+import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
@@ -47,6 +49,10 @@ class BudgetControllerSpec extends Specification {
 
     @Inject
     @Shared
+    TransactionGormService transactionGormService
+
+    @Inject
+    @Shared
     CategoryGormService categoryGormService
 
     @Inject
@@ -70,10 +76,30 @@ class BudgetControllerSpec extends Specification {
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
 
+
+    }
+
+    void cleanup(){
+        List<Budget> budgetList = budgetGormService.findAll()
+        budgetList.each {
+            budgetGormService.delete(it.id)
+        }
+
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
+        List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
+        categoriesChild.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
         List<Category> categories = categoryGormService.findAll()
         categories.each { Category category ->
             categoryGormService.delete(category.id)
         }
+
     }
 
     def "Should get unauthorized"() {
@@ -388,7 +414,6 @@ class BudgetControllerSpec extends Specification {
         List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
         assert !(budget2.id in budgetDtos.id)
 
-        assert !body.get("nextCursor")
     }
 
 
@@ -420,8 +445,6 @@ class BudgetControllerSpec extends Specification {
         List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
         assert !(budget1.id in budgetDtos.id)
         assert !(budget4.id in budgetDtos.id)
-
-        assert !body.get("nextCursor")
     }
 
 

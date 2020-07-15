@@ -43,7 +43,7 @@ class SignupServiceImpl implements SignupService {
 
     private Client createClient(SignupCommand dto ) throws Exception {
         if ( !dto ) {
-            throw new IllegalArgumentException( 'signupService.create.dto.null' )
+            throw new IllegalArgumentException( 'signup.create.dto.null' )
         }
 
         if ( clientGormService.findByUsername( dto.username )) {

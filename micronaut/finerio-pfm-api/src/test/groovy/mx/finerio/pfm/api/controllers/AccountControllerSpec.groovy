@@ -5,13 +5,13 @@ import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
-import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
@@ -20,6 +20,7 @@ import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
+import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.AccountUpdateCommand
@@ -37,17 +38,23 @@ class AccountControllerSpec extends Specification {
 
     @Shared
     @Inject
-    @Client("/")
+    @io.micronaut.http.client.annotation.Client("/")
     RxStreamingHttpClient client
 
     @Inject
+    @Shared
     AccountGormService accountGormService
 
     @Inject
-    UserGormService userService
+    @Shared
+    TransactionGormService transactionGormService
 
     @Inject
-    FinancialEntityGormService financialEntityService
+    UserGormService userGormService
+
+    @Inject
+    @Shared
+    FinancialEntityGormService financialEntityGormService
 
     @Inject
     @Shared
@@ -67,11 +74,26 @@ class AccountControllerSpec extends Specification {
         accessToken = rsp.body.get().accessToken
     }
 
-    void setup(){
+    void cleanup(){
+        cleanUpData()
+    }
+
+    private void cleanUpData() {
+
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
         List<Account> accounts = accountGormService.findAll()
         accounts.each { Account account ->
             accountGormService.delete(account.id)
         }
+        List<FinancialEntity> entities = financialEntityGormService.findAll()
+        entities.each { FinancialEntity entity ->
+            financialEntityGormService.delete(entity.id)
+        }
+
     }
 
     def "Should get unauthorized"() {
@@ -91,7 +113,7 @@ class AccountControllerSpec extends Specification {
 
         given:'a user'
         User user = new User('awesome user', loggedInClient)
-        userService.save(user)
+        userGormService.save(user)
 
         HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=$user.id").bearerAuth(accessToken)
 
@@ -132,7 +154,7 @@ class AccountControllerSpec extends Specification {
 
     def "Should create an account"(){
         given:'an saved user and financial entity'
-        User user =  userService.save(new User('awesome user', loggedInClient))
+        User user =  userGormService.save(new User('awesome user', loggedInClient))
 
         FinancialEntity entity = generateEntity()
 
@@ -281,8 +303,6 @@ class AccountControllerSpec extends Specification {
             assert name == cmd.name
             assert number == cmd.number
             assert balance == cmd.balance
-            assert dateCreated == account.dateCreated
-            assert lastUpdated == account.lastUpdated
         }
         !account.dateDeleted
 
@@ -617,7 +637,7 @@ class AccountControllerSpec extends Specification {
     }
 
     private User generateUser() {
-        userService.save(new User('awesome user', loggedInClient))
+        userGormService.save(new User('awesome user', loggedInClient))
     }
 
     private FinancialEntity generateEntity() {
@@ -627,7 +647,7 @@ class AccountControllerSpec extends Specification {
             code = 'Gringotts Bank'
             entity1.client = loggedInClient
         }
-        financialEntityService.save(entity1)
+        financialEntityGormService.save(entity1)
     }
 
 }

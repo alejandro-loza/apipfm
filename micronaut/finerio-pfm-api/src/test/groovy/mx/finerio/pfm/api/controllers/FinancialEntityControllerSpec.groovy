@@ -38,6 +38,7 @@ class FinancialEntityControllerSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
+    @Shared
     FinancialEntityGormService financialGormService
 
     @Inject
@@ -59,12 +60,6 @@ class FinancialEntityControllerSpec extends Specification {
         accessToken = rsp.body.get().accessToken
     }
 
-    void setup(){
-        List<FinancialEntity> entities = financialGormService.findAll()
-        entities.each {  entity ->
-            financialGormService.delete(entity.id)
-        }
-    }
 
     def "Should get unauthorized"() {
 
@@ -205,8 +200,6 @@ class FinancialEntityControllerSpec extends Specification {
             assert id == financialEntity.id
             assert name == financialEntity.name
             assert code == financialEntity.code
-            assert dateCreated == financialEntity.dateCreated
-            assert lastUpdated == financialEntity.lastUpdated
         }
 
         !financialEntity.dateDeleted

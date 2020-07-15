@@ -79,6 +79,16 @@ class ResumeControllerSpec extends Specification{
     }
 
     void setup(){
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
+        List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
+        categoriesChild.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
         List<Category> categories = categoryGormService.findAll()
         categories.each { Category category ->
             categoryGormService.delete(category.id)

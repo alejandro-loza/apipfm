@@ -10,11 +10,15 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
+import mx.finerio.pfm.api.services.gorm.AccountGormService
+import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCommand
 import spock.lang.Shared
@@ -44,6 +48,15 @@ class UserControllerSpec extends Specification {
     @Shared
     String accessToken
 
+    @Inject
+    @Shared
+    AccountGormService accountGormService
+
+    @Inject
+    @Shared
+    TransactionGormService transactionGormService
+
+
     @Shared
     mx.finerio.pfm.api.domain.Client loggedInClient
 
@@ -56,8 +69,21 @@ class UserControllerSpec extends Specification {
     }
 
     void cleanup(){
+
+        List<Transaction> transactions = transactionGormService.findAll()
+        if(!transactions.isEmpty()){
+            transactions.each { Transaction transaction ->
+                transactionGormService.delete(transaction.id)
+            }
+        }
+
+        List<Account> accounts = accountGormService.findAll()
+        accounts.each { Account account ->
+            accountGormService.delete(account.id)
+        }
+
         List<User> users = userGormService.findAll()
-        users.each {  user ->
+        users.each { user ->
             userGormService.delete(user.id)
         }
     }

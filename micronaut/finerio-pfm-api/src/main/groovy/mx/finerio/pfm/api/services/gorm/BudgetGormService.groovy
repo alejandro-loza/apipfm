@@ -10,7 +10,8 @@ interface BudgetGormService {
     Budget getById(Long id)
     List<Budget> findAllByDateDeletedIsNull(Map args)
     List<Budget> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
-
+    List<Budget> findAll()
     @Query("from ${Budget a} where $a.id = $id and a.dateDeleted is Null")
     Budget findByIdAndDateDeletedIsNull(Long id)
+    void delete(Serializable id)
 }

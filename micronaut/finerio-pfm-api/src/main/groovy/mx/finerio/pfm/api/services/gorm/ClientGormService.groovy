@@ -10,6 +10,6 @@ interface ClientGormService {
 
     Client findByUsername( String username )
 
-    Client findById(Serializable id)
+    Client delete(Serializable id)
 
 }

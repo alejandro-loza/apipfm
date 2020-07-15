@@ -67,7 +67,6 @@ class TransactionControllerSpec extends Specification {
     @Shared
     mx.finerio.pfm.api.domain.Client loggedInClient
 
-
     @Shared
     String accessToken
 
@@ -77,11 +76,6 @@ class TransactionControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
-        List<Category> categories = categoryGormService.findAll()
-        categories.each { Category category ->
-            categoryGormService.delete(category.id)
-        }
-
     }
 
     def "Should get unauthorized"() {
@@ -249,7 +243,6 @@ class TransactionControllerSpec extends Specification {
         rspGET.body().with {
             assert id == transaction.id
             assert accountId == transaction.account.id
-            assert date == transaction.date
             assert charge == transaction.charge
             assert description == transaction.description
             assert amount == transaction.amount
