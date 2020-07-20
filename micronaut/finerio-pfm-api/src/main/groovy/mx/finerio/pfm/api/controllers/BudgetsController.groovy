@@ -8,6 +8,7 @@ import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
@@ -25,17 +26,20 @@ class BudgetsController {
     @Inject
     BudgetService budgetService
 
+    @Log
     @Post("/")
     Single<BudgetDto> save(@Body @Valid BudgetCreateCommand cmd){
         Single.just(new BudgetDto(budgetService.create(cmd)))
     }
 
+    @Log
     @Get("/{id}")
     @Transactional
     Single<BudgetDto> show(@NotNull Long id) {
         Single.just(new BudgetDto(budgetService.find(id)))
     }
 
+    @Log
     @Get("{?cursor}")
     @Transactional
     Single<ResourcesDto> showAll(@Nullable Long cursor) {
@@ -43,12 +47,14 @@ class BudgetsController {
         Single.just(new ResourcesDto(budgetDtos))
     }
 
+    @Log
     @Put("/{id}")
     @Transactional
     Single<BudgetDto> edit(@Body @Valid BudgetUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new BudgetDto(budgetService.update(cmd, id)))
     }
 
+    @Log
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {

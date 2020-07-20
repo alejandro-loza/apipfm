@@ -2,7 +2,10 @@ package mx.finerio.pfm.api.dtos
 
 import com.fasterxml.jackson.annotation.JsonInclude
 
+import groovy.transform.ToString
+
 @JsonInclude(JsonInclude.Include.ALWAYS)
+@ToString(includeNames = true, includePackage = false)
 class ResourcesDto {
 
     List<ResourceDto> data

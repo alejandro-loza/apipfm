@@ -1,7 +1,10 @@
 package mx.finerio.pfm.api.dtos
 
+import groovy.transform.ToString
+
 import mx.finerio.pfm.api.domain.FinancialEntity
 
+@ToString(includeNames = true, includePackage = false)
 class FinancialEntityDto {
 
     Long id

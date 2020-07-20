@@ -1,7 +1,11 @@
 package mx.finerio.pfm.api.dtos
 
+import groovy.transform.ToString
+
 import mx.finerio.pfm.api.domain.Account
 
+@ToString(includeNames = true, includePackage = false,
+    includeSuperProperties = true)
 class AccountDto  extends ResourceDto{
     Long userId
     Long financialEntityId

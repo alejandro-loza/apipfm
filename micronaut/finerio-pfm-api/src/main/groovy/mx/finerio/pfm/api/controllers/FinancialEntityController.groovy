@@ -13,6 +13,7 @@ import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
@@ -32,22 +33,26 @@ class FinancialEntityController {
     @Inject
     FinancialEntityService financialEntityService
 
+    @Log
     @Post("/")
     Single<FinancialEntityDto> save(@Body @Valid FinancialEntityCreateCommand cmd){
         just(new FinancialEntityDto(financialEntityService.create(cmd)))
     }
 
+    @Log
     @Get("/{id}")
     @Transactional
     Single<FinancialEntityDto> show(@NotNull Long id) {
         just(new FinancialEntityDto(financialEntityService.getById(id)))
     }
 
+    @Log
     @Put("/{id}")
     Single<FinancialEntityDto> edit(@Body FinancialEntityUpdateCommand cmd, @NotNull Long id ) {
         just(new FinancialEntityDto(financialEntityService.update(cmd,id)))
     }
 
+    @Log
     @Get("{?cursor}")
     Single<ResourcesDto> showAll(@Nullable Long cursor) {
         List<FinancialEntityDto> entities = cursor
@@ -56,6 +61,7 @@ class FinancialEntityController {
         just( new ResourcesDto(entities))
     }
 
+    @Log
     @Delete("/{id}")
     HttpResponse delete(@NotNull Long id) {
         financialEntityService.delete(id)

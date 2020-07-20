@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.controllers
 
 import mx.finerio.pfm.api.dtos.ClientDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.SignupService
 import mx.finerio.pfm.api.validation.SignupCommand
 
@@ -19,6 +20,7 @@ class SignupController {
     @Inject
     SignupService signupService
 
+    @Log
     @Post('/signup')
     @PermitAll
     HttpResponse<ClientDto> signup(@Valid @Body SignupCommand dto ) {

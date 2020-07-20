@@ -1,9 +1,12 @@
 package mx.finerio.pfm.api.dtos
 
+import groovy.transform.ToString
+
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
 
+@ToString(includeNames = true, includePackage = false)
 class BudgetDto {
     Long id
     Long userId

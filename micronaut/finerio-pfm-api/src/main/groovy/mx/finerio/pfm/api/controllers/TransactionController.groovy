@@ -9,6 +9,7 @@ import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
@@ -30,17 +31,20 @@ class TransactionController {
     @Inject
     AccountService accountService
 
+    @Log
     @Post("/")
     Single<TransactionDto> save(@Body @Valid TransactionCreateCommand cmd){
         Single.just(new TransactionDto(transactionsService.create(cmd)))
     }
 
+    @Log
     @Get("/{id}")
     @Transactional
     Single<TransactionDto> show(@NotNull Long id) {
         Single.just(new TransactionDto(transactionsService.find(id)))
     }
 
+    @Log
     @Get("{?cursor,accountId}")
     @Transactional
     Single<ResourcesDto> showAll(@Nullable Long cursor, @Nullable Long accountId) {
@@ -51,12 +55,14 @@ class TransactionController {
         Single.just( new ResourcesDto(transactions))
     }
 
+    @Log
     @Put("/{id}")
     @Transactional
     Single<TransactionDto> edit(@Body TransactionUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new TransactionDto(transactionsService.update(cmd, id)))
     }
 
+    @Log
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {

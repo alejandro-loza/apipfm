@@ -8,6 +8,7 @@ import io.micronaut.validation.Validated
 import javax.annotation.Nullable
 import mx.finerio.pfm.api.dtos.ResumeDto
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.ResumeService
 
 import javax.inject.Inject
@@ -20,6 +21,7 @@ class ResumeController {
     @Inject
     ResumeService resumeService
 
+    @Log
     @Get("{?userId}")
     @Transactional
     ResumeDto resume(@Nullable Long userId) {

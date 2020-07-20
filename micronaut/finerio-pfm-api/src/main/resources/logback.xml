@@ -1,15 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <withJansi>true</withJansi>
-        <!-- encoders are assigned the type
-             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
-        <encoder>
-            <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">    <file>log/current.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>log/%d{yyyy-MM-dd_HH}.gz</fileNamePattern>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <root level="info">
-        <appender-ref ref="STDOUT" />
-    </root>
+  <logger name="mx.finerio.pfm.api.logging" level="INFO"/>
+
+  <root level="INFO">
+    <appender-ref ref="FILE" />
+  </root>
+
 </configuration>

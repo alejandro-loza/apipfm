@@ -1,8 +1,12 @@
 package mx.finerio.pfm.api.dtos
 
+import groovy.transform.ToString
+
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 
+@ToString(includeNames = true, includePackage = false,
+    includeSuperProperties = true)
 class TransactionDto extends ResourceDto{
     Long accountId
     Date date

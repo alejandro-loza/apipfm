@@ -8,6 +8,7 @@ import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
@@ -29,17 +30,20 @@ class CategoryController {
     @Inject
     UserService userService
 
+    @Log
     @Post("/")
     Single<CategoryDto> save(@Body @Valid CategoryCreateCommand cmd){
         Single.just(new CategoryDto(categoryService.create(cmd)))
     }
 
+    @Log
     @Get("/{id}")
     @Transactional
     Single<CategoryDto> show(@NotNull Long id) {
         Single.just(new CategoryDto(categoryService.getById(id)))
     }
 
+    @Log
     @Get("{?userId}")
     @Transactional
     Single<ResourcesDto> showAll( @Nullable Long userId) {
@@ -53,12 +57,14 @@ class CategoryController {
         Single.just(response)
     }
 
+    @Log
     @Put("/{id}")
     @Transactional
     Single<CategoryDto> edit(@Body @Valid CategoryUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new CategoryDto(categoryService.update(cmd, id)))
     }
 
+    @Log
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
