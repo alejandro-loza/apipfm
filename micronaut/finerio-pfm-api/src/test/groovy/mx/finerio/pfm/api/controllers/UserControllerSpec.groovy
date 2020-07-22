@@ -263,6 +263,29 @@ class UserControllerSpec extends Specification {
 
     }
 
+    def 'Should throw exception on an username that already exist on update'(){
+
+        given:'a saved user'
+        User user = userGormService.save(new User("schrodinger's cat", loggedInClient))
+
+        UserCommand cmd = new UserCommand()
+        cmd.with {
+            name = "schrodinger's cat"
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${USER_ROOT}/${user.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>, Argument.of(ErrorDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+        e.response.status.code == 400
+
+    }
+
     def "Should not update an user on band parameters and return Bad Request"(){
         given:'a saved user'
         User user =  generateUser()

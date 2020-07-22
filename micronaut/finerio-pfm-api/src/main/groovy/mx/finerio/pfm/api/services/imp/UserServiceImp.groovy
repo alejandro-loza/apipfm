@@ -27,19 +27,16 @@ class UserServiceImp extends ServiceTemplate implements UserService {
 
     @Override
     User create(UserCommand cmd, Client client) {
-        if ( !cmd  ) {
-            throw new IllegalArgumentException('request.body.invalid' )
-        }
-        User user = userGormService.findByNameAndAndClientAndDateDeletedIsNull(cmd.name, client)
-        if(user){
-           throw new BadRequestException('user.nonUnique')
-        }
+        verifyBody(cmd)
+        verifyUnique(cmd, client)
         return userGormService.save(new User(cmd.name, client))
     }
 
     @Override
     @Transactional
     User update(UserCommand cmd, Long id){
+        verifyBody(cmd)
+        verifyUnique(cmd, getCurrentLoggedClient())
         User user = getUser(id)
         user.with {
             name = cmd.name
@@ -79,4 +76,21 @@ class UserServiceImp extends ServiceTemplate implements UserService {
         userGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{new UserDto(it)}
     }
+
+    private static void verifyBody(UserCommand cmd) {
+        if (!cmd) {
+            throw new IllegalArgumentException('request.body.invalid')
+        }
+    }
+
+    private void verifyUnique(UserCommand cmd, Client client) {
+        if (isNonUnique(cmd, client)) {
+            throw new BadRequestException('user.nonUnique')
+        }
+    }
+
+    private User isNonUnique(UserCommand cmd, Client client) {
+        userGormService.findByNameAndAndClientAndDateDeletedIsNull(cmd.name, client)
+    }
+
 }

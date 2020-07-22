@@ -7,6 +7,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.MessageService
 
@@ -29,7 +30,9 @@ class NotFoundExceptionHandler  implements ExceptionHandler<ItemNotFoundExceptio
             title = messageService.getMessage(message)
             detail = messageService.getMessage( "${message}.detail" )
         }
-        return HttpResponse.notFound().body(error)
+        ErrorsDto errorsDto = new ErrorsDto()
+        errorsDto.errors = [error]
+        return HttpResponse.notFound().body(errorsDto)
     }
 
 }
