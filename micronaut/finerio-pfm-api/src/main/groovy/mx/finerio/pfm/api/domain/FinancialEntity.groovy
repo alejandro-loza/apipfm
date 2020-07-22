@@ -9,7 +9,8 @@ import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false,
+    includes = 'id, name, code')
 class FinancialEntity implements GormEntity<FinancialEntity> {
     Long id
     String name

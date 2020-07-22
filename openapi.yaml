@@ -1516,7 +1516,6 @@ components:
     CreateCategory:
       description: A representation of the data neccesary for creating a category.
       required:
-        - userId
         - name
       properties:
         userId:
@@ -1568,6 +1567,9 @@ components:
           maximum: 6
           example: "#00FFAA"
         parentCategoryId:
+          type: number
+          example: 123
+        userId:
           type: number
           example: 123
         dateCreated:

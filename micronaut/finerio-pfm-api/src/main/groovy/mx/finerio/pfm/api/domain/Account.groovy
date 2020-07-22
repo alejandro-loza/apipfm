@@ -18,7 +18,7 @@ class Account  implements GormEntity<Account> {
     String nature
     String name
     String number
-    float balance
+    BigDecimal balance
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
@@ -39,7 +39,7 @@ class Account  implements GormEntity<Account> {
         financialEntity nullable: false
         nature  nullable: false, blank:false
         number nullable: false, blank:false
-        balance nullable: false, blank:false
+        balance nullable: false
         dateDeleted nullable:true
     }
 
