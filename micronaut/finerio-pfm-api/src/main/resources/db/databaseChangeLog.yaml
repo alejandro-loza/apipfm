@@ -14,6 +14,8 @@ databaseChangeLog:
   - include:
       file: db/role.yaml
   - include:
+      file: db/role_data.yaml
+  - include:
       file: db/client_profile.yaml
   - include:
       file: db/transaction.yaml
