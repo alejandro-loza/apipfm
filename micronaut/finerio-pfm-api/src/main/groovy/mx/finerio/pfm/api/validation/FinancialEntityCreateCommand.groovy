@@ -1,8 +1,11 @@
 package mx.finerio.pfm.api.validation
 
+import groovy.transform.ToString
+
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
+@ToString(includeNames = true, includePackage = false)
 class FinancialEntityCreateCommand extends ValidationCommand {
 
     @NotNull(message= 'financialEntity.name.null')

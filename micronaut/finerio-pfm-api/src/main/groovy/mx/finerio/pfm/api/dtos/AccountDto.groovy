@@ -12,7 +12,7 @@ class AccountDto  extends ResourceDto{
     String nature
     String name
     String number
-    float balance
+    BigDecimal balance
 
     AccountDto() {}
 

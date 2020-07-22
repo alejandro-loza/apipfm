@@ -9,7 +9,8 @@ import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false,
+    includes = 'id, date, charge, description, amount')
 class Transaction implements GormEntity<Transaction> {
     Long id
     Account account

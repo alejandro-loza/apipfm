@@ -9,7 +9,8 @@ import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false,
+    includes = 'id, name, color')
 class Category implements GormEntity<Category> {
 
     Long id

@@ -7,7 +7,8 @@ import groovy.transform.ToString
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false,
+    includes = 'id, name')
 class User  implements GormEntity<User> {
 
     Long id
