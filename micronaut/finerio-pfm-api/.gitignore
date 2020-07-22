@@ -13,3 +13,4 @@ out/
 .classpath
 application.yml
 log/
+src/main/groovy/mx/finerio/pfm/api/config/GenerateDefaultClient.groovy

@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
@@ -132,6 +133,29 @@ class UserControllerSpec extends Specification {
         then:
         rsp.status == HttpStatus.OK
         rsp.body().name == cmd.name
+    }
+
+    def 'Should throw exception on an username that already exist'(){
+
+
+        given:'a saved user'
+        userGormService.save(new User('schrodinger', loggedInClient))
+
+        UserCommand cmd = new UserCommand()
+        cmd.with {
+            name = 'schrodinger'
+        }
+
+        HttpRequest request = HttpRequest.POST(USER_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>, Argument.of(ErrorDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+        e.response.status.code == 400
+
     }
 
     def "Should get an user"(){

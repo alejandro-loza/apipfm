@@ -4,6 +4,7 @@ import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -30,11 +31,10 @@ class UserServiceImp extends ServiceTemplate implements UserService {
             throw new IllegalArgumentException('request.body.invalid' )
         }
         User user = userGormService.findByNameAndAndClientAndDateDeletedIsNull(cmd.name, client)
-        if(!user){
-            user = new User(cmd.name, client)
-            return userGormService.save(user)
+        if(user){
+           throw new BadRequestException('user.nonUnique')
         }
-        user
+        return userGormService.save(new User(cmd.name, client))
     }
 
     @Override

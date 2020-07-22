@@ -4,6 +4,7 @@ import io.micronaut.security.utils.SecurityService
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.services.imp.UserServiceImp
@@ -36,6 +37,23 @@ class UserServiceSpec extends Specification {
 
         then:
         response instanceof User
+    }
+
+    def 'Should throw exception on an username that already exist'(){
+        given:'a user command request body'
+        UserCommand cmd = new UserCommand(name:"awesome name")
+
+        def client = new Client()
+        when:
+        1 * userService.userGormService.findByNameAndAndClientAndDateDeletedIsNull(_ as String, _ as Client) >> new User()
+
+        0 * userService.userGormService.save(_  as User)
+
+        userService.create(cmd, client)
+
+        then:
+        BadRequestException e = thrown()
+        e.message == 'user.nonUnique'
     }
 
     def "Should throw exception on null body"() {

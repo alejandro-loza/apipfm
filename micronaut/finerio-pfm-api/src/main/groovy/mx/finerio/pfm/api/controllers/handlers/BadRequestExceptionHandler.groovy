@@ -7,6 +7,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.MessageService
@@ -30,7 +31,9 @@ class BadRequestExceptionHandler implements ExceptionHandler<BadRequestException
             title = messageService.getMessage(message)
             detail = messageService.getMessage( "${message}.detail" )
         }
-        return HttpResponse.badRequest().body(error)
+        ErrorsDto errorsDto = new ErrorsDto()
+        errorsDto.errors = [error]
+        return HttpResponse.badRequest().body(errorsDto)
     }
 
 }
