@@ -160,7 +160,7 @@ class ResumeControllerSpec extends Specification{
         assert body.incomes.size() == 2
 
         assert body.balances.size() == 2
-        assert  body.balances.first().date == body.incomes.last().date
+        assert  body.balances.last().date == body.incomes.last().date
         assert  body.balances.first().date == body.expenses.first().date
         assert  body.balances*.incomes
         assert  body.balances*.expenses

@@ -69,15 +69,15 @@ class ResumeServiceSpec extends Specification {
         }
 
 
-        Date december98Date = new SimpleDateFormat("dd/MM/yyyy").parse("13/12/1998")
+        Date september98Date = new SimpleDateFormat("dd/MM/yyyy").parse("13/09/1998")
         Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
 
         def t2 = generateTransaction(december20Date, sub2)
         def t3 = generateTransaction(december20Date, sub3)
 
-        def t4 = generateTransaction(december98Date, sub4)
-        def t5 = generateTransaction(december98Date, sub4)
-        def t1 = generateTransaction(december98Date, sub1)
+        def t4 = generateTransaction(september98Date, sub4)
+        def t5 = generateTransaction(september98Date, sub4)
+        def t1 = generateTransaction(september98Date, sub1)
         List<Transaction> transactions = [t1, t2, t3, t4, t5]
 
         when:
@@ -85,27 +85,27 @@ class ResumeServiceSpec extends Specification {
 
         then:
         assert movementsByMonth.size() == 2
-        assert movementsByMonth.first().amount == 300
+        assert movementsByMonth.last().amount == 300
         def date = new  Date(movementsByMonth.first().date)
-        assert date.month == december98Date.month
-        assert date.year == december98Date.year
-        assert movementsByMonth.first().categories.size() == 2
-        assert movementsByMonth.first().categories.first().amount == 100
-        assert movementsByMonth.first().categories.last().amount == 200
-
-        assert movementsByMonth.first().categories.first().categoryId == 1
-        assert movementsByMonth.first().categories.last().categoryId == 2
-
-        assert movementsByMonth.last().amount == 200
-        def date2 = new  Date(movementsByMonth.last().date)
-        assert date2.month == december20Date.month
-        assert date2.year == december20Date.year
+        assert date.month == december20Date.month
+        assert date.year == december20Date.year
         assert movementsByMonth.last().categories.size() == 2
+        assert movementsByMonth.last().categories.first().amount == 100
+        assert movementsByMonth.last().categories.last().amount == 200
 
         assert movementsByMonth.last().categories.first().categoryId == 1
         assert movementsByMonth.last().categories.last().categoryId == 2
-        assert movementsByMonth.last().categories.first().amount == 100
-        assert movementsByMonth.last().categories.last().amount == 100
+
+        assert movementsByMonth.first().amount == 200
+        def date2 = new  Date(movementsByMonth.last().date)
+        assert date2.month == september98Date.month
+        assert date2.year == september98Date.year
+        assert movementsByMonth.first().categories.size() == 2
+
+        assert movementsByMonth.first().categories.first().categoryId == 1
+        assert movementsByMonth.first().categories.last().categoryId == 2
+        assert movementsByMonth.first().categories.first().amount == 100
+        assert movementsByMonth.first().categories.last().amount == 100
 
     }
 
