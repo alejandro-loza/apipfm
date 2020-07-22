@@ -12,11 +12,15 @@ import mx.finerio.pfm.api.dtos.TransactionsByDateDto
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ResumeService
 import  mx.finerio.pfm.api.services.TransactionService
+import mx.finerio.pfm.api.services.gorm.TransactionGormService
 
 import javax.inject.Inject
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
+import java.util.function.Function
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 class ResumeServiceImp implements ResumeService{
 
@@ -41,11 +45,16 @@ class ResumeServiceImp implements ResumeService{
     @Override
     @Transactional
     List<MovementsDto> getTransactionsGroupByMonth(List<Transaction> transactionList){
-        transactionList.groupBy { transaction ->
-            new SimpleDateFormat("yyyy-MM").format(transaction.date)
-        }.collect{ stringDate , transactions ->
-            generateMovementDto(stringDate, transactions)
+        List<MovementsDto> movementsDtoList= []
+        Map<String, List<Transaction>> list =  transactionList.stream()
+               .collect( Collectors.groupingBy({ Transaction transaction ->
+                    new SimpleDateFormat("yyyy-MM").format(transaction.date)
+                }))
+
+        list.each { String stringDate, List<Transaction> transactions ->
+            movementsDtoList.add(generateMovementDto(stringDate, transactions))
         }
+        movementsDtoList
     }
 
     @Override
@@ -75,19 +84,27 @@ class ResumeServiceImp implements ResumeService{
     }
 
     private List<CategoryResumeDto> getTransactionsGroupByParentCategory(List<Transaction> transactionList){
-        transactionList.groupBy { transaction ->
-            transaction.category.parent.id
-        }.collect{ parentId , transactions ->
-            generateParentCategoryResume(parentId, transactions)
+        List<CategoryResumeDto> categoryResumeDtos = []
+        Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
+                .collect ( Collectors.groupingBy({ Transaction transaction ->
+                    transaction.category.parent.id
+                }))
+        transactionsGrouped.each{ Long parentId , List<Transaction> transactions ->
+            categoryResumeDtos.add( generateParentCategoryResume(parentId, transactions) )
         }
+        categoryResumeDtos
     }
 
-    private List<SubCategoryResumeDto> getTransactionsGroupBySubCategory(List<Transaction> transactionList){
-        transactionList.groupBy { transaction ->
+    List<SubCategoryResumeDto> getTransactionsGroupBySubCategory(List<Transaction> transactionList){
+        List<SubCategoryResumeDto> subCategoryResumeDtos = []
+        Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
+                .collect ( Collectors.groupingBy({ Transaction transaction ->
             transaction.category.id
-        }.collect{ parentId , transactions ->
-            generateSubCategoryResume(parentId, transactions)
+        }))
+         transactionsGrouped.each { parentId , transactions ->
+             subCategoryResumeDtos.add( generateSubCategoryResume(parentId, transactions))
         }
+        subCategoryResumeDtos
     }
 
     private List<TransactionsByDateDto> getTransactionsGroupByDay(List<Transaction> transactionList){
