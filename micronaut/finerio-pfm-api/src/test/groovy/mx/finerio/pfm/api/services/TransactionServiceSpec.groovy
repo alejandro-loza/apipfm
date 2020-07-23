@@ -69,14 +69,14 @@ class TransactionServiceSpec extends Specification {
         when:
 
         1 * transactionService.categoryService.getById( _ as Long) >> category
-        0 * transactionService.accountService.getAccount(_ as Long)
+        1 * transactionService.accountService.getAccount(_ as Long)
         0 * transactionService.transactionGormService.save(_  as Transaction)
 
         transactionService.create(cmd)
 
         then:
         BadRequestException e = thrown()
-        e.message == 'The provided category is not a subcategory'
+        e.message == 'category.parentCategory.null'
     }
 
     def
@@ -90,7 +90,8 @@ class TransactionServiceSpec extends Specification {
         }
         when:
         1 * transactionService.categoryService.getById(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }
-        0 * transactionService.accountService.getAccount(_ as Long)
+        1 * transactionService.accountService.getAccount(_ as Long)
+        0 * transactionService.transactionGormService.save(_  as Transaction)
 
         transactionService.create(cmd)
 

@@ -25,7 +25,7 @@ class Transaction implements GormEntity<Transaction> {
 
     Transaction(){}
 
-    Transaction(TransactionCreateCommand cmd, Account account, Category category){
+    Transaction(TransactionCreateCommand cmd, Account account){
         this.account = account
         this.date = new Date(cmd.date)
         this.charge = cmd.charge

@@ -144,6 +144,68 @@ class TransactionControllerSpec extends Specification {
         rsp.body.get().categoryId == category1.id
     }
 
+    def "Should create a transaction with no category"(){
+        given:'an saved Account '
+        Account account1 = generateAccount()
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = "UBER EATS"
+            amount= 1234.56
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+    }
+
+    def "Should not create a transaction and throw bad request on category without parent"(){
+        given:'an saved Account '
+        Account account1 = generateAccount()
+        def user = generateUser()
+        and:'a category with no parent category'
+        Category category1 = generateCategory(user)
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = "UBER EATS"
+            amount= 1234.56
+            categoryId = category1.id
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.parentCategory.null'
+            assert title == 'Parent category is null'
+            assert detail == 'The parent category you provided was null. Please provide a valid one.'
+        }
+    }
+
     def "Should not create a transaction and throw bad request on wrong params"(){
         given:'an transaction request body with empty body'
 
@@ -172,6 +234,10 @@ class TransactionControllerSpec extends Specification {
 
     def "Should not create an transaction and throw not found exception on account not found"(){
         given:'an account request body with no found account id'
+        def user = generateUser()
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
 
         TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
@@ -180,17 +246,27 @@ class TransactionControllerSpec extends Specification {
             charge = true
             description = 'UBER EATS'
             amount = 100.00
-            categoryId = 123
+            categoryId = category1.id
         }
 
         HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'account.notFound'
+            assert title == 'Account not found.'
+            assert detail == 'The account ID you requested was not found.'
+        }
     }
 
     def "Should not create an transaction and throw not found exception on category not found"(){
@@ -210,11 +286,22 @@ class TransactionControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.notFound'
+            assert title == 'Category not found.'
+            assert detail == 'The category ID you requested was not found.'
+        }
     }
 
     def "Should get an transaction"(){
@@ -256,11 +343,22 @@ class TransactionControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${TRANSACTION_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'transaction.notFound'
+            assert title == 'Transaction not found.'
+            assert detail == 'The transaction ID you requested was not found.'
+        }
 
     }
 
@@ -395,21 +493,115 @@ class TransactionControllerSpec extends Specification {
 
     }
 
+    def "Should not update an transaction and throw not found exception on account not found"(){
+        given:'an account request body with no found account id'
+        def user = generateUser()
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
+        Account account1 = generateAccount()
+
+        and:'a saved transaction'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = account1
+            date = new Date()
+            charge = true
+            description = 'rapi'
+            amount = 100.00
+        }
+        transactionGormService.save(transaction)
+
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = 666
+            date = 1587567125458
+            charge = true
+            description = 'UBER EATS'
+            amount = 100.00
+            categoryId = category1.id
+        }
+
+        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'account.notFound'
+            assert title == 'Account not found.'
+            assert detail == 'The account ID you requested was not found.'
+        }
+    }
+
+    def "Should not update an transaction and throw not found exception on category not found"(){
+
+        given:'an transaction request body with no found category id'
+        Account account1 = generateAccount()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = 'UBER EATS'
+            amount = 100.00
+            categoryId = 666
+        }
+
+        and:'a saved transaction'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = account1
+            date = new Date()
+            charge = true
+            description = 'rapi'
+            amount = 100.00
+        }
+        transactionGormService.save(transaction)
+
+        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.notFound'
+            assert title == 'Category not found.'
+            assert detail == 'The category ID you requested was not found.'
+        }
+    }
+
     def "Should get a list of transactions by account"(){
 
         given:'a transaction list'
         Account account1 = generateAccount()
 
-        Category category = generateCategory(account1.user)
-
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction1)
-        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
         transaction2.dateDeleted = new Date()
         transactionGormService.save(transaction2)
-        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction3)
-        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction4)
 
         and:
@@ -454,24 +646,21 @@ class TransactionControllerSpec extends Specification {
 
     }
 
-
     def "Should get a list of transactions of an account on a cursor point"(){
 
         given:'a transaction list'
         Account account1 = generateAccount()
         Account account2 = generateAccount()
 
-        Category category = generateCategory(account1.user)
 
-
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2, category)
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
         transactionGormService.save(transaction1)
-        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
         transaction2.dateDeleted = new Date()
         transactionGormService.save(transaction2)
-        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction3)
-        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction4)
 
         and:
@@ -490,7 +679,6 @@ class TransactionControllerSpec extends Specification {
         assert !(transaction4.id in transactionDtos.id)
         transactionDtos.size() == 1
     }
-
 
     def "Should throw not found exception on delete no found transaction"(){
         given:
@@ -512,10 +700,7 @@ class TransactionControllerSpec extends Specification {
         given:'a transaction'
         Account account1 = generateAccount()
 
-        Category category = generateCategory(account1.user)
-
-
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1, category)
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction1)
 
         and:'a client request'

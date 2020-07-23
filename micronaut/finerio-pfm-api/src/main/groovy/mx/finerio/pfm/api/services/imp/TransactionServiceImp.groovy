@@ -35,11 +35,21 @@ class TransactionServiceImp  implements TransactionService {
     @Transactional
     Transaction create(TransactionCreateCommand cmd){
         verifyBody(cmd)
-        Category category = categoryService.getById(cmd.categoryId)
-        if(!category?.parent){
-            throw new BadRequestException("The provided category is not a subcategory")
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account =  accountService.getAccount(cmd.accountId)
+            date =  new Date(cmd.date)
+            description = cmd.description
+            charge =  cmd.charge
+            amount = cmd.amount
         }
-        transactionGormService.save(new Transaction( cmd, accountService.getAccount(cmd.accountId), category))
+        if(cmd.categoryId){
+            Category category = categoryService.getById(cmd.categoryId)
+            verifyParentCategory(category)
+            transaction.category = category
+        }
+
+        transactionGormService.save(transaction)
     }
 
     @Override
@@ -60,6 +70,11 @@ class TransactionServiceImp  implements TransactionService {
             description = cmd.description ?: transaction.description
             charge = cmd.charge != null? cmd.charge: transaction.charge
             amount = cmd.amount ?: transaction.amount
+        }
+        if(cmd.categoryId){
+            Category category = categoryService.getById(cmd.categoryId)
+            verifyParentCategory(category)
+            transaction.category = category
         }
         transactionGormService.save(transaction)
     }
@@ -116,6 +131,12 @@ class TransactionServiceImp  implements TransactionService {
         if (!cmd) {
             throw new IllegalArgumentException(
                     'request.body.invalid')
+        }
+    }
+
+    private static void verifyParentCategory(Category category) {
+        if (!category?.parent) {
+            throw new BadRequestException('category.parentCategory.null')
         }
     }
 }
