@@ -12,7 +12,7 @@ class BudgetDto {
     Long userId
     Long categoryId
     String name
-    Float amount
+    BigDecimal amount
     Long parentBudgetId
     Date dateCreated
     Date lastUpdated

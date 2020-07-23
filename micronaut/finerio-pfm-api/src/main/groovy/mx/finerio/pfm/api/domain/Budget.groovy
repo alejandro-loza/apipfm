@@ -9,13 +9,15 @@ import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false,
+    includes = 'id, name, amount')
 class Budget implements GormEntity<Budget> {
+
     Long id
     User user
     Category category
     String name
-    Float amount
+    BigDecimal amount
     Long parentBudgetId
     Date dateCreated
     Date lastUpdated
