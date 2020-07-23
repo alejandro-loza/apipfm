@@ -1,9 +1,11 @@
 package mx.finerio.pfm.api.validation
 
+import groovy.transform.ToString
+
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
-import javax.validation.constraints.Positive
 
+@ToString(includeNames = true, includePackage = false)
 class BudgetCreateCommand extends ValidationCommand{
 
     @NotNull(message= 'user.null')
@@ -17,8 +19,7 @@ class BudgetCreateCommand extends ValidationCommand{
     String name
 
     @NotNull(message= 'budget.amount.null')
-    @Positive
-    Float amount
+    BigDecimal amount
 
     @NotNull(message= 'budget.parentBudget.null')
     Long parentBudgetId

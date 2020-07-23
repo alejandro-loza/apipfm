@@ -1,14 +1,14 @@
 package mx.finerio.pfm.api.validation
 
-import javax.validation.constraints.Positive
+import groovy.transform.ToString
 
+@ToString(includeNames = true, includePackage = false)
 class BudgetUpdateCommand extends ValidationCommand{
 
     Long userId
     Long  categoryId
     String name
-    @Positive
-    Float amount
+    BigDecimal amount
     Long parentBudgetId
 
 }
