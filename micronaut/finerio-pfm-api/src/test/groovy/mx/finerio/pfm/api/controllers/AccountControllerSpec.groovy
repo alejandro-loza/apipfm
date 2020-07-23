@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
@@ -134,17 +135,17 @@ class AccountControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=666").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(getReq,Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
+        client.toBlocking().exchange(getReq,Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
         when:
-        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
         then:
         assert jsonError.isPresent()
-        jsonError.get().with {
+        jsonError.get().errors.first().with {
             assert code == 'user.notFound'
             assert title == 'User not found.'
             assert detail == 'The user ID you requested was not found.'
@@ -314,17 +315,17 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${ACCOUNT_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
         when:
-        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
         then:
         assert jsonError.isPresent()
-        jsonError.get().with {
+        jsonError.get().errors.first().with {
             assert code == 'account.notFound'
             assert title == 'Account not found.'
             assert detail == 'The account ID you requested was not found.'

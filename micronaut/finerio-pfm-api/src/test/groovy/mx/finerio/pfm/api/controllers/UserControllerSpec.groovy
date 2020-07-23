@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -156,6 +157,8 @@ class UserControllerSpec extends Specification {
         e.response.status == HttpStatus.BAD_REQUEST
         e.response.status.code == 400
 
+
+
     }
 
     def "Should get an user"(){
@@ -166,7 +169,8 @@ class UserControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("${USER_ROOT}/${user.id}").bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, UserDto)
+        def rspGET = client.toBlocking().exchange(getReq, Argument.of(UserDto) as Argument<UserDto>,
+                Argument.of(ErrorDto))
 
         then:
         rspGET.status == HttpStatus.OK
@@ -182,11 +186,17 @@ class UserControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,
-                Argument.of(ErrorDto))
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.size() == 2
     }
 
     def "Should not create an user with wrong body an return 400"(){
@@ -223,17 +233,17 @@ class UserControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${USER_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,  Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(UserDto) as Argument<UserDto>,  Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
         when:
-        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
         then:
         assert jsonError.isPresent()
-        jsonError.get().with {
+        jsonError.get().errors.first().with {
             assert code == 'user.notFound'
             assert title == 'User not found.'
             assert detail == 'The user ID you requested was not found.'
