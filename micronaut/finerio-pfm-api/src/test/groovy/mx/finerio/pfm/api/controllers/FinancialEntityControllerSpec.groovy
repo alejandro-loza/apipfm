@@ -194,17 +194,17 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
-                Argument.of(ErrorDto))
+                Argument.of(ErrorsDto))
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
 
         when:
-        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
 
         then:
         jsonError.isPresent()
-        jsonError.get().with {
+        jsonError.get().errors.first().with {
            assert  code == 'request.body.invalid'
            assert  title == 'Malformed request body'
            assert  detail == 'The JSON body request you sent is invalid.'

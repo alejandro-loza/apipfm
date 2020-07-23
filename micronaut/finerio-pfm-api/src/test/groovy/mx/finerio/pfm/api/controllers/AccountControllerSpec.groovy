@@ -16,6 +16,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.AccountDto
 import mx.finerio.pfm.api.dtos.ErrorDto
 import mx.finerio.pfm.api.dtos.ErrorsDto
+import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
@@ -335,11 +336,22 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${ACCOUNT_ROOT}/abc").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request,  Argument.of(AccountDto) as Argument<AccountDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'request.body.invalid'
+            assert title == 'Malformed request body'
+            assert detail == 'The JSON body request you sent is invalid.'
+        }
 
     }
 
@@ -467,11 +479,22 @@ class AccountControllerSpec extends Specification {
         HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/${notFoundId}",  cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(User) as Argument<User>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request,  Argument.of(AccountDto) as Argument<AccountDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'account.notFound'
+            assert title == 'Account not found.'
+            assert detail == 'The account ID you requested was not found.'
+        }
 
     }
 
@@ -577,16 +600,80 @@ class AccountControllerSpec extends Specification {
         assert accounts.first().id == account2.id
     }
 
+    def "Should throw not found user "(){
+
+        given:'a saved user'
+        HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=${666}")
+                .bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(getReq,  Argument.of(AccountDto) as Argument<AccountDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'user.notFound'
+            assert title == 'User not found.'
+            assert detail == 'The user ID you requested was not found.'
+        }
+    }
+
+
+
+    def "Should response bad request on user id not send on url"(){
+
+        given:'a saved user'
+
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(getReq,  Argument.of(AccountDto) as Argument<AccountDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'url.query.value.invalid'
+            assert title == 'A query parameter in the URL is invalid'
+            assert detail == 'A URL query parameter you provided is invalid. Please review it'
+        }
+
+    }
+
     def "Should throw not found exception on delete no found user"(){
         given:
         HttpRequest request = HttpRequest.DELETE("${ACCOUNT_ROOT}/666").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request,  Argument.of(AccountDto) as Argument<AccountDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'account.notFound'
+            assert title == 'Account not found.'
+            assert detail == 'The account ID you requested was not found.'
+        }
 
     }
 

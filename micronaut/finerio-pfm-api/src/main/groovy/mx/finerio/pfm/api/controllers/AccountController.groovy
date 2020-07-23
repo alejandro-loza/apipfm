@@ -43,9 +43,9 @@ class AccountController {
     }
 
     @Log
-    @Get("{?cursor,userId}")
+    @Get("{?cursor}")
     @Transactional
-    Single<ResourcesDto> showAll(@Nullable Long cursor, @Nullable Long userId ) {
+    Single<ResourcesDto> showAll(@Nullable Long cursor, @QueryValue('userId') Long userId ) {
         List<AccountDto> accounts = cursor ?
                 accountService.findAllByUserAndCursor(userId, cursor)
                 : accountService.findAllAccountDtosByUser(userId)
