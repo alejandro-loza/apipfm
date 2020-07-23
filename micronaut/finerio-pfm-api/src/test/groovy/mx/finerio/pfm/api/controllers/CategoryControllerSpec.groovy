@@ -92,8 +92,7 @@ class CategoryControllerSpec extends Specification {
         e.response.status == HttpStatus.UNAUTHORIZED
     }
 
-    def
-    "Should get a empty list of categories"() {
+    def  "Should get a empty list of categories"() {
 
         given: 'a client'
         HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT).bearerAuth(accessToken)

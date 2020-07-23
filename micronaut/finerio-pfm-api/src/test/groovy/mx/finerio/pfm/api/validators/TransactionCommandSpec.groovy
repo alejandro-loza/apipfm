@@ -48,7 +48,7 @@ class TransactionCommandSpec extends Specification{
 
         then:
         assert !violations.isEmpty()
-        violations.size() == 6
+        violations.size() == 5
     }
 
 

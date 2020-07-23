@@ -14,7 +14,6 @@ class CategoryCreateCommand extends ValidationCommand {
     @NotBlank(message= 'category.name.blank')
     String name
 
-    @NotNull(message= 'category.color.null')
     String color
 
     Long parentCategoryId

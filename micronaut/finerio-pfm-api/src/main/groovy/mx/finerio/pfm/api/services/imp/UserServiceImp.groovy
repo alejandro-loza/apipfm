@@ -84,13 +84,9 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     }
 
     private void verifyUnique(UserCommand cmd, Client client) {
-        if (isNonUnique(cmd, client)) {
+        if (userGormService.findByNameAndAndClientAndDateDeletedIsNull(cmd.name, client)) {
             throw new BadRequestException('user.nonUnique')
         }
-    }
-
-    private User isNonUnique(UserCommand cmd, Client client) {
-        userGormService.findByNameAndAndClientAndDateDeletedIsNull(cmd.name, client)
     }
 
 }

@@ -16,7 +16,9 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.dtos.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
@@ -26,7 +28,6 @@ import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
-import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import javax.inject.Inject
@@ -140,7 +141,6 @@ class TransactionControllerSpec extends Specification {
 
         then:
         rsp.status == HttpStatus.OK
-        rsp.body.get().accountId == account1.id
         rsp.body.get().categoryId == category1.id
     }
 
@@ -242,7 +242,6 @@ class TransactionControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         rspGET.body().with {
             assert id == transaction.id
-            assert accountId == transaction.account.id
             assert charge == transaction.charge
             assert description == transaction.description
             assert amount == transaction.amount
@@ -306,7 +305,6 @@ class TransactionControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            assert accountId == cmd.accountId
             assert date.getTime() == cmd.date
             assert charge == cmd.charge
             assert description == cmd.description
@@ -373,7 +371,6 @@ class TransactionControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            assert accountId == transaction.account.id
             assert date.toString() == transaction.date.toString()
             assert description == cmd.description
             assert amount == cmd.amount
@@ -429,6 +426,34 @@ class TransactionControllerSpec extends Specification {
 
         assert body.get("nextCursor")
     }
+
+    def "Should not get a list of transactions by account"(){
+
+        given:'a transaction list'
+
+        and:
+        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(getReq,  Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'url.query.value.invalid'
+            assert title == 'A query parameter in the URL is invalid'
+            assert detail == 'A URL query parameter you provided is invalid. Please review it'
+        }
+
+    }
+
 
     def "Should get a list of transactions of an account on a cursor point"(){
 

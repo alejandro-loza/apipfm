@@ -178,8 +178,6 @@ class AccountControllerSpec extends Specification {
         rsp.status == HttpStatus.OK
         rsp.body().with {
             id
-            userId == cmd.userId
-            financialEntityId == cmd.financialEntityId
             nature == cmd.nature
             name == cmd.name
             number == cmd.number
@@ -298,8 +296,6 @@ class AccountControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         rspGET.body().with {
-            assert userId == cmd.userId
-            assert financialEntityId == cmd.financialEntityId
             assert nature == cmd.nature
             assert name == cmd.name
             assert number == cmd.number
@@ -431,8 +427,6 @@ class AccountControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            userId == moreAwesomeUser.id
-            financialEntityId == entity2.id
             nature == account.nature
             name == account.name
             number == account.number

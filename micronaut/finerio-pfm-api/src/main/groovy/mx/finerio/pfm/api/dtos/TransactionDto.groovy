@@ -8,7 +8,6 @@ import mx.finerio.pfm.api.domain.Transaction
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)
 class TransactionDto extends ResourceDto{
-    Long accountId
     Date date
     boolean charge
     String description
@@ -18,7 +17,6 @@ class TransactionDto extends ResourceDto{
 
     TransactionDto(Transaction transaction) {
         this.id = transaction.id
-        this.accountId = transaction.account.id
         this.date = transaction.date
         this.charge = transaction.charge
         this.description = transaction.description

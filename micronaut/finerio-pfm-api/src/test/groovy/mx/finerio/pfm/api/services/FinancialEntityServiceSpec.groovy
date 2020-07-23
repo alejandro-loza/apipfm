@@ -6,10 +6,12 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.imp.FinancialEntityServiceImp
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
+import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 import spock.lang.Specification
 
 import java.security.Principal
@@ -72,11 +74,37 @@ class FinancialEntityServiceSpec extends Specification {
                 .findByCodeAndClientAndDateDeletedIsNull(_ as String, _ as Client) >> entity
         0 * financialEntityService.financialEntityGormService.save(_  as FinancialEntity)
 
-        def response = financialEntityService.create(cmd)
+        financialEntityService.create(cmd)
 
         then:
-        assert response instanceof FinancialEntity
-        assert response.id == entity.id
+        BadRequestException e = thrown()
+        e.message == 'financialEntity.code.nonUnique'
+    }
+
+    def 'Should not save an financial entity on previously saved and unique code on update'(){
+        given:'an financial entity command request body'
+        FinancialEntityUpdateCommand cmd = new FinancialEntityUpdateCommand()
+        cmd.with {
+            name = 'National Bank of Wakanda'
+            code = 'WAKANDA-NB'
+        }
+        def client = new Client()
+        FinancialEntityCreateCommand fcmd = new FinancialEntityCreateCommand()
+        fcmd.with {cmd}
+        def entity = new FinancialEntity(fcmd ,client)
+
+        when:
+        1 * financialEntityService.securityService.getAuthentication() >> of(Principal)
+        1 * financialEntityService.clientService.findByUsername(_ as String) >> client
+        1 * financialEntityService.financialEntityGormService
+                .findByCodeAndClientAndDateDeletedIsNull(_ as String, _ as Client) >> entity
+        0 * financialEntityService.financialEntityGormService.save(_  as FinancialEntity)
+
+        financialEntityService.update(cmd, 1L)
+
+        then:
+        BadRequestException e = thrown()
+        e.message == 'financialEntity.code.nonUnique'
     }
 
     def "Should throw exception on null body"() {
@@ -114,7 +142,7 @@ class FinancialEntityServiceSpec extends Specification {
 
         then:
         ItemNotFoundException e = thrown()
-        e.message == 'financialEntity.exist'
+        e.message == 'financialEntity.notFound'
     }
 
     def "Should get all financial entities " () {

@@ -13,7 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class QueryValueeExceptionHandler
+class QueryValueExceptionHandler
     implements ExceptionHandler<UnsatisfiedQueryValueRouteException,
     HttpResponse> {
 

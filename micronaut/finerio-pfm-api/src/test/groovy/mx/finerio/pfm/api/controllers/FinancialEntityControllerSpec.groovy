@@ -97,23 +97,12 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, cmd).bearerAuth(accessToken)
 
         when:
-        def rsp = client.toBlocking().exchange(request, FinancialEntityDto)
+        def rsp =   client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
 
         then:
         rsp.status == HttpStatus.OK
         rsp.body().with {
-            id
-            name == cmd.name
-            code == cmd.code
-            dateCreated
-            lastUpdated
-        }
-        when:
-        def rsp2 = client.toBlocking().exchange(request, FinancialEntityDto)
-
-        then:
-        rsp2.status == HttpStatus.OK
-        rsp2.body().with {
             id
             name == cmd.name
             code == cmd.code
@@ -135,6 +124,45 @@ class FinancialEntityControllerSpec extends Specification {
 
         then:'verify'
         !financialEntity.dateDeleted
+
+    }
+
+    def "Should not  create a financial entity on duplicate code and throw exception"(){
+        given:'an financial entity request body'
+        FinancialEntityCreateCommand cmd = getWakandaTestBankCommand()
+
+        and:'a already saved entity with same code'
+        FinancialEntity financialEntitySaved = new FinancialEntity()
+        financialEntitySaved.with {
+            id = 666
+            name = 'a saved bank'
+            code = cmd.code
+            financialEntitySaved.client = loggedInClient
+        }
+
+        financialGormService.save(financialEntitySaved)
+
+
+        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.code.nonUnique'
+            assert  title == 'Financial Entity code already exists'
+            assert  detail == 'The financial entity\'s code you provided already exists. Please provide a different one.'
+        }
 
     }
 
@@ -160,7 +188,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     }
 
-    def "Should not create a financial entity an throw bad request on malformed bodyt"() {
+    def "Should not create a financial entity an throw bad request on malformed body"() {
         given:'an financial entity empty request body'
         HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, '!"·!"').bearerAuth(accessToken)
 
@@ -233,12 +261,23 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${id}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
-                ItemNotFoundException as Argument<ItemNotFoundException>)
+        client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.notFound'
+            assert  detail == 'The financial entity ID you requested was not found.'
+            assert  title == "Financial entity not found."
+        }
 
     }
 
@@ -282,6 +321,48 @@ class FinancialEntityControllerSpec extends Specification {
         }
 
     }
+
+
+    def "Should not  update a financial entity on duplicate code and throw exception"(){
+        given:'an financial entity request body'
+        FinancialEntityCreateCommand cmd = getWakandaTestBankCommand()
+
+        and:'a already saved entity with same code'
+        FinancialEntity financialEntitySaved = new FinancialEntity()
+        financialEntitySaved.with {
+            id = 666
+            name = 'a saved bank'
+            code = cmd.code
+            financialEntitySaved.client = loggedInClient
+        }
+
+        financialGormService.save(financialEntitySaved)
+
+
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${financialEntitySaved.id}",  cmd)
+                .bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.code.nonUnique'
+            assert  title == 'Financial Entity code already exists'
+            assert  detail == 'The financial entity\'s code you provided already exists. Please provide a different one.'
+        }
+
+    }
+
 
     def "Should partially update an financial entity"(){
         given:'a saved financial entity'
@@ -344,8 +425,8 @@ class FinancialEntityControllerSpec extends Specification {
         given:
         FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
-            name = 'Gringotts'
-            code = 'Gringotts magic bank'
+            name = 'Gringotts update'
+            code = 'Gringotts new magic bank'
         }
 
         def notFoundId = 666

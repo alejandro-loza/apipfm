@@ -7,6 +7,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ResourcesDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.logging.Log
@@ -45,9 +46,9 @@ class TransactionController {
     }
 
     @Log
-    @Get("{?cursor,accountId}")
+    @Get("{?cursor}")
     @Transactional
-    Single<ResourcesDto> showAll(@Nullable Long cursor, @Nullable Long accountId) {
+    Single<ResourcesDto> showAll(@Nullable Long cursor, @QueryValue('accountId') Long accountId) {
         Account account = accountService.getAccount(accountId)
         List<TransactionDto> transactions = cursor ?
                 transactionsService.findAllByAccountAndCursor(account, cursor)

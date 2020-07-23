@@ -7,8 +7,6 @@ import mx.finerio.pfm.api.domain.Account
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)
 class AccountDto  extends ResourceDto{
-    Long userId
-    Long financialEntityId
     String nature
     String name
     String number
@@ -18,8 +16,6 @@ class AccountDto  extends ResourceDto{
 
     AccountDto(Account account) {
         this.id = account.id
-        this.userId = account.user.id
-        this.financialEntityId = account.financialEntity.id
         this.nature = account.nature
         this.name = account.name
         this.number = account.number
