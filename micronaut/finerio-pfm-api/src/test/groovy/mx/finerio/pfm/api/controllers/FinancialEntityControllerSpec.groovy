@@ -515,12 +515,23 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.notFound'
+            assert  detail == 'The financial entity ID you requested was not found.'
+            assert  title == "Financial entity not found."
+        }
     }
 
     def "Should delete an financial entity"() {
