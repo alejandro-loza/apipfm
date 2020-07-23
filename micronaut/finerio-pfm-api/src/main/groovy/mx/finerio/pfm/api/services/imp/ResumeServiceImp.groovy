@@ -50,9 +50,8 @@ class ResumeServiceImp implements ResumeService{
                .collect( Collectors.groupingBy({ Transaction transaction ->
                     new SimpleDateFormat("yyyy-MM").format(transaction.date)
                 }))
-
-        list.each { String stringDate, List<Transaction> transactions ->
-            movementsDtoList.add(generateMovementDto(stringDate, transactions))
+        for ( Map.Entry<String, List<Transaction>> entry : list.entrySet() ) {
+            movementsDtoList.add( generateMovementDto( entry.key, entry.value ) )
         }
         movementsDtoList
     }
@@ -65,11 +64,9 @@ class ResumeServiceImp implements ResumeService{
         List<MovementsDto> expensesResult = getTransactionsGroupByMonth( getExpenses(userId))
 
         ResumeDto resumeDto = new ResumeDto()
-        resumeDto.with {
-            incomes = incomesResult
-            expenses = expensesResult
-            balances =  getBalance(incomesResult, expensesResult)
-        }
+        resumeDto.incomes = incomesResult
+        resumeDto.expenses = expensesResult
+        resumeDto.balances =  getBalance(incomesResult, expensesResult)
         resumeDto
     }
 
@@ -89,8 +86,8 @@ class ResumeServiceImp implements ResumeService{
                 .collect ( Collectors.groupingBy({ Transaction transaction ->
                     transaction.category.parent.id
                 }))
-        transactionsGrouped.each{ Long parentId , List<Transaction> transactions ->
-            categoryResumeDtos.add( generateParentCategoryResume(parentId, transactions) )
+        for ( Map.Entry<Long, List<Transaction>> entry : transactionsGrouped.entrySet() ) {
+            categoryResumeDtos.add( generateParentCategoryResume( entry.key, entry.value ) )
         }
         categoryResumeDtos
     }
@@ -101,56 +98,59 @@ class ResumeServiceImp implements ResumeService{
                 .collect ( Collectors.groupingBy({ Transaction transaction ->
             transaction.category.id
         }))
-         transactionsGrouped.each { parentId , transactions ->
-             subCategoryResumeDtos.add( generateSubCategoryResume(parentId, transactions))
+        for ( Map.Entry<Long, List<Transaction>> entry : transactionsGrouped.entrySet() ) {
+             subCategoryResumeDtos.add( generateSubCategoryResume( entry.key, entry.value ) )
         }
         subCategoryResumeDtos
     }
 
     private List<TransactionsByDateDto> getTransactionsGroupByDay(List<Transaction> transactionList){
-        transactionList.groupBy { transaction ->
+
+        Map<String, List<Transaction>> map = transactionList.groupBy { transaction ->
             new SimpleDateFormat("yyyy-MM-dd").format(transaction.date)
-        }.collect{ stringDate , transactions ->
-            generateTransactionByDate(stringDate, transactions)
         }
+
+        List<TransactionsByDateDto> list = []
+
+        for ( Map.Entry<String, List<Transaction>> entry : map.entrySet() ) {
+            list << generateTransactionByDate( entry.key, entry.value )
+        }
+
+        return list
+
     }
 
     private TransactionsByDateDto generateTransactionByDate(String stringDate, List<Transaction> transactionList){
         TransactionsByDateDto transactionsByDateDto = new TransactionsByDateDto()
-        transactionsByDateDto.with {
-            date = generateDate(stringDate).getTime()
-            transactions = transactionList.collect{new TransactionDto(it)}
-        }
+        transactionsByDateDto.date = generateDate(stringDate).getTime()
+        transactionsByDateDto.transactions = transactionList.collect{new TransactionDto(it)}
         transactionsByDateDto
     }
 
     private MovementsDto generateMovementDto(String stringDate, List<Transaction> transactions) {
         MovementsDto movementsDto = new MovementsDto()
-        movementsDto.with {
-            date = generateFixedDate(stringDate).getTime()
-            categories = getTransactionsGroupByParentCategory( transactions)
-            amount = transactions*.amount.sum() as float
-        }
+        movementsDto.date = generateFixedDate(stringDate).getTime()
+        movementsDto.categories = getTransactionsGroupByParentCategory(
+            transactions )
+        movementsDto.amount = transactions*.amount.sum() as float
         movementsDto
     }
 
     private CategoryResumeDto generateParentCategoryResume(Long parentId, List<Transaction> transactions) {
         CategoryResumeDto parentCategory = new CategoryResumeDto()
-        parentCategory.with {
-            categoryId = parentId
-            subcategories = getTransactionsGroupBySubCategory(transactions)
-            amount = transactions*.amount.sum() as float
-        }
+        parentCategory.categoryId = parentId
+        parentCategory.subcategories = getTransactionsGroupBySubCategory(
+            transactions)
+        parentCategory.amount = transactions*.amount.sum() as float
         parentCategory
     }
 
     private SubCategoryResumeDto generateSubCategoryResume(Long parentId, List<Transaction> transactions) {
         SubCategoryResumeDto subCategoryResumeDto = new SubCategoryResumeDto()
-        subCategoryResumeDto.with {
-            categoryId = parentId
-            transactionsByDate = getTransactionsGroupByDay(transactions)
-            amount = transactions*.amount.sum() as float
-        }
+        subCategoryResumeDto.categoryId = parentId
+        subCategoryResumeDto.transactionsByDate =
+            getTransactionsGroupByDay( transactions )
+        subCategoryResumeDto.amount = transactions*.amount.sum() as float
         subCategoryResumeDto
     }
 
@@ -164,7 +164,9 @@ class ResumeServiceImp implements ResumeService{
 
     private List<Transaction> getAccountsTransactions(Long userId, Boolean charge) {
         List<Transaction> transactions = []
-        accountService.findAllByUserId(userId).each { account ->
+        def accounts = accountService.findAllByUserId( userId )
+
+        for ( account in accounts ) {
             transactions.addAll(transactionsService.findAllByAccountAndCharge(account, charge))
         }
         transactions
