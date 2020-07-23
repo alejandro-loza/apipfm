@@ -35,7 +35,7 @@ class Category implements GormEntity<Category> {
     static constraints = {
         user nullable: true
         name nullable: false, blank:false
-        color  nullable: false, blank:false
+        color  nullable: true, blank:false
         dateDeleted nullable:true
         parent nullable:true
     }

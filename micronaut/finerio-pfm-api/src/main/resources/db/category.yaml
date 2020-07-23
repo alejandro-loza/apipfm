@@ -42,7 +42,7 @@ databaseChangeLog:
                   name: color
                   type: java.sql.Types.VARCHAR(100)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: date_created
                   type: DATETIME(6)
