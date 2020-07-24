@@ -9,6 +9,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Category
@@ -187,6 +188,48 @@ class CategoryControllerSpec extends Specification {
 
     }
 
+    def "Should throw bad request on create a category with parent category and the parent category is a subcategory"() {
+        given: 'an saved User '
+        User user1 = generateUser()
+
+        and: 'a command request body'
+        CategoryCreateCommand cmd = generateCategoryCommand(user1)
+
+        and: 'a parent category'
+        Category parentCategory = new Category()
+        parentCategory.name = 'the chosen one'
+        parentCategory.client = loggedInClient
+        categoryGormService.save(parentCategory)
+
+        and:'a saved pseudo parent category'
+        Category pseudoParentCategory =  generateCategory(user1)
+        pseudoParentCategory.parent = parentCategory
+        categoryGormService.save(pseudoParentCategory)
+
+        cmd.parentCategoryId =  pseudoParentCategory.id
+
+
+        HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
+
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.parentCategory.invalid'
+            assert title == 'Not a parent category'
+            assert detail == 'The parent category you provided is a subcategory. Please provide a parent category.'
+        }
+
+    }
+
     def "Should not create a category and throw bad request on wrong params"() {
         given: 'a category request body with empty body'
 
@@ -240,11 +283,21 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
 
         then:
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.notFound'
+            assert title == 'Category not found.'
+            assert detail == 'The category ID you requested was not found.'
+        }
     }
 
     def "Should get a category"() {
@@ -275,11 +328,21 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.GET("${CATEGORIES_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
 
         then:
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.notFound'
+            assert title == 'Category not found.'
+            assert detail == 'The category ID you requested was not found.'
+        }
 
     }
 
@@ -358,6 +421,55 @@ class CategoryControllerSpec extends Specification {
 
     }
 
+    def "Should throw bad request on update a category with parent category and the parent category is a subcategory"() {
+        given: 'an saved User '
+        User user1 = generateUser()
+
+        and: 'a command request body'
+        CategoryCreateCommand cmd = generateCategoryCommand(user1)
+
+        and: 'a parent category'
+        Category parentCategory = new Category()
+        parentCategory.name = 'the chosen one'
+        parentCategory.client = loggedInClient
+        categoryGormService.save(parentCategory)
+
+        and:'a saved sub category whit valid parent category'
+        Category subCategory =  generateCategory(user1)
+        subCategory.parent = parentCategory
+        categoryGormService.save(subCategory)
+
+        and:'a saved pseudo parent category that is a subcategory'
+        Category pseudoParentCategory =  generateCategory(user1)
+        pseudoParentCategory.parent = parentCategory
+        categoryGormService.save(pseudoParentCategory)
+
+
+        and:'a pseudo parent category edit request that is a subcategory'
+        cmd.parentCategoryId =  pseudoParentCategory.id
+
+
+        HttpRequest request = HttpRequest.PUT("${CATEGORIES_ROOT}/${subCategory.id}", cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
+
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.parentCategory.invalid'
+            assert title == 'Not a parent category'
+            assert detail == 'The parent category you provided is a subcategory. Please provide a parent category.'
+        }
+
+    }
+
     def "Should not update an category on not found parent category"() {
         given: 'a saved user'
         User user1 = generateUser()
@@ -419,19 +531,19 @@ class CategoryControllerSpec extends Specification {
 
     }
 
-    def "Should get a list of categories"() {
+    def "Should get a list of categories with no user set"() {
 
         given: 'a category list'
         User user1 = generateUser()
 
         Category category1 =  generateCategory(user1)
-        Category category2 = new Category(generateCategoryCommand(user1), user1,loggedInClient)
+        Category category2 = generateCategoryWithoutUser()
         category2.dateDeleted = new Date()
         categoryGormService.save(category2)
 
-        Category category3 =  generateCategory(user1)
+        Category category3 =  generateCategoryWithoutUser()
         Category category4 =  generateCategory(user1)
-        Category category5 =  generateCategory(user1)
+        Category category5 =  generateCategoryWithoutUser()
 
         and:
         HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT).bearerAuth(accessToken)
@@ -443,7 +555,48 @@ class CategoryControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<CategoryDto> categoryDtos = body.get("data") as List<CategoryDto>
-        assert !(category2.id in categoryDtos.id)
+        categoryDtos.size() == 2
+        assert !categoryDtos.find {it.id == category1.id}
+        assert !categoryDtos.find {it.id == category2.id}
+        assert !categoryDtos.find {it.id == category4.id}
+        assert categoryDtos.find {it.id == category3.id}
+        assert categoryDtos.find {it.id == category5.id}
+
+        assert body.get("nextCursor") == null
+    }
+
+    def "Should get a list of categories with a user set"() {
+
+        given: 'a category list'
+        User user1 = generateUser()
+        User user2 = generateUser()
+
+        Category category1 = generateCategory(user1)
+        Category category2 = generateCategory(user1)
+        category2.dateDeleted = new Date()
+        categoryGormService.save(category2)
+
+        Category category3 =  generateCategory(user1)
+        Category category4 =  generateCategory(user2)
+        Category category5 = generateCategoryWithoutUser()
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("$CATEGORIES_ROOT?userId=${user1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<CategoryDto> categoryDtos = body.get("data") as List<CategoryDto>
+
+        assert categoryDtos.size() == 3
+        assert categoryDtos.find {it.id == category1.id}
+        assert !categoryDtos.find {it.id == category2.id}
+        assert !categoryDtos.find {it.id == category4.id}
+        assert categoryDtos.find {it.id == category3.id}
+        assert categoryDtos.find {it.id == category5.id}
 
         assert body.get("nextCursor") == null
     }
@@ -455,7 +608,7 @@ class CategoryControllerSpec extends Specification {
 
         Category category1 =  generateCategory(user1)
 
-        Category category2 = new Category(generateCategoryCommand(user1), user1, loggedInClient)
+        Category category2 = new Category(generateCategoryCommand(user1), loggedInClient)
         category2.dateDeleted = new Date()
         categoryGormService.save(category2)
 
@@ -540,7 +693,17 @@ class CategoryControllerSpec extends Specification {
     }
 
     private Category generateCategory(User user) {
-        Category category = new Category(generateCategoryCommand(user), user, loggedInClient)
+        Category category = new Category(generateCategoryCommand(user), loggedInClient)
+        category.user = user
+        categoryGormService.save(category)
+    }
+
+    private Category generateCategoryWithoutUser() {
+        Category category = new Category()
+        category.with {
+            name = 'ALONE ONE'
+            category.client = loggedInClient
+        }
         categoryGormService.save(category)
     }
 

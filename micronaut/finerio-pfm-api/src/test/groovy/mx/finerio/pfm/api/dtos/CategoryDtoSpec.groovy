@@ -25,9 +25,9 @@ class CategoryDtoSpec extends Specification{
             color = 'a beautiful one'
             parentCategoryId = 666
         }
-        Category category = new Category(cmd, user, new Client())
+        Category category = new Category(cmd, new Client())
         category.with {
-            parent = new Category(cmd, user, new Client())
+            parent = new Category(cmd, new Client())
         }
         expect:
         category.parent
@@ -53,7 +53,7 @@ class CategoryDtoSpec extends Specification{
             name = 'test category'
             color = 'a beautiful one'
         }
-        Category category = new Category(cmd, user, new Client())
+        Category category = new Category(cmd, new Client())
 
         expect:
         assert !category.parent

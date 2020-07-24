@@ -23,8 +23,7 @@ class Category implements GormEntity<Category> {
     Date dateDeleted
     Client client
 
-    Category(CategoryCreateCommand cmd, User user, Client client) {
-        this.user = user
+    Category(CategoryCreateCommand cmd,  Client client) {
         this.name = cmd.name
         this.color = cmd.color
         this.client = client

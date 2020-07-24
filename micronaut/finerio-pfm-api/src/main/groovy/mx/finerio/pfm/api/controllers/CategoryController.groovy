@@ -48,7 +48,7 @@ class CategoryController {
     @Transactional
     Single<ResourcesDto> showAll( @Nullable Long userId) {
         List<CategoryDto> clientCategories
-            clientCategories = categoryService.findAllByCurrentLoggedClient()
+            clientCategories = categoryService.findAllByCurrentLoggedClientAndUserNul()
         if(userId) {
             clientCategories.addAll( categoryService.findAllByUser(userService.getUser(userId)))
         }
