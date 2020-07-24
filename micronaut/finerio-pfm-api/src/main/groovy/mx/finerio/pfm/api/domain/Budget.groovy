@@ -18,7 +18,6 @@ class Budget implements GormEntity<Budget> {
     Category category
     String name
     BigDecimal amount
-    Long parentBudgetId
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
@@ -30,7 +29,6 @@ class Budget implements GormEntity<Budget> {
         this.category = category
         this.name = cmd.name
         this.amount = cmd.amount
-        this.parentBudgetId = cmd.parentBudgetId
     }
 
     static constraints = {

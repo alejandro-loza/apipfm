@@ -21,7 +21,4 @@ class BudgetCreateCommand extends ValidationCommand{
     @NotNull(message= 'budget.amount.null')
     BigDecimal amount
 
-    @NotNull(message= 'budget.parentBudget.null')
-    Long parentBudgetId
-
 }

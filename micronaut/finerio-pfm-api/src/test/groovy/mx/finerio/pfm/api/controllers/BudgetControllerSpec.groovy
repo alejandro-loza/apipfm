@@ -284,7 +284,6 @@ class BudgetControllerSpec extends Specification {
             categoryId = category1.id
             name = 'changed name'
             amount = 100
-            parentBudgetId = 222
         }
 
         and: 'a client'
@@ -340,7 +339,6 @@ class BudgetControllerSpec extends Specification {
             assert categoryId == cmd.categoryId
             assert name == cmd.name
             assert amount == budget.amount
-            assert parentBudgetId == budget.parentBudgetId
         }
 
     }
@@ -518,7 +516,6 @@ class BudgetControllerSpec extends Specification {
             categoryId = category.id
             name = "Food budget"
             amount = 1234.56
-            parentBudgetId = 123
         }
         cmd
     }

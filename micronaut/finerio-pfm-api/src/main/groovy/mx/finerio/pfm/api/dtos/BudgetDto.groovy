@@ -25,7 +25,6 @@ class BudgetDto {
         this.categoryId = budget.category.id
         this.name = budget.name
         this.amount = budget.amount
-        this.parentBudgetId = budget.parentBudgetId
         this.dateCreated = budget.dateCreated
         this.lastUpdated = budget.lastUpdated
     }

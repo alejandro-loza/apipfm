@@ -47,7 +47,6 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
             user = cmd.userId ? userService.getUser(cmd.userId): budget.user
             category = cmd.categoryId ? categoryService.getById(cmd.categoryId): budget.category
             name = cmd.name ?: budget.name
-            parentBudgetId = cmd.parentBudgetId ?: budget.parentBudgetId
             amount = cmd.amount ?: budget.amount
         }
         budgetGormService.save(budget)

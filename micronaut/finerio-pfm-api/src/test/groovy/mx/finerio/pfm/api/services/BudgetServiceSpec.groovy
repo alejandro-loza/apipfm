@@ -113,7 +113,6 @@ class BudgetServiceSpec extends Specification {
             categoryId = 123
             name = "Food budget"
             amount= 1234.56
-            parentBudgetId= 123
         }
         cmd
     }

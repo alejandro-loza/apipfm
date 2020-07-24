@@ -28,7 +28,6 @@ class BudgetCreateCommandSpec extends Specification{
             userId = 1
             categoryId = 1
             name = 'awesome name'
-            parentBudgetId = 1
             amount =100.00
         }
         when:
@@ -47,7 +46,7 @@ class BudgetCreateCommandSpec extends Specification{
 
         then:
         assert !violations.isEmpty()
-        violations.size() == 6
+        violations.size() == 5
     }
 
 
