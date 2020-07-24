@@ -266,11 +266,21 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(CATEGORIES_ROOT, cmd).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
 
         then:
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'user.notFound'
+            assert title == 'User not found.'
+            assert detail == 'The user ID you requested was not found.'
+        }
     }
 
     def "Should not create a category and throw not found exception on category not found"() {
@@ -336,6 +346,7 @@ class CategoryControllerSpec extends Specification {
 
         when:
         Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
         then:
         assert jsonError.isPresent()
         jsonError.get().errors.first().with {
@@ -523,12 +534,21 @@ class CategoryControllerSpec extends Specification {
                 generateCategoryCommand(generateUser())).bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, CategoryDto)
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
 
         then:
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.notFound'
+            assert title == 'Category not found.'
+            assert detail == 'The category ID you requested was not found.'
+        }
     }
 
     def "Should get a list of categories with no user set"() {
@@ -633,7 +653,6 @@ class CategoryControllerSpec extends Specification {
         assert body.get("nextCursor") == null
     }
 
-
     def "Should throw not found exception on delete no found category"() {
         given:
         def notFoundId = 666
@@ -642,11 +661,21 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
 
         then:
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.notFound'
+            assert title == 'Category not found.'
+            assert detail == 'The category ID you requested was not found.'
+        }
 
     }
 
