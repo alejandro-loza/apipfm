@@ -42,9 +42,11 @@ class BudgetsController {
     @Log
     @Get("{?cursor}")
     @Transactional
-    Single<ResourcesDto> showAll(@Nullable Long cursor) {
-        List<BudgetDto> budgetDtos = cursor ? budgetService.findAllByCursor(cursor) : budgetService.getAll()
-        Single.just(new ResourcesDto(budgetDtos))
+    Single<ResourcesDto> showAll(@Nullable Long cursor,  @QueryValue('userId') Long userId) {
+        Single.just(new ResourcesDto( cursor
+                ? budgetService.findAllByUserAndCursor(userId, cursor)
+                : budgetService.findAllByUser(userId)
+       ))
     }
 
     @Log

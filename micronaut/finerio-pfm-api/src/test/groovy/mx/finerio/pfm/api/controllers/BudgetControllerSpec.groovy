@@ -115,12 +115,13 @@ class BudgetControllerSpec extends Specification {
         e.response.status == HttpStatus.UNAUTHORIZED
     }
 
-
     def "Should get a empty list of budgets"() {
 
-        given: 'a client'
+        given: 'a user without budgets'
 
-        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
+        User user1 = generateUser()
+
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq,  Map)
@@ -300,7 +301,7 @@ class BudgetControllerSpec extends Specification {
 
     }
 
-    def "Should partially an budget"() {
+    def "Should partially update a budget"() {
         given: 'a saved user'
         User user1 = generateUser()
 
@@ -335,7 +336,6 @@ class BudgetControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            assert userId == cmd.userId
             assert categoryId == cmd.categoryId
             assert name == cmd.name
             assert amount == budget.amount
@@ -389,19 +389,23 @@ class BudgetControllerSpec extends Specification {
 
     def "Should get a list of budgets"() {
 
-        given: 'a budget list'
+        given:
         User user1 = generateUser()
+        User user2 = generateUser()
+
         Category category1 = generateCategory(user1)
 
-        Budget budget2 = generateSavedBudget(user1, category1)
-        budget2.dateCreated = new Date()
-        budgetGormService.save(budget2)
-        3.times {
-            generateSavedBudget(user1, category1)
-        }
+        Budget budget1 = generateSavedBudget(user1, category1)
+        budget1.dateDeleted = new Date()
+        budgetGormService.save(budget1)
+
+        Budget budget2 =   generateSavedBudget(user1, category1)
+        Budget budget3 =   generateSavedBudget(user2, category1)
+        Budget budget4 =   generateSavedBudget(user1, category1)
+
 
         and:
-        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -410,8 +414,10 @@ class BudgetControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
-        assert !(budget2.id in budgetDtos.id)
-
+        assert !budgetDtos.find {it.id == budget1.id}
+        assert budgetDtos.find {it.id == budget2.id}
+        assert !budgetDtos.find {it.id == budget3.id}
+        assert budgetDtos.find {it.id == budget4.id}
     }
 
 
@@ -419,20 +425,19 @@ class BudgetControllerSpec extends Specification {
 
         given: 'a budget list'
         User user1 = generateUser()
+        User user2 = generateUser()
         Category category1 = generateCategory(user1)
 
         Budget budget1 = generateSavedBudget(user1, category1)
-        budget1.dateCreated = new Date()
+        budget1.dateDeleted = new Date()
         budgetGormService.save(budget1)
         Budget budget2 = generateSavedBudget(user1, category1)
-        budgetGormService.save(budget2)
-        Budget budget3 = generateSavedBudget(user1, category1)
-        budgetGormService.save(budget3)
+        Budget budget3 = generateSavedBudget(user2, category1)
         Budget budget4 = generateSavedBudget(user1, category1)
-        budgetGormService.save(budget4)
+        Budget budget5 = generateSavedBudget(user1, category1)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budget3.id}").bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budget4.id}&userId=${user1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -441,8 +446,12 @@ class BudgetControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
-        assert !(budget1.id in budgetDtos.id)
-        assert !(budget4.id in budgetDtos.id)
+        assert !budgetDtos.find {it.id == budget1.id}
+        assert budgetDtos.find {it.id == budget2.id}
+        assert !budgetDtos.find {it.id == budget3.id}
+        assert budgetDtos.find {it.id == budget4.id}
+        assert !budgetDtos.find {it.id == budget5.id}
+
     }
 
 

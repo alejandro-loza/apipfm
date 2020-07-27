@@ -24,6 +24,9 @@ interface BudgetService {
     List<BudgetDto> getAll()
 
     @Log
-    List<BudgetDto> findAllByCursor(Long cursor)
+    List<BudgetDto> findAllByUserAndCursor(Long userId, Long cursor)
+
+    @Log
+    List<BudgetDto> findAllByUser(Long userId)
 
 }

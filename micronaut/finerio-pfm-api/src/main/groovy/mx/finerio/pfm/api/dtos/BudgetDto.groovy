@@ -9,11 +9,9 @@ import mx.finerio.pfm.api.domain.User
 @ToString(includeNames = true, includePackage = false)
 class BudgetDto {
     Long id
-    Long userId
     Long categoryId
     String name
     BigDecimal amount
-    Long parentBudgetId
     Date dateCreated
     Date lastUpdated
 
@@ -21,7 +19,6 @@ class BudgetDto {
 
     BudgetDto(Budget budget) {
         this.id = budget.id
-        this.userId = budget.user.id
         this.categoryId = budget.category.id
         this.name = budget.name
         this.amount = budget.amount

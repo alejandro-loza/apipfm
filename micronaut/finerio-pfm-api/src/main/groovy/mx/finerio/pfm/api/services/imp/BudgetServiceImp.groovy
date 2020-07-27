@@ -1,6 +1,8 @@
 package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Budget
+import mx.finerio.pfm.api.domain.Client
+import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.BudgetService
@@ -61,12 +63,34 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
 
     @Override
     List<BudgetDto> getAll() {
-        budgetGormService.findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new BudgetDto(it)}
+        budgetGormService
+                .findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new BudgetDto(it)}
     }
 
     @Override
-    List<BudgetDto> findAllByCursor(Long cursor) {
-        budgetGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(cursor, [max: MAX_ROWS, sort: 'id', order: 'desc']).collect{new BudgetDto(it)}
+    List<BudgetDto> findAllByUserAndCursor(Long userId, Long cursor) {
+        User user = userService.getUser(userId)
+        verifyLoggedClient(user.client)
+        budgetGormService
+                .findAllByUserAndIdLessThanEqualsAndDateDeletedIsNull(
+                        user, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new BudgetDto(it)}
+    }
+
+    @Override
+    List<BudgetDto> findAllByUser(Long userId) {
+        User user = userService.getUser(userId)
+        verifyLoggedClient(user.client)
+        budgetGormService
+                .findAllByUserAndDateDeletedIsNull(user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new BudgetDto(it)}
+    }
+
+    private void verifyLoggedClient(Client client) {
+        if (client.id != getCurrentLoggedClient().id) {
+            throw new ItemNotFoundException('account.notFound')
+        }
     }
 
 }

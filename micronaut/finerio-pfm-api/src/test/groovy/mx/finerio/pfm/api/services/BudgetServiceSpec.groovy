@@ -99,8 +99,8 @@ class BudgetServiceSpec extends Specification {
         budget.user = new User()
         budget.category = new Category()
         when:
-        1 * budgetService.budgetGormService.findAllByDateDeletedIsNullAndIdLessThanEquals(_ as Long, _ as Map) >> [budget]
-        def response = budgetService.findAllByCursor(2)
+        1 * budgetService.budgetGormService.findAllByUserAndIdLessThanEqualsAndDateDeletedIsNull(_ as Long, _ as Map) >> [budget]
+        def response = budgetService.findAllByUserAndCursor(2)
 
         then:
         response instanceof  List<BudgetDto>
