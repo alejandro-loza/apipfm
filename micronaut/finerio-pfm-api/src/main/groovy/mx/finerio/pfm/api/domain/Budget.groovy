@@ -33,6 +33,7 @@ class Budget implements GormEntity<Budget> {
 
     static constraints = {
         name nullable: false, blank:false
+        user nullable: false
         dateDeleted nullable:true
     }
 

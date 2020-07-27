@@ -4,11 +4,13 @@ import grails.gorm.services.Query
 import grails.gorm.services.Service
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.domain.Category
 
 @Service(Budget)
 interface BudgetGormService {
     Budget save(Budget transaction)
     Budget getById(Long id)
+    Budget findByUserAndCategoryAndDateDeletedIsNull(User user, Category category)
     List<Budget> findAllByDateDeletedIsNull(Map args)
     List<Budget> findAllByUserAndDateDeletedIsNull(User user, Map args)
     List<Budget> findAllByUserAndIdLessThanEqualsAndDateDeletedIsNull(User user,Long id, Map args)

@@ -17,6 +17,7 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.BudgetDto
 import mx.finerio.pfm.api.dtos.CategoryDto
 import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.ErrorsDto
 import mx.finerio.pfm.api.dtos.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
@@ -173,6 +174,48 @@ class BudgetControllerSpec extends Specification {
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
     }
+
+    def "Should not create a budget and throw bad request on duplicated category"() {
+        given: 'an saved User '
+        User user1 = generateUser()
+
+        and:
+        Category category1 = generateCategory(user1)
+
+        and:'a previously saved budget with category 1'
+        Budget budget = new Budget()
+        budget.with {
+            user = user1
+            category = category1
+            name = 'test budget'
+            amount = 0
+        }
+        budgetGormService.save(budget)
+
+        and: 'a command request body with already saved category'
+        BudgetCreateCommand cmd = generateBudgetCommand(user1, category1)
+
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'budget.category.nonUnique'
+            assert title == 'Category already exist'
+            assert detail == 'The category you provided already exist'
+        }
+    }
+
 
     def "Should not create a transaction and throw bad request on wrong body"() {
         given: 'a transaction request body with empty body'
@@ -342,7 +385,6 @@ class BudgetControllerSpec extends Specification {
         }
 
     }
-
 
     def "Should not update a budget on band parameters and return Bad Request"() {
         given: 'a saved user'

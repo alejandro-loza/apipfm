@@ -1,9 +1,11 @@
 package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Budget
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.BudgetDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.CategoryService
@@ -28,11 +30,12 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     @Override
     Budget create(BudgetCreateCommand cmd){
         verifyBody(cmd)
-        budgetGormService.save(
-                new Budget(cmd,
-                        userService.getUser(cmd.userId),
-                        categoryService.getById(cmd.categoryId))
-        )
+        User user = userService.getUser(cmd.userId)
+        Category category = categoryService.getById(cmd.categoryId)
+        if(budgetGormService.findByUserAndCategoryAndDateDeletedIsNull(user, category)){
+            throw new BadRequestException('budget.category.nonUnique')
+        }
+        budgetGormService.save(new Budget(cmd, user, category))
     }
 
     @Override
