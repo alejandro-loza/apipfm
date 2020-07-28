@@ -317,6 +317,57 @@ class BudgetControllerSpec extends Specification {
         }
         categoryGormService.save(category1)
 
+        and: 'another saved category'
+        Category category2 = new Category()
+        category2.with {
+            user = user1
+            name = 'another category'
+            color = "#00FFAA"
+            category2.client = loggedInClient
+        }
+        categoryGormService.save(category2)
+
+        and:'a saved budget'
+        Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
+        budgetGormService.save(budget)
+
+        and:'a update command'
+        BudgetCreateCommand cmd = new BudgetCreateCommand()
+        cmd.with {
+            userId = user1.id
+            categoryId = category2.id
+            name = 'changed name'
+            amount = 100
+        }
+
+        and: 'a client'
+        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
+                Argument.of(ErrorsDto))
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+           cmd
+        }
+
+    }
+
+    def "Should not update an budget and throw bad request on already created budget category"() {
+        given: 'a saved user'
+        User user1 = generateUser()
+
+        and: 'a saved category'
+        Category category1 = new Category()
+        category1.with {
+            user = user1
+            name = 'Shoes and clothes'
+            color = "#00FFAA"
+            category1.client = loggedInClient
+        }
+        categoryGormService.save(category1)
+
         and:'a saved budget'
         Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
         budgetGormService.save(budget)
@@ -334,12 +385,20 @@ class BudgetControllerSpec extends Specification {
         HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", cmd).bearerAuth(accessToken)
 
         when:
-        def resp = client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
-                Argument.of(ErrorDto))
+        client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
+                Argument.of(ErrorsDto))
         then:
-        resp.status == HttpStatus.OK
-        resp.body().with {
-           cmd
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'budget.category.nonUnique'
+            assert title == 'Category already exist'
+            assert detail == 'The category you provided already exist'
         }
 
     }
@@ -366,7 +425,6 @@ class BudgetControllerSpec extends Specification {
         BudgetUpdateCommand cmd = new BudgetUpdateCommand()
         cmd.with {
             userId = user1.id
-            categoryId = category1.id
             name = 'partially updated'
         }
 
@@ -375,11 +433,11 @@ class BudgetControllerSpec extends Specification {
 
         when:
         def resp = client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
-                Argument.of(ErrorDto))
+                Argument.of(ErrorsDto))
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            assert categoryId == cmd.categoryId
+            assert categoryId == budget.category.id
             assert name == cmd.name
             assert amount == budget.amount
         }

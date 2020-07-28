@@ -31,11 +31,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     Budget create(BudgetCreateCommand cmd){
         verifyBody(cmd)
         User user = userService.getUser(cmd.userId)
-        Category category = categoryService.getById(cmd.categoryId)
-        if(budgetGormService.findByUserAndCategoryAndDateDeletedIsNull(user, category)){
-            throw new BadRequestException('budget.category.nonUnique')
-        }
-        budgetGormService.save(new Budget(cmd, user, category))
+        budgetGormService.save(new Budget(cmd, user, findCategoryToSet(cmd.categoryId, user)))
     }
 
     @Override
@@ -48,9 +44,10 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     Budget update(BudgetUpdateCommand cmd, Long id){
         verifyBody(cmd)
         Budget budget = find(id)
+        Category categoryToSet = cmd.categoryId ? findCategoryToSet(cmd.categoryId, budget.user) : budget.category
         budget.with {
             user = cmd.userId ? userService.getUser(cmd.userId): budget.user
-            category = cmd.categoryId ? categoryService.getById(cmd.categoryId): budget.category
+            category = categoryToSet
             name = cmd.name ?: budget.name
             amount = cmd.amount ?: budget.amount
         }
@@ -94,6 +91,15 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         if (client.id != getCurrentLoggedClient().id) {
             throw new ItemNotFoundException('account.notFound')
         }
+    }
+
+    private Category findCategoryToSet(Long categoryId, User user) {
+        Category categoryToSet = categoryService.getById(categoryId)
+        if (categoryToSet
+                && budgetGormService.findByUserAndCategoryAndDateDeletedIsNull(user, categoryToSet)) {
+            throw new BadRequestException('budget.category.nonUnique')
+        }
+        categoryToSet
     }
 
 }
