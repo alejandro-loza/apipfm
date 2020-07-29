@@ -3,6 +3,7 @@ package mx.finerio.pfm.api.controllers
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import javax.annotation.Nullable
@@ -22,9 +23,9 @@ class ResumeController {
     ResumeService resumeService
 
     @Log
-    @Get("{?userId}")
+    @Get
     @Transactional
-    ResumeDto resume(@Nullable Long userId) {
+    ResumeDto resume(@QueryValue('userId') Long userId) {
         resumeService.getResume(userId)
     }
 

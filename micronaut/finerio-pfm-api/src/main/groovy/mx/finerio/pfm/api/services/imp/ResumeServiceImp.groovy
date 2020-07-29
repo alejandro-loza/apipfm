@@ -60,8 +60,10 @@ class ResumeServiceImp implements ResumeService{
     @Transactional
     ResumeDto getResume(Long userId) {
 
-        List<MovementsDto> incomesResult = getTransactionsGroupByMonth(getIncomes(userId))
-        List<MovementsDto> expensesResult = getTransactionsGroupByMonth( getExpenses(userId))
+        def incomes = getIncomes(userId)
+        def expenses = getExpenses(userId)
+        List<MovementsDto> incomesResult = getTransactionsGroupByMonth(incomes)
+        List<MovementsDto> expensesResult = getTransactionsGroupByMonth( expenses)
 
         ResumeDto resumeDto = new ResumeDto()
         resumeDto.incomes = incomesResult
