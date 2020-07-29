@@ -4,7 +4,7 @@ import io.micronaut.security.authentication.providers.PasswordEncoder
 import io.micronaut.spring.tx.annotation.Transactional
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.ClientProfile
-import mx.finerio.pfm.api.dtos.ClientDto
+import mx.finerio.pfm.api.dtos.resource.ClientDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.services.SignupService
 import mx.finerio.pfm.api.services.gorm.ClientGormService

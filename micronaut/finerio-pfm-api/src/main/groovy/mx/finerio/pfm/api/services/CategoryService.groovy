@@ -3,7 +3,7 @@ package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.CategoryDto
+import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand

@@ -5,7 +5,7 @@ import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.BudgetDto
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.BudgetGormService

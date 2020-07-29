@@ -7,10 +7,11 @@ import io.micronaut.security.utils.SecurityService
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Client
-import mx.finerio.pfm.api.dtos.ResourcesDto
-import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.ClientService
+import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.UserCommand
 
@@ -35,6 +36,9 @@ class UserController {
     @Inject
     ClientService clientService
 
+    @Inject
+    NextCursorService nextCursorService
+
     @Log
     @Post("/")
     Single<UserDto> save(@Body @Valid UserCommand cmd){
@@ -49,10 +53,11 @@ class UserController {
 
     @Log
     @Get("{?cursor}")
-    ResourcesDto showAll(@Nullable Long cursor) {
-        List<UserDto> users = cursor ? userService.getAllByClientAndCursor(getCurrenLoggedClient(), cursor)
+    Single<ResourcesDto>  showAll(@Nullable Long cursor) {
+        nextCursorService.generateResourcesDto( cursor
+                ? userService.getAllByClientAndCursor(getCurrenLoggedClient(), cursor)
                 :  userService.getAllByClient(getCurrenLoggedClient())
-        new ResourcesDto(users)
+        )
     }
 
     @Log

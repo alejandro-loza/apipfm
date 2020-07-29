@@ -6,10 +6,12 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
+import mx.finerio.pfm.api.dtos.resource.ResourceDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.BudgetService
+import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 
@@ -25,6 +27,9 @@ class BudgetsController {
 
     @Inject
     BudgetService budgetService
+
+    @Inject
+    NextCursorService nextCursorService
 
     @Log
     @Post("/")
@@ -43,10 +48,10 @@ class BudgetsController {
     @Get("{?cursor}")
     @Transactional
     Single<ResourcesDto> showAll(@Nullable Long cursor,  @QueryValue('userId') Long userId) {
-        Single.just(new ResourcesDto( cursor
+        nextCursorService.generateResourcesDto(cursor
                 ? budgetService.findAllByUserAndCursor(userId, cursor)
                 : budgetService.findAllByUser(userId)
-       ))
+        )
     }
 
     @Log

@@ -1,11 +1,10 @@
-package mx.finerio.pfm.api.dtos
+package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
 
 @ToString(includeNames = true, includePackage = false)
-class ClientDto {
+class ClientDto extends ResourceDto{
 
-    Long id
     String name
     String firstLastName
     String secondLastName

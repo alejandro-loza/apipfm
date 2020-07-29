@@ -6,10 +6,9 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
-import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.MessageService
 
 import javax.inject.Inject

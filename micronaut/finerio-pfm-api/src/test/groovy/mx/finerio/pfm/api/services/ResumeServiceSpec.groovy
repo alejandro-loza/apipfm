@@ -6,9 +6,8 @@ import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.dtos.BalancesDto
-import mx.finerio.pfm.api.dtos.MovementsDto
-import mx.finerio.pfm.api.dtos.ResumeDto
+import mx.finerio.pfm.api.dtos.utilities.BalancesDto
+import mx.finerio.pfm.api.dtos.utilities.MovementsDto
 import spock.lang.Specification
 import javax.inject.Inject
 import java.text.SimpleDateFormat

@@ -6,7 +6,7 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.UserGormService

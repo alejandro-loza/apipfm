@@ -13,11 +13,10 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.AccountDto
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
-import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.dtos.resource.AccountDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
@@ -624,8 +623,6 @@ class AccountControllerSpec extends Specification {
             assert detail == 'The user ID you requested was not found.'
         }
     }
-
-
 
     def "Should response bad request on user id not send on url"(){
 

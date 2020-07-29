@@ -3,7 +3,7 @@ package mx.finerio.pfm.api.services.imp
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.AccountDto
+import mx.finerio.pfm.api.dtos.resource.AccountDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.FinancialEntityService

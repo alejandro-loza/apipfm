@@ -15,9 +15,8 @@ import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.AccountDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
-import mx.finerio.pfm.api.dtos.ResumeDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.dtos.utilities.ResumeDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
@@ -28,7 +27,6 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Inject
-import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 
 @Property(name = 'spec.name', value = 'resume controller')

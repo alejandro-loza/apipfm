@@ -11,10 +11,11 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.dtos.FinancialEntityDto
-import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.FinancialEntityService
+import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 
@@ -32,6 +33,9 @@ class FinancialEntityController {
 
     @Inject
     FinancialEntityService financialEntityService
+
+    @Inject
+    NextCursorService nextCursorService
 
     @Log
     @Post("/")
@@ -55,10 +59,10 @@ class FinancialEntityController {
     @Log
     @Get("{?cursor}")
     Single<ResourcesDto> showAll(@Nullable Long cursor) {
-        List<FinancialEntityDto> entities = cursor
+        nextCursorService.generateResourcesDto( cursor
                 ? financialEntityService.findAllByCursor(cursor)
                 : financialEntityService.getAll()
-        just( new ResourcesDto(entities))
+        )
     }
 
     @Log

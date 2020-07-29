@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.controllers.handlers
 
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.services.MessageService
 
 import io.micronaut.context.annotation.Replaces

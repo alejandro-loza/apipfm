@@ -1,4 +1,4 @@
-package mx.finerio.pfm.api.dtos
+package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
 

@@ -9,13 +9,18 @@ import javax.inject.Inject
 
 class ServiceTemplate {
 
-    public static final int MAX_ROWS = 100
+    public static final int MAX_ROWS = 101
 
     @Inject
     ClientService clientService
     
     @Inject
     SecurityService securityService
+
+
+    int getMaxRows(){
+        MAX_ROWS
+    }
 
     static void verifyBody(ValidationCommand cmd) {
         if (!cmd) {

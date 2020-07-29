@@ -4,7 +4,7 @@ import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.ClientProfile
 import mx.finerio.pfm.api.domain.ClientRole
 import mx.finerio.pfm.api.domain.Role
-import mx.finerio.pfm.api.dtos.ClientDto
+import mx.finerio.pfm.api.dtos.resource.ClientDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.services.gorm.ClientGormService
 import mx.finerio.pfm.api.services.gorm.ClientProfileGormService

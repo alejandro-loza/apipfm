@@ -15,10 +15,9 @@ import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.domain.Category
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
-import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
@@ -616,7 +615,7 @@ class TransactionControllerSpec extends Specification {
         List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
         assert !(transaction2.id in transactionDtos.id)
 
-        assert body.get("nextCursor")
+        assert body.get("nextCursor") == null
     }
 
     def "Should not get a list of transactions by account"(){

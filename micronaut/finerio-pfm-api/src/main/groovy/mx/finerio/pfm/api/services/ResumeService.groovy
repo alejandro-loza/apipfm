@@ -1,9 +1,9 @@
 package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.dtos.BalancesDto
-import mx.finerio.pfm.api.dtos.MovementsDto
-import mx.finerio.pfm.api.dtos.ResumeDto
+import mx.finerio.pfm.api.dtos.utilities.BalancesDto
+import mx.finerio.pfm.api.dtos.utilities.MovementsDto
+import mx.finerio.pfm.api.dtos.utilities.ResumeDto
 import mx.finerio.pfm.api.logging.Log
 
 interface ResumeService {

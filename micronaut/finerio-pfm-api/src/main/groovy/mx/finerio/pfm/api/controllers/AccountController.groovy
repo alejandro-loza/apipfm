@@ -7,11 +7,12 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.dtos.AccountDto
+import mx.finerio.pfm.api.dtos.resource.AccountDto
 
-import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.AccountUpdateCommand
 
@@ -27,6 +28,9 @@ class AccountController {
 
     @Inject
     AccountService accountService
+
+    @Inject
+    NextCursorService nextCursorService
 
     @Log
     @Post("/")
@@ -46,10 +50,10 @@ class AccountController {
     @Get("{?cursor}")
     @Transactional
     Single<ResourcesDto> showAll(@Nullable Long cursor, @QueryValue('userId') Long userId ) {
-        List<AccountDto> accounts = cursor ?
+        nextCursorService.generateResourcesDto(cursor ?
                 accountService.findAllByUserAndCursor(userId, cursor)
                 : accountService.findAllAccountDtosByUser(userId)
-        Single.just( new ResourcesDto(accounts))
+        )
     }
 
     @Log

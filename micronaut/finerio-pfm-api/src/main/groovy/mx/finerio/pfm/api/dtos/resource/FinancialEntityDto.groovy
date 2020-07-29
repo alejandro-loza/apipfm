@@ -1,17 +1,15 @@
-package mx.finerio.pfm.api.dtos
+package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
 
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.dtos.resource.ResourceDto
 
 @ToString(includeNames = true, includePackage = false)
-class FinancialEntityDto {
+class FinancialEntityDto extends ResourceDto{
 
-    Long id
     String name
     String code
-    Date dateCreated
-    Date lastUpdated
 
     FinancialEntityDto(FinancialEntity financialEntity) {
         this.id = financialEntity.id

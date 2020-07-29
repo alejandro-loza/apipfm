@@ -3,7 +3,7 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.UserService

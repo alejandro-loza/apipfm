@@ -2,25 +2,22 @@ package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.dtos.BalancesDto
-import mx.finerio.pfm.api.dtos.CategoryResumeDto
-import mx.finerio.pfm.api.dtos.MovementsDto
-import mx.finerio.pfm.api.dtos.ResumeDto
-import mx.finerio.pfm.api.dtos.SubCategoryResumeDto
-import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.dtos.TransactionsByDateDto
+import mx.finerio.pfm.api.dtos.utilities.BalancesDto
+import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
+import mx.finerio.pfm.api.dtos.utilities.MovementsDto
+import mx.finerio.pfm.api.dtos.utilities.ResumeDto
+import mx.finerio.pfm.api.dtos.utilities.SubCategoryResumeDto
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
+import mx.finerio.pfm.api.dtos.utilities.TransactionsByDateDto
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ResumeService
 import  mx.finerio.pfm.api.services.TransactionService
-import mx.finerio.pfm.api.services.gorm.TransactionGormService
 
 import javax.inject.Inject
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.function.Function
 import java.util.stream.Collectors
-import java.util.stream.Stream
 
 class ResumeServiceImp implements ResumeService{
 

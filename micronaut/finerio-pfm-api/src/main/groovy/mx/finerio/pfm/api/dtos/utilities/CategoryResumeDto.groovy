@@ -1,10 +1,10 @@
-package mx.finerio.pfm.api.dtos
+package mx.finerio.pfm.api.dtos.utilities
 
 import groovy.transform.ToString
 
 @ToString(includeNames = true, includePackage = false)
-class SubCategoryResumeDto {
+class CategoryResumeDto {
     Long categoryId
     float amount
-    List<TransactionsByDateDto> transactionsByDate
+    List<SubCategoryResumeDto> subcategories
 }

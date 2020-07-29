@@ -6,10 +6,11 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.dtos.CategoryDto
-import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.CategoryDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.CategoryService
+import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
@@ -52,9 +53,8 @@ class CategoryController {
         if(userId) {
             clientCategories.addAll( categoryService.findAllByUser(userService.getUser(userId)))
         }
-        def response = new ResourcesDto(clientCategories)
-        response.nextCursor = null
-        Single.just(response)
+
+        Single.just(new ResourcesDto(clientCategories, null))
     }
 
     @Log

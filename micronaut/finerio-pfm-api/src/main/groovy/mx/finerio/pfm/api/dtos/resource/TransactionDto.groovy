@@ -1,9 +1,8 @@
-package mx.finerio.pfm.api.dtos
+package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
-
-import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.resource.ResourceDto
 
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)

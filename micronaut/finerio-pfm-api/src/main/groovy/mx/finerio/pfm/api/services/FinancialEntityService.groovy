@@ -1,7 +1,7 @@
 package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.FinancialEntity
-import mx.finerio.pfm.api.dtos.FinancialEntityDto
+import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand

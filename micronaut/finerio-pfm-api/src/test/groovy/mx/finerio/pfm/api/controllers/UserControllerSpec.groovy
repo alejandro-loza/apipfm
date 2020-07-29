@@ -13,10 +13,9 @@ import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
-import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.dtos.UserDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
@@ -391,8 +390,7 @@ class UserControllerSpec extends Specification {
         Map body = rspGET.getBody(Map).get()
         assert !body.isEmpty()
         assert body.get("data")
-        assert body.get("nextCursor") == user2.id -1
-
+        assert body.get("nextCursor") == null
         List<UserDto> users= body.get("data") as List<UserDto>
         assert !users.isEmpty()
         assert users.stream().noneMatch{it.id == user.id}
@@ -403,7 +401,6 @@ class UserControllerSpec extends Specification {
         assert users.first().id == user4.id
         assert users.last().id == user2.id
     }
-
 
     def "Should get a list of users in a cursor point"() {
 

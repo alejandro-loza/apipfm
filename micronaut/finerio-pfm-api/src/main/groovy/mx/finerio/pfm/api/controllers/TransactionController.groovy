@@ -7,11 +7,11 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
-import mx.finerio.pfm.api.dtos.CategoryDto
-import mx.finerio.pfm.api.dtos.ResourcesDto
-import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
@@ -32,6 +32,9 @@ class TransactionController {
     @Inject
     AccountService accountService
 
+    @Inject
+    NextCursorService nextCursorService
+
     @Log
     @Post("/")
     Single<TransactionDto> save(@Body @Valid TransactionCreateCommand cmd){
@@ -50,10 +53,10 @@ class TransactionController {
     @Transactional
     Single<ResourcesDto> showAll(@Nullable Long cursor, @QueryValue('accountId') Long accountId) {
         Account account = accountService.getAccount(accountId)
-        List<TransactionDto> transactions = cursor ?
+        nextCursorService.generateResourcesDto( cursor ?
                 transactionsService.findAllByAccountAndCursor(account, cursor)
                 : transactionsService.findAllByAccount(account)
-        Single.just( new ResourcesDto(transactions))
+        )
     }
 
     @Log

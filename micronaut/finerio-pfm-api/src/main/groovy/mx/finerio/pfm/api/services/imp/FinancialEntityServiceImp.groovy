@@ -2,7 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
-import mx.finerio.pfm.api.dtos.FinancialEntityDto
+import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.FinancialEntityService

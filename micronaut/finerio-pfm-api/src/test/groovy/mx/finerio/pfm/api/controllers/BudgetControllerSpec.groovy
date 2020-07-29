@@ -14,11 +14,12 @@ import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.dtos.CategoryDto
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
-import mx.finerio.pfm.api.dtos.TransactionDto
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
+import mx.finerio.pfm.api.dtos.resource.CategoryDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
@@ -100,6 +101,41 @@ class BudgetControllerSpec extends Specification {
         categories.each { Category category ->
             categoryGormService.delete(category.id)
         }
+
+    }
+
+    def "Should get a list of budgets in a cursor and had next cursor on non consecutive"() {
+
+        given: 'a budget list'
+        User user1 = generateUser()
+        User user2 = generateUser()
+
+        Category category1 = generateCategory(user1)
+        20.times {
+            generateSavedBudget(user1, category1)
+        }
+        100.times {
+            generateSavedBudget(user2, category1)
+        }
+        90.times {
+            generateSavedBudget(user1, category1)
+        }
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${209}&userId=${user1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<BudgetDto> budgets= body.get("data") as List<BudgetDto>
+
+        assert budgets.size() == 100
+        assert budgets.first().id == 209
+        assert budgets.last().id == 10
+        assert body.get("nextCursor") == 9
 
     }
 
@@ -513,13 +549,13 @@ class BudgetControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
+        assert body.get("nextCursor") == null
+        List<BudgetDto> budgetDtos = body.data as List<BudgetDto>
         assert !budgetDtos.find {it.id == budget1.id}
         assert budgetDtos.find {it.id == budget2.id}
         assert !budgetDtos.find {it.id == budget3.id}
         assert budgetDtos.find {it.id == budget4.id}
     }
-
 
     def "Should get a list of budgets in a cursor "() {
 
@@ -546,6 +582,8 @@ class BudgetControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
+        assert budgetDtos.size() == 2
+        assert body.get("nextCursor") == null
         assert !budgetDtos.find {it.id == budget1.id}
         assert budgetDtos.find {it.id == budget2.id}
         assert !budgetDtos.find {it.id == budget3.id}
@@ -553,7 +591,6 @@ class BudgetControllerSpec extends Specification {
         assert !budgetDtos.find {it.id == budget5.id}
 
     }
-
 
     def "Should throw not found exception on delete no found budget"() {
         given:
