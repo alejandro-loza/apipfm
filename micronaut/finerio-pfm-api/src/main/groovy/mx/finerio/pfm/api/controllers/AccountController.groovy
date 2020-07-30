@@ -2,17 +2,19 @@ package mx.finerio.pfm.api.controllers
 
 
 import grails.gorm.transactions.Transactional
-import io.micronaut.context.MessageSource
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.dtos.AccountDto
+import mx.finerio.pfm.api.dtos.resource.AccountDto
 
-import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
-import mx.finerio.pfm.api.validation.AccountCommand
+import mx.finerio.pfm.api.services.NextCursorService
+import mx.finerio.pfm.api.validation.AccountCreateCommand
+import mx.finerio.pfm.api.validation.AccountUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -27,30 +29,41 @@ class AccountController {
     @Inject
     AccountService accountService
 
+    @Inject
+    NextCursorService nextCursorService
+
+    @Log
     @Post("/")
-    Single<AccountDto> save(@Body @Valid AccountCommand cmd){
+    @Transactional
+    Single<AccountDto> save(@Body @Valid AccountCreateCommand cmd){
         Single.just(new AccountDto(accountService.create(cmd)))
     }
 
+    @Log
     @Get("/{id}")
     @Transactional
     Single<AccountDto> show(@NotNull Long id) {
         Single.just(new AccountDto(accountService.getAccount(id)))
     }
 
+    @Log
     @Get("{?cursor}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor) {
-        List<AccountDto> accounts = cursor ? accountService.findAllByCursor(cursor) : accountService.getAll()
-        Single.just(accounts.isEmpty() ? [] :  new ResourcesDto(accounts)) as Single<Map>
+    Single<ResourcesDto> showAll(@Nullable Long cursor, @QueryValue('userId') Long userId ) {
+        nextCursorService.generateResourcesDto(cursor ?
+                accountService.findAllByUserAndCursor(userId, cursor)
+                : accountService.findAllAccountDtosByUser(userId)
+        )
     }
 
+    @Log
     @Put("/{id}")
     @Transactional
-    Single<AccountDto> edit(@Body @Valid AccountCommand cmd, @NotNull Long id ) {
+    Single<AccountDto> edit(@Body AccountUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new AccountDto(accountService.update(cmd, id)))
     }
 
+    @Log
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {

@@ -11,6 +11,10 @@ interface ClientRoleGormService {
 
     ClientRole save(Client client, Role role )
 
+    @Query(""" delete from ${ClientRole ur}
+     where $ur.client = $client
+    """)
+    void delete(Client client )
     ClientRole find(Client client, Role role )
 
     @Query("""select $r.authority

@@ -22,9 +22,14 @@ databaseChangeLog:
                   name: user_id
                   type: BIGINT
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
-                  name: parent_category_id
+                  name: parent_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: client_id
                   type: BIGINT
                   constraints:
                     nullable: false
@@ -37,7 +42,7 @@ databaseChangeLog:
                   name: color
                   type: java.sql.Types.VARCHAR(100)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: date_created
                   type: DATETIME(6)

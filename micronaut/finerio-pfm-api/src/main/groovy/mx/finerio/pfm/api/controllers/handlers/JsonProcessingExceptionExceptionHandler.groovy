@@ -8,7 +8,8 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Produces
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
-import mx.finerio.pfm.api.dtos.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.services.MessageService
 
 import javax.inject.Inject
@@ -32,6 +33,8 @@ class JsonProcessingExceptionExceptionHandler implements ExceptionHandler<JsonPr
             title = messageService.getMessage( message )
             detail = messageService.getMessage( "${message}.detail" )
         }
-        HttpResponse.badRequest( error )
+        ErrorsDto errorsDto = new ErrorsDto()
+        errorsDto.errors = [error]
+        return HttpResponse.badRequest().body(errorsDto)
     }
 }

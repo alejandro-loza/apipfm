@@ -24,6 +24,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: category_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
                   name: date
                   type: DATETIME(6)
                   constraints:

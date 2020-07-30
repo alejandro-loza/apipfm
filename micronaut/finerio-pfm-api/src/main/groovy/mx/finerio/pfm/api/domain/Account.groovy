@@ -1,10 +1,15 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.AccountCommand
+
+import groovy.transform.ToString
+
+import mx.finerio.pfm.api.validation.AccountCreateCommand
+
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
+@ToString(includeNames = true, includePackage = false)
 class Account  implements GormEntity<Account> {
 
     Long id
@@ -13,12 +18,12 @@ class Account  implements GormEntity<Account> {
     String nature
     String name
     String number
-    float balance
+    BigDecimal balance
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
 
-    Account(AccountCommand accountCommand, User user, FinancialEntity financialEntity) {
+    Account(AccountCreateCommand accountCommand, User user, FinancialEntity financialEntity) {
         this.user = user
         this.financialEntity = financialEntity
         this.nature = accountCommand.nature
@@ -34,7 +39,7 @@ class Account  implements GormEntity<Account> {
         financialEntity nullable: false
         nature  nullable: false, blank:false
         number nullable: false, blank:false
-        balance nullable: false, blank:false
+        balance nullable: false
         dateDeleted nullable:true
     }
 

@@ -1,10 +1,16 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-import mx.finerio.pfm.api.validation.TransactionCommand
+
+import groovy.transform.ToString
+
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
+
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
+@ToString(includeNames = true, includePackage = false,
+    includes = 'id, date, charge, description, amount')
 class Transaction implements GormEntity<Transaction> {
     Long id
     Account account
@@ -15,15 +21,17 @@ class Transaction implements GormEntity<Transaction> {
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
+    Category category
 
     Transaction(){}
 
-    Transaction(TransactionCommand cmd, Account account){
+    Transaction(TransactionCreateCommand cmd, Account account){
         this.account = account
         this.date = new Date(cmd.date)
         this.charge = cmd.charge
         this.description = cmd.description
         this.amount = cmd.amount
+        this.category = category
     }
 
     static constraints = {
@@ -31,6 +39,7 @@ class Transaction implements GormEntity<Transaction> {
         description  nullable: false, blank:false
         amount nullable: false
         dateDeleted nullable:true
+        category nullable:true
     }
 
     static mapping = {

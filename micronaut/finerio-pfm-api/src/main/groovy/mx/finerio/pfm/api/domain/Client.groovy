@@ -1,12 +1,19 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
+
+import groovy.transform.ToString
+
 import io.micronaut.security.authentication.providers.UserState
+
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
+@ToString(includeNames = true, includePackage = false,
+    includes = [ 'username' ])
 class Client implements GormEntity<Client>, UserState {
 
+    Long id
     String username
     String password
     boolean enabled = true

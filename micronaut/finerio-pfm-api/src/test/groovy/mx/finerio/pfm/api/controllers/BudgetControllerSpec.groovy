@@ -12,24 +12,27 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.dtos.CategoryDto
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
+import mx.finerio.pfm.api.dtos.resource.CategoryDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
+import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
-import mx.finerio.pfm.api.validation.BudgetCommand
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.validation.BudgetCreateCommand
+import mx.finerio.pfm.api.validation.BudgetUpdateCommand
+import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Inject
-import java.awt.*
-import java.util.List
 
 @Property(name = 'spec.name', value = 'budget controller')
 @MicronautTest(application = Application.class)
@@ -47,6 +50,11 @@ class BudgetControllerSpec extends Specification {
     UserGormService userGormService
 
     @Inject
+    @Shared
+    TransactionGormService transactionGormService
+
+    @Inject
+    @Shared
     CategoryGormService categoryGormService
 
     @Inject
@@ -54,31 +62,116 @@ class BudgetControllerSpec extends Specification {
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService clientService
 
     @Shared
     String accessToken
 
+    @Shared
+    mx.finerio.pfm.api.domain.Client loggedInClient
+
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        loggedInClient = clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
                 .bearerAuth(accessToken)
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
+
+
+    }
+
+    void cleanup(){
+        List<Budget> budgetList = budgetGormService.findAll()
+        budgetList.each {
+            budgetGormService.delete(it.id)
+        }
+
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
+        List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
+        categoriesChild.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
+    }
+
+    def "Should get a list of budgets in a cursor and had next cursor on non consecutive"() {
+
+        given: 'a budget list'
+        User user1 = generateUser()
+        User user2 = generateUser()
+
+        Category category1 = generateCategory(user1)
+        20.times {
+            generateSavedBudget(user1, category1)
+        }
+        100.times {
+            generateSavedBudget(user2, category1)
+        }
+        90.times {
+            generateSavedBudget(user1, category1)
+        }
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${209}&userId=${user1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<BudgetDto> budgets= body.get("data") as List<BudgetDto>
+
+        assert budgets.size() == 100
+        assert budgets.first().id == 209
+        assert budgets.last().id == 10
+        assert body.get("nextCursor") == 9
+
+    }
+
+    def "Should get unauthorized"() {
+
+        given:
+        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT)
+
+        when:
+        client.toBlocking().exchange(getReq, Map)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
     }
 
     def "Should get a empty list of budgets"() {
 
-        given: 'a client'
-        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
+        given: 'a user without budgets'
+
+        User user1 = generateUser()
+
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(BudgetDto))
+        def rspGET = client.toBlocking().exchange(getReq,  Map)
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().isEmpty()
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("nextCursor") == null
+
+        List<BudgetDto> budgetDtos= body.get("data") as List<BudgetDto>
+        assert budgetDtos.isEmpty()
+
     }
 
     def "Should create a budget"() {
@@ -87,7 +180,7 @@ class BudgetControllerSpec extends Specification {
         Category category1 = generateCategory(user1)
 
         and: 'a command request body'
-        BudgetCommand cmd = generateBudgetCommand(user1, category1)
+        BudgetCreateCommand cmd = generateBudgetCommand(user1, category1)
 
         HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
 
@@ -108,7 +201,7 @@ class BudgetControllerSpec extends Specification {
     def "Should not create a budget and throw bad request on wrong params"() {
         given: 'a budget request body with empty body'
 
-        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, new CategoryCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, new CategoryCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, CategoryDto)
@@ -117,6 +210,48 @@ class BudgetControllerSpec extends Specification {
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
     }
+
+    def "Should not create a budget and throw bad request on duplicated category"() {
+        given: 'an saved User '
+        User user1 = generateUser()
+
+        and:
+        Category category1 = generateCategory(user1)
+
+        and:'a previously saved budget with category 1'
+        Budget budget = new Budget()
+        budget.with {
+            user = user1
+            category = category1
+            name = 'test budget'
+            amount = 0
+        }
+        budgetGormService.save(budget)
+
+        and: 'a command request body with already saved category'
+        BudgetCreateCommand cmd = generateBudgetCommand(user1, category1)
+
+        HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'budget.category.nonUnique'
+            assert title == 'Category already exist'
+            assert detail == 'The category you provided already exist'
+        }
+    }
+
 
     def "Should not create a transaction and throw bad request on wrong body"() {
         given: 'a transaction request body with empty body'
@@ -138,7 +273,7 @@ class BudgetControllerSpec extends Specification {
         user.id = 666
         Category category = new Category()
         category.id = 666
-        BudgetCommand cmd = generateBudgetCommand(user, category)
+        BudgetCreateCommand cmd = generateBudgetCommand(user, category)
 
         HttpRequest request = HttpRequest.POST(BUDGETS_ROOT, cmd).bearerAuth(accessToken)
 
@@ -176,13 +311,13 @@ class BudgetControllerSpec extends Specification {
 
     }
 
-    def "Should not get a transaction and throw 404"() {//TODO test the error body
+    def "Should not get a transaction and throw 404"() {
         given: 'a not found id request'
 
         HttpRequest request = HttpRequest.GET("${BUDGETS_ROOT}/0000").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>, Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -209,20 +344,36 @@ class BudgetControllerSpec extends Specification {
         User user1 = generateUser()
 
         and: 'a saved category'
-        Category category1 = generateCategory(user1)
+        Category category1 = new Category()
+        category1.with {
+            user = user1
+            name = 'Shoes and clothes'
+            color = "#00FFAA"
+            category1.client = loggedInClient
+        }
+        categoryGormService.save(category1)
+
+        and: 'another saved category'
+        Category category2 = new Category()
+        category2.with {
+            user = user1
+            name = 'another category'
+            color = "#00FFAA"
+            category2.client = loggedInClient
+        }
+        categoryGormService.save(category2)
 
         and:'a saved budget'
         Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
         budgetGormService.save(budget)
 
         and:'a update command'
-        BudgetCommand cmd = new BudgetCommand()
+        BudgetCreateCommand cmd = new BudgetCreateCommand()
         cmd.with {
             userId = user1.id
-            categoryId = category1.id
+            categoryId = category2.id
             name = 'changed name'
             amount = 100
-            parentBudgetId = 222
         }
 
         and: 'a client'
@@ -230,11 +381,101 @@ class BudgetControllerSpec extends Specification {
 
         when:
         def resp = client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
-                Argument.of(ErrorDto))
+                Argument.of(ErrorsDto))
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
            cmd
+        }
+
+    }
+
+    def "Should not update an budget and throw bad request on already created budget category"() {
+        given: 'a saved user'
+        User user1 = generateUser()
+
+        and: 'a saved category'
+        Category category1 = new Category()
+        category1.with {
+            user = user1
+            name = 'Shoes and clothes'
+            color = "#00FFAA"
+            category1.client = loggedInClient
+        }
+        categoryGormService.save(category1)
+
+        and:'a saved budget'
+        Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
+        budgetGormService.save(budget)
+
+        and:'a update command'
+        BudgetCreateCommand cmd = new BudgetCreateCommand()
+        cmd.with {
+            userId = user1.id
+            categoryId = category1.id
+            name = 'changed name'
+            amount = 100
+        }
+
+        and: 'a client'
+        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
+                Argument.of(ErrorsDto))
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'budget.category.nonUnique'
+            assert title == 'Category already exist'
+            assert detail == 'The category you provided already exist'
+        }
+
+    }
+
+    def "Should partially update a budget"() {
+        given: 'a saved user'
+        User user1 = generateUser()
+
+        and: 'a saved category'
+        Category category1 = new Category()
+        category1.with {
+            user = user1
+            name = 'Shoes and clothes'
+            color = "#00FFAA"
+            category1.client = loggedInClient
+        }
+        categoryGormService.save(category1)
+
+        and:'a saved budget'
+        Budget budget = new Budget(generateBudgetCommand(user1,category1),user1,category1)
+        budgetGormService.save(budget)
+
+        and:'a update command'
+        BudgetUpdateCommand cmd = new BudgetUpdateCommand()
+        cmd.with {
+            userId = user1.id
+            name = 'partially updated'
+        }
+
+        and: 'a client'
+        HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
+                Argument.of(ErrorsDto))
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            assert categoryId == budget.category.id
+            assert name == cmd.name
+            assert amount == budget.amount
         }
 
     }
@@ -284,19 +525,23 @@ class BudgetControllerSpec extends Specification {
 
     def "Should get a list of budgets"() {
 
-        given: 'a budget list'
+        given:
         User user1 = generateUser()
+        User user2 = generateUser()
+
         Category category1 = generateCategory(user1)
 
-        Budget budget2 = generateSavedBudget(user1, category1)
-        budget2.dateCreated = new Date()
-        budgetGormService.save(budget2)
-        3.times {
-            generateSavedBudget(user1, category1)
-        }
+        Budget budget1 = generateSavedBudget(user1, category1)
+        budget1.dateDeleted = new Date()
+        budgetGormService.save(budget1)
+
+        Budget budget2 =   generateSavedBudget(user1, category1)
+        Budget budget3 =   generateSavedBudget(user2, category1)
+        Budget budget4 =   generateSavedBudget(user1, category1)
+
 
         and:
-        HttpRequest getReq = HttpRequest.GET(BUDGETS_ROOT).bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -304,31 +549,31 @@ class BudgetControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
-        assert !(budget2.id in budgetDtos.id)
-
-        assert !body.get("nextCursor")
+        assert body.get("nextCursor") == null
+        List<BudgetDto> budgetDtos = body.data as List<BudgetDto>
+        assert !budgetDtos.find {it.id == budget1.id}
+        assert budgetDtos.find {it.id == budget2.id}
+        assert !budgetDtos.find {it.id == budget3.id}
+        assert budgetDtos.find {it.id == budget4.id}
     }
-
 
     def "Should get a list of budgets in a cursor "() {
 
         given: 'a budget list'
         User user1 = generateUser()
+        User user2 = generateUser()
         Category category1 = generateCategory(user1)
 
         Budget budget1 = generateSavedBudget(user1, category1)
-        budget1.dateCreated = new Date()
+        budget1.dateDeleted = new Date()
         budgetGormService.save(budget1)
         Budget budget2 = generateSavedBudget(user1, category1)
-        budgetGormService.save(budget2)
-        Budget budget3 = generateSavedBudget(user1, category1)
-        budgetGormService.save(budget3)
+        Budget budget3 = generateSavedBudget(user2, category1)
         Budget budget4 = generateSavedBudget(user1, category1)
-        budgetGormService.save(budget4)
+        Budget budget5 = generateSavedBudget(user1, category1)
 
         and:
-        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budget3.id}").bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budget4.id}&userId=${user1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -337,12 +582,15 @@ class BudgetControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<BudgetDto> budgetDtos = body.get("data") as List<BudgetDto>
-        assert !(budget1.id in budgetDtos.id)
-        assert !(budget4.id in budgetDtos.id)
+        assert budgetDtos.size() == 2
+        assert body.get("nextCursor") == null
+        assert !budgetDtos.find {it.id == budget1.id}
+        assert budgetDtos.find {it.id == budget2.id}
+        assert !budgetDtos.find {it.id == budget3.id}
+        assert budgetDtos.find {it.id == budget4.id}
+        assert !budgetDtos.find {it.id == budget5.id}
 
-        assert !body.get("nextCursor")
     }
-
 
     def "Should throw not found exception on delete no found budget"() {
         given:
@@ -354,7 +602,7 @@ class BudgetControllerSpec extends Specification {
         when:
         client.toBlocking().exchange(request,
                 Argument.of(BudgetDto) as Argument<BudgetDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -384,7 +632,7 @@ class BudgetControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(BudgetDto) as Argument<BudgetDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def e = thrown HttpClientResponseException
@@ -393,13 +641,7 @@ class BudgetControllerSpec extends Specification {
     }
 
     private User generateUser() {
-        User user = new User()
-        user.with {
-            name = 'awesome name'
-
-        }
-        userGormService.save(user)
-        user
+        userGormService.save(new User('awesome user', loggedInClient))
     }
 
     private Category generateCategory(User user1) {
@@ -408,20 +650,18 @@ class BudgetControllerSpec extends Specification {
             user = user1
             name = 'Shoes and clothes'
             color = "#00FFAA"
-            parentCategoryId = 123
+            category1.client = loggedInClient
         }
         categoryGormService.save(category1)
-        category1
     }
 
-    private static BudgetCommand generateBudgetCommand(User user, Category category) {
-        BudgetCommand cmd = new BudgetCommand()
+    private static BudgetCreateCommand generateBudgetCommand(User user, Category category) {
+        BudgetCreateCommand cmd = new BudgetCreateCommand()
         cmd.with {
             userId = user.id
             categoryId = category.id
             name = "Food budget"
             amount = 1234.56
-            parentBudgetId = 123
         }
         cmd
     }

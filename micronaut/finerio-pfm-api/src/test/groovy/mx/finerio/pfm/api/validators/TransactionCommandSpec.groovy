@@ -1,10 +1,10 @@
 package mx.finerio.pfm.api.validators
 
-import com.sun.org.apache.bcel.internal.generic.DADD
+
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.validation.AccountCommand
-import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.AccountCreateCommand
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import spock.lang.Specification
 
 import javax.validation.ConstraintViolation
@@ -23,16 +23,17 @@ class TransactionCommandSpec extends Specification{
 
     def "Should validate a transaction command"(){
         given:'an transaction command validator'
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = 1
             date = new Date().getTime()
             charge = true
             description = 'wild description appears'
             amount = 100.00
+            categoryId =2
         }
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert violations.isEmpty()
@@ -40,10 +41,10 @@ class TransactionCommandSpec extends Specification{
 
     def "Should not validate a account command"(){
         given:'an account command validator'
-        TransactionCommand cmd = new TransactionCommand()
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
 
         when:
-        Set<ConstraintViolation<AccountCommand>> violations = validator.validate(cmd)
+        Set<ConstraintViolation<AccountCreateCommand>> violations = validator.validate(cmd)
 
         then:
         assert !violations.isEmpty()

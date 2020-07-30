@@ -11,11 +11,13 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.domain.FinancialEntity
-import mx.finerio.pfm.api.dtos.FinancialEntityDto
-import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.FinancialEntityService
-import mx.finerio.pfm.api.validation.FinancialEntityCommand
+import mx.finerio.pfm.api.services.NextCursorService
+import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
+import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -32,28 +34,38 @@ class FinancialEntityController {
     @Inject
     FinancialEntityService financialEntityService
 
+    @Inject
+    NextCursorService nextCursorService
+
+    @Log
     @Post("/")
-    Single<FinancialEntityDto> save(@Body @Valid FinancialEntityCommand cmd){
+    Single<FinancialEntityDto> save(@Body @Valid FinancialEntityCreateCommand cmd){
         just(new FinancialEntityDto(financialEntityService.create(cmd)))
     }
 
+    @Log
     @Get("/{id}")
     @Transactional
     Single<FinancialEntityDto> show(@NotNull Long id) {
         just(new FinancialEntityDto(financialEntityService.getById(id)))
     }
 
+    @Log
     @Put("/{id}")
-    Single<FinancialEntityDto> edit(@Body @Valid FinancialEntityCommand cmd, @NotNull Long id ) {
+    Single<FinancialEntityDto> edit(@Body FinancialEntityUpdateCommand cmd, @NotNull Long id ) {
         just(new FinancialEntityDto(financialEntityService.update(cmd,id)))
     }
 
+    @Log
     @Get("{?cursor}")
-    Single<Map> showAll(@Nullable Long cursor) {
-        List<FinancialEntity> entities = cursor ? financialEntityService.findAllByCursor(cursor) : financialEntityService.getAll()
-        just(entities.isEmpty() ? [] :  new ResourcesDto(entities)) as Single<Map>
+    Single<ResourcesDto> showAll(@Nullable Long cursor) {
+        nextCursorService.generateResourcesDto( cursor
+                ? financialEntityService.findAllByCursor(cursor)
+                : financialEntityService.getAll()
+        )
     }
 
+    @Log
     @Delete("/{id}")
     HttpResponse delete(@NotNull Long id) {
         financialEntityService.delete(id)

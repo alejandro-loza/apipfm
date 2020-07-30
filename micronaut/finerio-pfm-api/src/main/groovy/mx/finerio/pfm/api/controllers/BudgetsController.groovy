@@ -6,13 +6,14 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.domain.Budget
-import mx.finerio.pfm.api.dtos.BudgetDto
-import mx.finerio.pfm.api.dtos.CategoryDto
-import mx.finerio.pfm.api.dtos.ResourcesDto
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
+import mx.finerio.pfm.api.dtos.resource.ResourceDto
+import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.BudgetService
-import mx.finerio.pfm.api.validation.BudgetCommand
-import mx.finerio.pfm.api.validation.CategoryCommand
+import mx.finerio.pfm.api.services.NextCursorService
+import mx.finerio.pfm.api.validation.BudgetCreateCommand
+import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -27,30 +28,40 @@ class BudgetsController {
     @Inject
     BudgetService budgetService
 
+    @Inject
+    NextCursorService nextCursorService
+
+    @Log
     @Post("/")
-    Single<BudgetDto> save(@Body @Valid BudgetCommand cmd){
+    Single<BudgetDto> save(@Body @Valid BudgetCreateCommand cmd){
         Single.just(new BudgetDto(budgetService.create(cmd)))
     }
 
+    @Log
     @Get("/{id}")
     @Transactional
     Single<BudgetDto> show(@NotNull Long id) {
         Single.just(new BudgetDto(budgetService.find(id)))
     }
 
+    @Log
     @Get("{?cursor}")
     @Transactional
-    Single<Map> showAll(@Nullable Long cursor) {
-        List<BudgetDto> budgetDtos = cursor ? budgetService.findAllByCursor(cursor) : budgetService.getAll()
-        Single.just(budgetDtos.isEmpty() ? [] :  new ResourcesDto(budgetDtos)) as Single<Map>
+    Single<ResourcesDto> showAll(@Nullable Long cursor,  @QueryValue('userId') Long userId) {
+        nextCursorService.generateResourcesDto(cursor
+                ? budgetService.findAllByUserAndCursor(userId, cursor)
+                : budgetService.findAllByUser(userId)
+        )
     }
 
+    @Log
     @Put("/{id}")
     @Transactional
-    Single<BudgetDto> edit(@Body @Valid BudgetCommand cmd, @NotNull Long id ) {
+    Single<BudgetDto> edit(@Body @Valid BudgetUpdateCommand cmd, @NotNull Long id ) {
         Single.just(new BudgetDto(budgetService.update(cmd, id)))
     }
 
+    @Log
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {

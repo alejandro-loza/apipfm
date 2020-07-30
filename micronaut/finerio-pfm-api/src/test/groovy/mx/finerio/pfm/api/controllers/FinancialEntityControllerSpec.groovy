@@ -11,14 +11,15 @@ import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.FinancialEntity
-import mx.finerio.pfm.api.dtos.ErrorDto
-import mx.finerio.pfm.api.dtos.ErrorsDto
-import mx.finerio.pfm.api.dtos.FinancialEntityDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 
-import mx.finerio.pfm.api.exceptions.NotFoundException
-import mx.finerio.pfm.api.services.RegisterService
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
-import mx.finerio.pfm.api.validation.FinancialEntityCommand
+import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
+import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -37,28 +38,40 @@ class FinancialEntityControllerSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
+    @Shared
     FinancialEntityGormService financialGormService
 
     @Inject
     @Shared
-    RegisterService registerService
+    ClientService registerService
 
     @Shared
     String accessToken
 
+    @Shared
+    mx.finerio.pfm.api.domain.Client loggedInClient
+
+
     def setupSpec(){
         def generatedUserName = this.getClass().getCanonicalName()
-        registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
+        loggedInClient = registerService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
     }
 
-    void setup(){
-        List<FinancialEntity> entities = financialGormService.findAll()
-        entities.each {  entity ->
-            financialGormService.delete(entity.id)
-        }
+
+    def "Should get unauthorized"() {
+
+        given:
+        HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT)
+
+        when:
+        client.toBlocking().exchange(getReq, Map)
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.UNAUTHORIZED
     }
 
     def "Should get a empty list of financial entities"(){
@@ -67,21 +80,25 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT).bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.listOf(FinancialEntityDto))
+        def rspGET = client.toBlocking().exchange(getReq, Map)
 
         then:
         rspGET.status == HttpStatus.OK
-        rspGET.body().isEmpty()
+        Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data") == []
+        assert body.get("nextCursor") == null
     }
 
     def "Should create a financial entity"(){
         given:'an financial entity request body'
-        FinancialEntityCommand cmd = getWakandaTestBankCommand()
+        FinancialEntityCreateCommand cmd = getWakandaTestBankCommand()
 
         HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, cmd).bearerAuth(accessToken)
 
         when:
-        def rsp = client.toBlocking().exchange(request, FinancialEntityDto)
+        def rsp =   client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
 
         then:
         rsp.status == HttpStatus.OK
@@ -94,15 +111,64 @@ class FinancialEntityControllerSpec extends Specification {
         }
 
         when:
+        List<FinancialEntity> clientEntities = financialGormService
+                .findAllByClientAndDateDeletedIsNull(loggedInClient, [sort: 'id', order: 'desc'])
+
+        then:
+        clientEntities.findAll{
+            it.code == cmd.code
+        }.size() == 1
+
+        when:
         FinancialEntity financialEntity = financialGormService.getById(rsp.body().id)
 
         then:'verify'
         !financialEntity.dateDeleted
+
+    }
+
+    def "Should not  create a financial entity on duplicate code and throw exception"(){
+        given:'an financial entity request body'
+        FinancialEntityCreateCommand cmd = getWakandaTestBankCommand()
+
+        and:'a already saved entity with same code'
+        FinancialEntity financialEntitySaved = new FinancialEntity()
+        financialEntitySaved.with {
+            id = 666
+            name = 'a saved bank'
+            code = cmd.code
+            financialEntitySaved.client = loggedInClient
+        }
+
+        financialGormService.save(financialEntitySaved)
+
+
+        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.code.nonUnique'
+            assert  title == 'Financial Entity code already exists'
+            assert  detail == 'The financial entity\'s code you provided already exists. Please provide a different one.'
+        }
+
     }
 
     def "Should not create a financial entity an throw bad request"() {
         given:'an financial entity empty request body'
-        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, new FinancialEntityCommand()).bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, new FinancialEntityCreateCommand()).bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
@@ -122,23 +188,23 @@ class FinancialEntityControllerSpec extends Specification {
 
     }
 
-    def "Should not create a financial entity an throw bad request on malformed bodyt"() {
+    def "Should not create a financial entity an throw bad request on malformed body"() {
         given:'an financial entity empty request body'
         HttpRequest request = HttpRequest.POST(FINANCIAL_ROOT, '!"·!"').bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
-                Argument.of(ErrorDto))
+                Argument.of(ErrorsDto))
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.BAD_REQUEST
 
         when:
-        Optional<ErrorDto> jsonError = e.response.getBody(ErrorDto)
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
 
         then:
         jsonError.isPresent()
-        jsonError.get().with {
+        jsonError.get().errors.first().with {
            assert  code == 'request.body.invalid'
            assert  title == 'Malformed request body'
            assert  detail == 'The JSON body request you sent is invalid.'
@@ -147,7 +213,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should get an financial entity"(){
         given:'a saved financial entity'
-        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity)
 
         and:
@@ -162,8 +228,6 @@ class FinancialEntityControllerSpec extends Specification {
             assert id == financialEntity.id
             assert name == financialEntity.name
             assert code == financialEntity.code
-            assert dateCreated == financialEntity.dateCreated
-            assert lastUpdated == financialEntity.lastUpdated
         }
 
         !financialEntity.dateDeleted
@@ -172,7 +236,7 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should not get an deleted financial entity"(){
         given:'a saved financial entity'
-        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialEntity.dateDeleted = new Date()
         financialGormService.save(financialEntity)
 
@@ -181,7 +245,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
-                NotFoundException as Argument<NotFoundException>)
+                ItemNotFoundException as Argument<ItemNotFoundException>)
 
         then:
         def  e = thrown HttpClientResponseException
@@ -197,12 +261,23 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET(FINANCIAL_ROOT+"/${id}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto),
-                NotFoundException as Argument<NotFoundException>)
+        client.toBlocking().exchange(getReq, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.notFound'
+            assert  detail == 'The financial entity ID you requested was not found.'
+            assert  title == "Financial entity not found."
+        }
 
     }
 
@@ -221,11 +296,11 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should update an financial entity"(){
         given:'a saved financial entity'
-        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity)
 
         and:'an financial entity command to update data'
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
             name = 'Gringotts'
             code = 'Gringotts magic bank'
@@ -247,11 +322,80 @@ class FinancialEntityControllerSpec extends Specification {
 
     }
 
+
+    def "Should not  update a financial entity on duplicate code and throw exception"(){
+        given:'an financial entity request body'
+        FinancialEntityCreateCommand cmd = getWakandaTestBankCommand()
+
+        and:'a already saved entity with same code'
+        FinancialEntity financialEntitySaved = new FinancialEntity()
+        financialEntitySaved.with {
+            id = 666
+            name = 'a saved bank'
+            code = cmd.code
+            financialEntitySaved.client = loggedInClient
+        }
+
+        financialGormService.save(financialEntitySaved)
+
+
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${financialEntitySaved.id}",  cmd)
+                .bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.code.nonUnique'
+            assert  title == 'Financial Entity code already exists'
+            assert  detail == 'The financial entity\'s code you provided already exists. Please provide a different one.'
+        }
+
+    }
+
+
+    def "Should partially update an financial entity"(){
+        given:'a saved financial entity'
+        FinancialEntity financialEntity = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
+        financialGormService.save(financialEntity)
+
+        and:'an financial entity command to update data'
+        FinancialEntityUpdateCommand cmd = new FinancialEntityUpdateCommand()
+        cmd.with {
+            name = 'Gringotts'
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${financialEntity.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, FinancialEntityDto)
+
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            assert name == cmd.name
+            assert code == financialEntity.code
+            assert lastUpdated
+        }
+
+    }
+
     def "Should not update an financial entity on band parameters and return Bad Request"(){
         given:'A not found entity id'
         Long id = 666
 
-        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${id}",  new FinancialEntityCommand())
+        HttpRequest request = HttpRequest.PUT("${FINANCIAL_ROOT}/${id}",  new FinancialEntityCreateCommand())
                 .bearerAuth(accessToken)
 
         when:
@@ -259,8 +403,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         then:
         def  e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.BAD_REQUEST
-
+        e.response.status == HttpStatus.NOT_FOUND
     }
 
     def "Should not update an financial entity on wrong band parameters and return Bad Request"(){
@@ -280,10 +423,10 @@ class FinancialEntityControllerSpec extends Specification {
 
     def "Should not update an financial entity and throw not found exception"(){
         given:
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
-            name = 'Gringotts'
-            code = 'Gringotts magic bank'
+            name = 'Gringotts update'
+            code = 'Gringotts new magic bank'
         }
 
         def notFoundId = 666
@@ -294,7 +437,7 @@ class FinancialEntityControllerSpec extends Specification {
         when:
         client.toBlocking().exchange(
                 request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -305,10 +448,10 @@ class FinancialEntityControllerSpec extends Specification {
     def "Should get a list of entities"(){
 
         given:'a entities list'
-        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
 
-        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialEntity2.dateDeleted = new Date()
         financialGormService.save(financialEntity2)
 
@@ -321,27 +464,30 @@ class FinancialEntityControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
+        assert !body.isEmpty()
+        assert body.get("data")
         List<FinancialEntityDto> financialEntityDtos = body.get("data") as List<FinancialEntityDto>
+        assert !financialEntityDtos.isEmpty()
         assert !(financialEntity2.id in financialEntityDtos.id)
     }
 
     def "Should get a list of financial entities in a cursor point"(){
 
         given:'a entities list'
-        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
 
-        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity2 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialEntity2.dateDeleted = new Date()
         financialGormService.save(financialEntity2)
 
-        FinancialEntity financialEntity3 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity3 = new FinancialEntity(getWakandaTestBankCommand(),loggedInClient)
         financialGormService.save(financialEntity3)
 
-        FinancialEntity financialEntity4 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity4 = new FinancialEntity(getWakandaTestBankCommand(),loggedInClient)
         financialGormService.save(financialEntity4)
 
-        FinancialEntity financialEntity5 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity5 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity5)
 
 
@@ -369,17 +515,28 @@ class FinancialEntityControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${notFoundId}").bearerAuth(accessToken)
 
         when:
-        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>, Argument.of(NotFoundException))
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.notFound'
+            assert  detail == 'The financial entity ID you requested was not found.'
+            assert  title == "Financial entity not found."
+        }
     }
 
     def "Should delete an financial entity"() {
         given:'a entity'
-        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand())
+        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
 
         and:'a client request'
@@ -396,7 +553,7 @@ class FinancialEntityControllerSpec extends Specification {
 
         when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
-                Argument.of(NotFoundException))
+                Argument.of(ItemNotFoundException))
 
         then:
         def  e = thrown HttpClientResponseException
@@ -405,8 +562,8 @@ class FinancialEntityControllerSpec extends Specification {
 
     }
 
-    private static FinancialEntityCommand getWakandaTestBankCommand() {
-        FinancialEntityCommand cmd = new FinancialEntityCommand()
+    private static FinancialEntityCreateCommand getWakandaTestBankCommand() {
+        FinancialEntityCreateCommand cmd = new FinancialEntityCreateCommand()
         cmd.with {
             name = 'National Bank of Wakanda'
             code = 'WAKANDA-NB'

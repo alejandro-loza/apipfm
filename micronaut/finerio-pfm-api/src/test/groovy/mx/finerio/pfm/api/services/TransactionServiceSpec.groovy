@@ -1,38 +1,103 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.context.annotation.Property
+import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.dtos.TransactionDto
-import mx.finerio.pfm.api.exceptions.NotFoundException
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
+import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.imp.TransactionServiceImp
-import mx.finerio.pfm.api.validation.TransactionCommand
+import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import spock.lang.Specification
 
+@Property(name = 'spec.name', value = 'transaction service')
+@MicronautTest(application = Application.class)
 class TransactionServiceSpec extends Specification {
 
     TransactionService transactionService = new TransactionServiceImp()
 
     void setup(){
+        transactionService.categoryService = Mock(CategoryService)
         transactionService.transactionGormService = Mock(TransactionGormService)
         transactionService.accountService = Mock(AccountService)
     }
 
     def 'Should save an transaction'(){
         given:'a transaction command request body'
-        TransactionCommand cmd = new TransactionCommand()
+        Category category = generateCategory()
+
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = 666
             date =  new Date().getTime()
+            categoryId = category.id
         }
+
         when:
-        1 * transactionService.accountService.getAccount(_ as Long)
-        1 * transactionService.transactionGormService.save(_  as Transaction) >> new Transaction()
+
+        1 * transactionService.categoryService.getById( _ as Long) >> category
+        1 * transactionService.accountService.getAccount( _ as Long) >> new Account()
+        1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
 
         def response = transactionService.create(cmd)
 
         then:
         response instanceof Transaction
+    }
+
+    def 'Should not save an transaction on no parent category'(){
+        given:'a transaction command request body'
+        Category category = generateCategory()
+        category.parent = null
+
+        def account = new Account()
+        account.id = 666
+        def transaction = new Transaction()
+        transaction.account =  account
+
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId =  account.id
+            date =  new Date().getTime()
+            categoryId = category.id
+        }
+
+        when:
+
+        1 * transactionService.categoryService.getById( _ as Long) >> category
+        1 * transactionService.accountService.getAccount(_ as Long)
+        0 * transactionService.transactionGormService.save(_  as Transaction)
+
+        transactionService.create(cmd)
+
+        then:
+        BadRequestException e = thrown()
+        e.message == 'category.parentCategory.null'
+    }
+
+    def
+    'Should not save an transaction on category not found'(){
+        given:'a transaction command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = 666
+            date =  new Date().getTime()
+            categoryId = 666
+        }
+        when:
+        1 * transactionService.categoryService.getById(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }
+        1 * transactionService.accountService.getAccount(_ as Long)
+        0 * transactionService.transactionGormService.save(_  as Transaction)
+
+        transactionService.create(cmd)
+
+        then:
+        ItemNotFoundException e = thrown()
+        e.message == 'category.notFound'
     }
 
     def "Should throw exception on null body"() {
@@ -63,7 +128,7 @@ class TransactionServiceSpec extends Specification {
         transactionService.find(666)
 
         then:
-        NotFoundException e = thrown()
+        ItemNotFoundException e = thrown()
         e.message == 'transaction.notFound'
     }
 
@@ -100,6 +165,24 @@ class TransactionServiceSpec extends Specification {
 
         then:
         response instanceof  List<TransactionDto>
+    }
+
+
+    private Category generateCategory() {
+        Category category1 = new Category()
+        category1.with {
+            name: 'sub category'
+            category1.id = 666
+        }
+
+
+        Category category = new Category()
+        category.with {
+            parent = category1
+            name = 'parent'
+            category.id = 333
+        }
+        category
     }
 
 }
