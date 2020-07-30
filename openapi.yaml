@@ -1,30 +1,62 @@
 openapi: 3.0.0
 info:
   title: Finerio PFM API
-  description: Description of Finerio PFM API.
-  version: 0.0.1
+  description: "Welcome to Finerio PFM API! We hope you enjoy the journey to connect your application to our systems. With Finerio PFM API, you can manage the financial information of your users, such as accounts, transactions, budgets, and more.
+
+
+    First of all, you need to acquire your login access. We use JSON Web Tokens (JWT) and OAuth2. You can sign up with the endpoint of the same name. In Finerio PFM API we utilize two standard fields to obtain an access token:
+    
+    - Username.
+    
+    - Password.
+    
+    
+    You can get the access token through the login endpoint. Once you get access to the API (with the access token), you can start using the API HTTP endpoints. A normal flow consists of:
+
+    - Create a user.
+    
+    - Create a financial entity.
+    
+    - Create an account.
+    
+    - (Optional) create some categories.
+    
+    - Create some transactions.
+    
+    - Fetch insights about your user.
+
+
+    Are you ready? Let's go!"
+  version: 1.0.0
 servers:
- - url: https://pfm-sandbox.finerio.mx
+ - url: https://pfm-api-sandbox.finerioconnect.com
    description: Sandbox server
- - url: https://pfm.finerio.mx
+ - url: https://pfm-api.finerioconnect.com
    description: Production server
 tags:
   - name: Access
+    description: Access and authentication endpoints.
   - name: Users
+    description: A user is the representation of your users' application.
   - name: Financial entities
+    description: Financial entities represents the financial institutions where your customers keep their money, or something else that helps you modelling the way you manage the accounts of your users.
   - name: Accounts
+    description: An account is the representation of your users' bank accounts.
   - name: Transactions
+    description: A transaction is the representation of the financial movements within an account.
   - name: Categories
+    description: Categories are the classification of transactions and budgets.
   - name: Budgets
+    description: A budget is the representation of your users' budget plan.
   - name: Insights
-    description: Insights about user financial information.
+    description: Insights and datapoints about user financial information.
 paths:
   /signup:
     post:
       tags:
       - Access
       summary: Signs up a client.
-      description: Signs up a client.
+      description: Signs up a client. We need some of your data in order to keep in touch.
       requestBody:
         required: true
         content:
@@ -51,7 +83,7 @@ paths:
       tags:
       - Access
       summary: Authenticates a client.
-      description: Authenticates a client.
+      description: Authenticates a client. Here, you use the username and the password you provided in the signup process.
       requestBody:
         required: true
         content:
@@ -78,7 +110,7 @@ paths:
       tags:
       - Access
       summary: Allows access token refreshing.
-      description: Allows access token refreshing.
+      description: Allows access token refreshing. Use this endpoint to guarantee more security in your workflow.
       requestBody:
         required: true
         content:
@@ -88,8 +120,10 @@ paths:
               properties:
                 refresh_token:
                   type: string
+                  description: The refresh token previously obtained.
                 grant_type:
                   type: string
+                  description: The type of operation used.
                   example: 'refresh_token'
               required:
                 - refresh_token
@@ -411,7 +445,7 @@ paths:
       tags:
       - Accounts
       summary: Creates an account.
-      description: Creates an account. A previosuly created user is required.
+      description: Creates an account. A previosuly created user and a financial entity is required.
       requestBody:
         required: true
         content:
@@ -1196,12 +1230,14 @@ components:
           type: string
           minimum: 1
           maximum: 100
+          description: The username of the client.
           example: "client-username"
         password:
           type: string
           minimum: 1
           maximum: 100
           example: "client-password"
+          description: The password of the client.
     LoginResponse:
       description: A representation of the data returned by login.
       required: 
@@ -1219,19 +1255,24 @@ components:
           example: "client-username"
         roles:
           type: array
+          description: The roles inside that the user owns inside the API.
           example: 
           - "ROLE_USER"
         access_token:
           type: string
+          description: The main access token used in every API endpoint.
           example: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW50b25pYy10ZXN0aW5nIiwibmJmIjoxNTkxMDI4ODMxLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiaXNzIjoiZmluZXJpby1jb25uZWN0LWxpdGUiLCJleHAiOjE1OTEwMzI0MzEsImlhdCI6MTU5MTAyODgzMX0.ZiY6aXhOU_mIi00pXIE4lHfhjBhyRb8-eVTfVAq34_"
         refresh_token:
           type: string
+          description: The token used to refresh and get a new access token.
           example: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW50b25pYy10ZXN0aW5nIiwibmJmIjoxNTkxMDI4ODMxLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiaXNzIjoiZmluZXJpby1jb25uZWN0LWxpdGUiLCJleHAiOjE1OTEwMzI0MzEsImlhdCI6MTU5MTAyODgzMX0.ZiY6aXhOU_mIi00pXIE4lHfhjBhyRb8-eVTfVAq34_"
         token_type:
           type: string
+          description: The type of token used in every endpoint od the API.
           example: "Bearer"
         expires_in:
           type: integer
+          description: The time, in seconds, that you can use the access token.
           example: 3600
     RefreshTokenResponse:
       description: A representation of the data returned by login.
@@ -1243,15 +1284,19 @@ components:
       properties:
         access_token:
           type: string
+          description: The main access token used in every API endpoint.
           example: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW50b25pYy10ZXN0aW5nIiwibmJmIjoxNTkxMDI4ODMxLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiaXNzIjoiZmluZXJpby1jb25uZWN0LWxpdGUiLCJleHAiOjE1OTEwMzI0MzEsImlhdCI6MTU5MTAyODgzMX0.ZiY6aXhOU_mIi00pXIE4lHfhjBhyRb8-eVTfVAq34_"
         refresh_token:
           type: string
+          description: The token used to refresh and get a new access token.
           example: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW50b25pYy10ZXN0aW5nIiwibmJmIjoxNTkxMDI4ODMxLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiaXNzIjoiZmluZXJpby1jb25uZWN0LWxpdGUiLCJleHAiOjE1OTEwMzI0MzEsImlhdCI6MTU5MTAyODgzMX0.ZiY6aXhOU_mIi00pXIE4lHfhjBhyRb8-eVTfVAq34_"
         token_type:
           type: string
+          description: The type of token used in every endpoint od the API.
           example: "Bearer"
         expires_in:
           type: integer
+          description: The time, in seconds, that you can use the access token.
           example: 3600
     CreateUser:
       description: A representation of the data neccesary for creating a user.
@@ -1270,14 +1315,17 @@ components:
       properties:
         id:
           type: integer
+          description: The ID of the user.
           example: 123
         name:
           type: string
           minimum: 1
           maximum: 100
+          description: The name of the user.
           example: "user@email.com"
         dateCreated:
           type: number
+          description: The date when the user was created.
           example: 1587567125458
     Users:
       properties:
@@ -1287,6 +1335,7 @@ components:
             $ref: '#/components/schemas/User'
         nextCursor:
           type: integer
+          description: The ID to be used in the next request in the 'cursor' query parameter.
           example: 123
     CreateFinancialEntity:
       description: A representation of the data neccesary for creating a financial entity.
@@ -1355,6 +1404,7 @@ components:
       description: A representation of the data neccesary for creating an account.
       required:
         - userId
+        - financialEntityId
         - nature
         - name
         - number
