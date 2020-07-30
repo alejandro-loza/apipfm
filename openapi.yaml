@@ -1051,6 +1051,28 @@ paths:
           type: integer
         required: true
         description: The ID of the user to fetch the resume.
+        example: 123
+      - in: query
+        name: accountId
+        schema:
+          type: integer
+        required: false
+        description: The ID of the account to fetch the resume. If it is not present, the API will use all the accounts of the user.
+        example: 123
+      - in: query
+        name: dateFrom
+        schema:
+          type: number
+        required: false
+        description: The date where the resume starts, in UNIX format.
+        example: 1587567125458
+      - in: query
+        name: dateTo
+        schema:
+          type: number
+        required: false
+        description: The date where the resume ends, in UNIX format.
+        example: 1587567125458
       responses:
         '200':
           description: The resume of a user
