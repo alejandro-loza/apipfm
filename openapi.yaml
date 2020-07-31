@@ -31,8 +31,6 @@ info:
 servers:
  - url: https://pfm-api-sandbox.finerioconnect.com
    description: Sandbox server
- - url: https://pfm-api.finerioconnect.com
-   description: Production server
 tags:
   - name: Access
     description: Access and authentication endpoints.
@@ -123,7 +121,7 @@ paths:
                   description: The refresh token previously obtained.
                 grant_type:
                   type: string
-                  description: The type of operation used.
+                  description: The type of operation used. It should be "refresh-token".
                   example: 'refresh_token'
               required:
                 - refresh_token
@@ -182,7 +180,7 @@ paths:
           description: The ID of the user where the list starts.
       responses:
         '200':
-          description: An array of users.
+          description: A list users.
           content:
             application/json:
               schema:
@@ -195,6 +193,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /users/{id}:
@@ -202,7 +204,7 @@ paths:
       tags:
       - Users
       summary: Fetches a user.
-      description: Fetches the information of a user.
+      description: Given a valid user ID, fetches the information of a user.
       parameters:
         - in: path
           name: id
@@ -226,6 +228,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The user ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     put:
@@ -249,7 +255,7 @@ paths:
               $ref: '#/components/schemas/CreateUser'
       responses:
         '200':
-          description: A user created.
+          description: A user updated.
           content:
             application/json:
               schema:
@@ -262,13 +268,17 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The user ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     delete:
       tags:
       - Users
       summary: Deletes a user.
-      description: Deletes a user and all its information.
+      description: Deletes a user and all its information, including accounts, categories and budgets.
       parameters:
         - in: path
           name: id
@@ -288,6 +298,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The user ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /financialEntities:
@@ -332,7 +346,7 @@ paths:
           description: The ID of the financial entity where the list starts.
       responses:
         '200':
-          description: An array of financial entitites.
+          description: A list of financial entitites.
           content:
             application/json:
               schema:
@@ -352,7 +366,7 @@ paths:
       tags:
       - Financial entities
       summary: Fetches a financial entity.
-      description: Fetches the information of a financial entity.
+      description: Given a valid financial entity ID, fetches the information of a financial entity.
       parameters:
         - in: path
           name: id
@@ -376,6 +390,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The financial entity ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     put:
@@ -412,13 +430,17 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The financial entity ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     delete:
       tags:
       - Financial entities
       summary: Deletes a financial entity.
-      description: Deletes a financial entity.
+      description: Deletes a financial entity. All accounts related to this financial entity remain active.
       parameters:
         - in: path
           name: id
@@ -438,6 +460,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The financial entity ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /accounts:
@@ -465,7 +491,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-          
+        '404':
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     get:
@@ -490,7 +521,7 @@ paths:
           description: The ID of the account where the list starts.
       responses:
         '200':
-          description: An array of accounts.
+          description: A list of accounts.
           content:
             application/json:
               schema:
@@ -502,7 +533,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
         '404':
-          description: The ID you requested was not found.
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /accounts/{id}:
@@ -510,7 +545,7 @@ paths:
       tags:
       - Accounts
       summary: Fetches an account.
-      description: Fetches the information of an account.
+      description: Given a valid account ID, fetches the information of an account.
       parameters:
         - in: path
           name: id
@@ -534,6 +569,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The account ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     put:
@@ -570,13 +609,17 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The account ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     delete:
       tags:
       - Accounts
       summary: Deletes an account.
-      description: Deletes an account and all its information.
+      description: Deletes an account and all its information, including transactions.
       parameters:
         - in: path
           name: id
@@ -596,6 +639,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The account ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /transactions:
@@ -623,7 +670,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-          
+        '404':
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     get:
@@ -648,7 +700,7 @@ paths:
           description: The ID of the transaction where the list starts.
       responses:
         '200':
-          description: An array of transactions.
+          description: A list of transactions.
           content:
             application/json:
               schema:
@@ -660,7 +712,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
         '404':
-          description: The ID you requested was not found.
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /transactions/{id}:
@@ -668,7 +724,7 @@ paths:
       tags:
       - Transactions
       summary: Fetches a transaction.
-      description: Fetches the information of a transaction.
+      description: Given a valid transaction ID, fetches the information of a transaction.
       parameters:
         - in: path
           name: id
@@ -692,6 +748,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The transaction ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     put:
@@ -728,6 +788,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The transaction ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     delete:
@@ -754,6 +818,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The transaction ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /categories:
@@ -781,7 +849,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-          
+        '404':
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     get:
@@ -806,7 +879,7 @@ paths:
           description: The ID of the category where the list starts.
       responses:
         '200':
-          description: An array of categories.
+          description: A list of categories.
           content:
             application/json:
               schema:
@@ -818,7 +891,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
         '404':
-          description: The ID you requested was not found.
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /categories/{id}:
@@ -826,7 +903,7 @@ paths:
       tags:
       - Categories
       summary: Fetches a category.
-      description: Fetches the information of a category.
+      description: Given a valid category ID, fetches the information of a category.
       parameters:
         - in: path
           name: id
@@ -850,6 +927,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The category ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     put:
@@ -886,13 +967,17 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The category ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     delete:
       tags:
       - Categories
       summary: Deletes a category.
-      description: Deletes a category and all its information.
+      description: Deletes a category and all its information. All transactions and budgets related remain active.
       parameters:
         - in: path
           name: id
@@ -912,6 +997,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The category ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /budgets:
@@ -919,7 +1008,7 @@ paths:
       tags:
       - Budgets
       summary: Creates a budget.
-      description: Creates a budget. A previosuly created user and a category is required. If a parent budget ID is specified thee budget is considered a sub budget.
+      description: Creates a budget. A previosuly created user and a category is required. There can be only one budget per category.
       requestBody:
         required: true
         content:
@@ -939,14 +1028,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-          
+        '404':
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     get:
       tags:
       - Budgets
       summary: Fetches a list of budgets.
-      description: Fetches a list of budgets per user, sorted by ID in descending order. The API is able to fetch up to 100 budgets. If a cursor is specified, the list starts with the item that has that ID. A previously created user is required.
+      description: Fetches a list of budgets per user, sorted by ID in descending order. The API is able to fetch up to 100 budgets. If a cursor is specified, the list starts with the item that has that ID.
       parameters:
         - in: query
           name: userId
@@ -964,7 +1058,7 @@ paths:
           description: The ID of the budget where the list starts.
       responses:
         '200':
-          description: An array of budgets.
+          description: A list of budgets.
           content:
             application/json:
               schema:
@@ -984,7 +1078,7 @@ paths:
       tags:
       - Budgets
       summary: Fetches a budget.
-      description: Fetches the information of a budget.
+      description: Given a valid budget ID, fetches the information of a budget.
       parameters:
         - in: path
           name: id
@@ -1077,7 +1171,7 @@ paths:
       tags: 
       - Insights
       summary: Fetches a resume of the financial information of a user.
-      description: Fetches a resume of the financial information of a user.
+      description: Given a valid user ID, fetches a resume of the financial information of a user. It contains expenses, incomes and balances.
       parameters: 
       - in: query
         name: userId
@@ -1240,18 +1334,12 @@ components:
           description: The password of the client.
     LoginResponse:
       description: A representation of the data returned by login.
-      required: 
-        - username
-        - roles
-        - access_token
-        - refresh_token
-        - token_type
-        - expires_in
       properties:
         username:
           type: string
           minimum: 1
           maximum: 100
+          description: The username of the client.
           example: "client-username"
         roles:
           type: array
@@ -1305,6 +1393,7 @@ components:
       properties:
         name:
           type: string
+          description: The name of the user.
           minimum: 1
           maximum: 100
           example: "user@email.com"
@@ -1328,6 +1417,7 @@ components:
           description: The date when the user was created.
           example: 1587567125458
     Users:
+      description: A list of users.
       properties:
         data:
           type: array
@@ -1345,11 +1435,13 @@ components:
       properties:
         name:
           type: string
+          description: The name of the financial entity.
           minimum: 3
           maximum: 50
           example: "National Bank of Wakanda"
         code:
           type: string
+          description: The code of the financial entity.
           minimum: 3
           maximum: 20
           example: "WAKANDA-NB"
@@ -1361,11 +1453,13 @@ components:
       properties:
         name:
           type: string
+          description: The name of the financial entity.
           minimum: 3
           maximum: 50
           example: "National Bank of Wakanda"
         code:
           type: string
+          description: The code of the financial entity.
           minimum: 3
           maximum: 20
           example: "WAKANDA-NB"
@@ -1374,24 +1468,30 @@ components:
       properties:
         id:
           type: integer
+          description: The ID of the financial entity.
           example: 123
         name:
           type: string
+          description: The name of the financial entity.
           minimum: 3
           maximum: 50
           example: "National Bank of Wakanda"
         code:
           type: string
+          description: The code of the financial entity.
           minimum: 3
           maximum: 20
           example: "WAKANDA-NB"
         dateCreated:
           type: number
+          description: The date when the financial entity was created.
           example: 1587567125458
         lastUpdated:
           type: number
+          description: The date when the financial entity was updated.
           example: 1587567125458
     FinancialEntities:
+      description: A list of financial entities.
       properties:
         data:
           type: array
@@ -1399,6 +1499,7 @@ components:
             $ref: '#/components/schemas/FinancialEntity'
         nextCursor:
           type: integer
+          description: The ID to be used in the next request in the 'cursor' query parameter.
           example: 123
     CreateAccount:
       description: A representation of the data neccesary for creating an account.
@@ -1412,24 +1513,29 @@ components:
       properties:
         userId:
           type: number
+          description: The ID of the user that owns the account.
           example: 123
         financialEntityId:
           type: number
+          description: The ID of the financial entity of the account.
           example: 123
         nature:
           $ref: '#/components/schemas/AccountNature'
         name:
           type: string
+          description: The name of the account.
           minimum: 3
           maximum: 100
           example: "Premium Account"
         number:
           type: string
+          description: The number of the account.
           minimum: 3
           maximum: 100
           example: "XXX-1234"
         balance:
           type: number
+          description: The balance of the account.
           example: 1234.56
     UpdateAccount:
       description: A representation of the data neccesary for updating an account.
@@ -1443,45 +1549,55 @@ components:
           $ref: '#/components/schemas/AccountNature'
         name:
           type: string
+          description: The name of the account.
           minimum: 3
           maximum: 100
           example: "Premium Account"
         number:
           type: string
+          description: The number of the account.
           minimum: 3
           maximum: 100
           example: "XXX-1234"
         balance:
           type: number
+          description: The balance of the account.
           example: 1234.56
     Account:
       description: A representation of an account.
       properties:
         id:
           type: integer
+          description: The ID of the account.
           example: 123
         nature:
           $ref: '#/components/schemas/AccountNature'
         name:
           type: string
+          description: The name of the account.
           minimum: 3
           maximum: 100
           example: "Premium Account"
         number:
           type: string
+          description: The number of the account.
           minimum: 3
           maximum: 100
           example: "XXX-1234"
         balance:
           type: number
+          description: The balance of the account.
           example: 1234.56
         dateCreated:
           type: number
+          description: The date when the account was created.
           example: 1587567125458
         lastUpdated:
           type: number
+          description: The date when the account was updated.
           example: 1587567125458
     Accounts:
+      description: A list of accounts.
       properties:
         data:
           type: array
@@ -1489,8 +1605,10 @@ components:
             $ref: '#/components/schemas/Account'
         nextCursor:
           type: integer
+          description: The ID to be used in the next request in the 'cursor' query parameter.
           example: 123
     AccountNature:
+      description: The nature of the account.
       type: string
       enum:
         - Debit
@@ -1508,75 +1626,95 @@ components:
         - amount
       properties:
         accountId:
+          description: The ID of the account that holds the transaction.
           type: number
           example: 123
         date:
           type: number
+          description: The date of the transaction.
           example: 1587567125458
         charge:
           type: boolean
+          description: A flag that indicates if the transaction is a charge or a deposit.
           example: true
         description:
           type: string
+          description: The description of the transaction.
           minimum: 3
           maximum: 200
           example: "UBER EATS"
         amount:
           type: number
+          description: The amount of the transaction.
           example: 1234.56
         categoryId:
           type: number
+          description: The category ID of the transaction.
           example: 123
     UpdateTransaction:
       description: A representation of the data neccesary for updating a transaction.
       properties:
         date:
           type: number
+          description: The date of the transaction.
           example: 1587567125458
         charge:
           type: boolean
+          description: A flag that indicates if the transaction is a charge or a deposit.
           example: true
         description:
           type: string
+          description: The description of the transaction.
           minimum: 3
           maximum: 200
           example: "UBER EATS"
         amount:
           type: number
+          description: The amount of the transaction.
           example: 1234.56
         categoryId:
           type: number
+          description: The category ID of the transaction.
           example: 123
     Transaction:
       description: A representation of a transaction.
       properties:
         id:
           type: integer
+          description: The ID of the transaction.
           example: 123
         date:
           type: number
+          description: The date of the transaction.
           example: 1587567125458
         charge:
           type: boolean
+          description: A flag that indicates if the transaction is a charge or a deposit.
           example: true
         description:
           type: string
+          description: The description of the transaction.
           minimum: 3
           maximum: 200
           example: "UBER EATS"
         amount:
           type: number
+          description: The amount of the transaction.
           example: 1234.56
         categoryId:
           type: number
+          description: The category ID of the transaction.
           example: 123
         dateCreated:
           type: number
+          description: The date when the transaction was created.
           example: 1587567125458
         lastUpdated:
           type: number
+          description: The date when the transaction was updated.
           example: 1587567125458
     Transactions:
+      description: A list of transactions.
       properties:
         data:
           type: array
@@ -1584,6 +1722,7 @@ components:
             $ref: '#/components/schemas/Transaction'
         nextCursor:
           type: integer
+          description: The ID to be used in the next request in the 'cursor' query parameter.
           example: 123
     CreateCategory:
       description: A representation of the data neccesary for creating a category.
@@ -1591,66 +1730,81 @@ components:
         - name
       properties:
         userId:
+          description: The ID of the user that owns the category.
           type: number
           example: 123
         name:
           type: string
+          description: The name of the category.
           minimum: 3
           maximum: 50
           example: "Ropa y Calzado"
         color:
           type: string
+          description: The color of the category.
           minimum: 6
           maximum: 6
           example: "#00FFAA"
         parentCategoryId:
           type: number
+          description: The ID of the parent category that owns this subcategory.
           example: 123
     UpdateCategory:
       description: A representation of the data neccesary for updating a category.
       properties:
         name:
           type: string
+          description: The name of the category.
           minimum: 3
           maximum: 50
           example: "Ropa y Calzado"
         color:
           type: string
+          description: The color of the category.
           minimum: 6
           maximum: 6
           example: "#00FFAA"
         parentCategoryId:
           type: number
+          description: The ID of the parent category that owns this subcategory.
           example: 123
     Category:
       description: A representation of a category.
       properties:
         id:
           type: integer
+          description: The ID of the category.
           example: 123
         name:
           type: string
+          description: The name of the category.
           minimum: 3
           maximum: 50
           example: "Ropa y Calzado"
         color:
           type: string
+          description: The color of the category.
           minimum: 6
           maximum: 6
           example: "#00FFAA"
         parentCategoryId:
           type: number
+          description: The ID of the parent category that owns this subcategory.
           example: 123
         userId:
           type: number
+          description: The ID of the user that owns the category.
           example: 123
         dateCreated:
           type: number
+          description: The date when the category was created.
           example: 1587567125458
         lastUpdated:
           type: number
+          description: The date when the category was updated.
           example: 1587567125458
     Categories:
+      description: A list of categories.
       properties:
         data:
           type: array
@@ -1658,6 +1812,7 @@ components:
             $ref: '#/components/schemas/Category'
         nextCursor:
           type: integer
+          description: The ID to be used in the next request in the 'cursor' query parameter.
           example: 123
     CreateBudget:
       description: A representation of the data neccesary for creating a budget.
@@ -1669,65 +1824,70 @@ components:
       properties:
         userId:
           type: number
+          description: The ID of the user that owns the budget.
           example: 123
         categoryId:
           type: number
+          description: The category ID of the budget.
           example: 123
         name:
           type: string
+          description: The name of the budget.
           minimum: 3
           maximum: 50
           example: "Food budget"
         amount:
           type: number
+          description: The amount of the budget.
           example: 1234.56
-        parentBudgetId:
-          type: number
-          example: 123
     UpdateBudget:
       description: A representation of the data neccesary for updating a budget.
       properties:
         categoryId:
           type: number
+          description: The category ID of the budget.
           example: 123
         name:
           type: string
+          description: The name of the budget.
           minimum: 3
           maximum: 50
           example: "Food budget"
         amount:
           type: number
+          description: The amount of the budget.
           example: 1234.56
-        parentBudgetId:
-          type: number
-          example: 123
     Budget:
       description: A representation of a budget.
       properties:
         id:
           type: integer
+          description: The ID of the budget.
           example: 123
         categoryId:
           type: number
+          description: The category ID of the budget.
           example: 123
         name:
           type: string
+          description: The name of the budget.
           minimum: 3
           maximum: 50
           example: "Food budget"
         amount:
           type: number
+          description: The amount of the budget.
           example: 1234.56
-        parentBudgetId:
-          type: number
-          example: 123
         dateCreated:
           type: number
+          description: The date when the budget was created.
           example: 1587567125458
         lastUpdated:
           type: number
+          description: The date when the budget was updated.
           example: 1587567125458
     Budgets:
+      description: A list of budgets.
       properties:
         data:
           type: array
@@ -1735,27 +1895,28 @@ components:
             $ref: '#/components/schemas/Budget'
         nextCursor:
           type: integer
+          description: The ID to be used in the next request in the 'cursor' query parameter.
           example: 123
     Resume:
       description: A representation of the resume of the financial information of a user.
       properties:
         incomes:
-          description: The incomes of a user, grouped by month
+          description: The incomes of a user, grouped by month by default.
           type: array
           items:
             $ref: '#/components/schemas/ResumeByMonth'
         expenses:
-          description: The expenses of a user, grouped by month
+          description: The expenses of a user, grouped by month by default
           type: array
           items:
             $ref: '#/components/schemas/ResumeByMonth'
         balances:
-          description: The balance of the financial information of a user, grouped by month
+          description: The balance of the financial information of a user, grouped by month by default.
           type: array
           items:
             $ref: '#/components/schemas/ResumeBalance'
     ResumeByMonth:
-      description: Financial information grouped by month
+      description: Financial information grouped by month by default.
       properties:
         date:
           description: The year and month of the information
@@ -1830,7 +1991,7 @@ components:
           type: number
           example: 123.45
     Errors:
-      description: An array of errors
+      description: A list of errors
       type: array
       items:
         $ref: '#/components/schemas/Error'
@@ -1839,11 +2000,14 @@ components:
       properties:
         title:
           type: string
+          description: A brief reason of the error.
           example: "User name is null"
         code:
           type: string
+          description: A unique code of the error.
           example: "user.name.null"
         detail:
           type: string
+          description: A detailed description of the error.
           example: "The name of the user you provided was null. Please provide a valid one."
     
