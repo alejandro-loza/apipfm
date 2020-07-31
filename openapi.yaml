@@ -1071,6 +1071,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /budgets/{id}:
@@ -1102,6 +1106,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The budget ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     put:
@@ -1138,6 +1146,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The budget ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
     delete:
@@ -1164,6 +1176,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '404':
           description: The budget ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
   /resume:
@@ -1210,6 +1226,12 @@ paths:
                 $ref: '#/components/schemas/Resume'
         '400':
           description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Some ID you requested was not found.
           content:
             application/json:
               schema:
