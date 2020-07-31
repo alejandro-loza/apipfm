@@ -1,7 +1,14 @@
 openapi: 3.0.0
 info:
   title: Finerio PFM API
-  description: "Welcome to Finerio PFM API! We hope you enjoy the journey to connect your application to our systems. With Finerio PFM API, you can manage the financial information of your users, such as accounts, transactions, budgets, and more.
+  contact:
+    name: Email
+    email: hola@finerioconnect.com
+  description: "
+
+    # Introduction
+
+    Welcome to Finerio PFM API! We hope you enjoy the journey to connect your application to our systems. With Finerio PFM API, you can manage the financial information of your users, such as accounts, transactions, budgets, and more.
 
 
     First of all, you need to acquire your login access. We use JSON Web Tokens (JWT) and OAuth2. You can sign up with the endpoint of the same name. In Finerio PFM API we utilize two standard fields to obtain an access token:
@@ -48,9 +55,12 @@ tags:
     description: A budget is the representation of your users' budget plan.
   - name: Insights
     description: Insights and datapoints about user financial information.
+security:
+  - bearerAuth: []
 paths:
   /signup:
     post:
+      security: []
       tags:
       - Access
       summary: Signs up a client.
@@ -78,6 +88,7 @@ paths:
           description: Something in the server was wrong.
   /login:
     post:
+      security: []
       tags:
       - Access
       summary: Authenticates a client.
@@ -105,6 +116,7 @@ paths:
           description: Something in the server was wrong.
   /oauth/access_token:
     post:
+      security: []
       tags:
       - Access
       summary: Allows access token refreshing.
@@ -2032,4 +2044,10 @@ components:
           type: string
           description: A detailed description of the error.
           example: "Something in your request was wrong or was not found"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: You can get the access token through the "/login" endpoint.
     
