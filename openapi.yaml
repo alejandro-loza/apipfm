@@ -2023,13 +2023,13 @@ components:
         title:
           type: string
           description: A brief reason of the error.
-          example: "User name is null"
+          example: "Error title"
         code:
           type: string
           description: A unique code of the error.
-          example: "user.name.null"
+          example: "error.unique.code"
         detail:
           type: string
           description: A detailed description of the error.
-          example: "The name of the user you provided was null. Please provide a valid one."
+          example: "Something in your request was wrong or was not found"
     
