@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.dtos.utilities.ResumeDto
 import mx.finerio.pfm.api.services.ClientService
@@ -79,6 +80,27 @@ class ResumeControllerSpec extends Specification{
     }
 
     void cleanup(){
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
+        List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
+        categoriesChild.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+        List<Account> accounts = accountGormService.findAll()
+        accounts.each { Account account ->
+            accountGormService.delete(account.id)
+        }
+    }
+
+    void setup(){
         List<Transaction> transactions = transactionGormService.findAll()
         transactions.each {
             transactionGormService.delete(it.id)
@@ -183,9 +205,9 @@ class ResumeControllerSpec extends Specification{
         rspGET.status == HttpStatus.OK
         ResumeDto body = rspGET.body()
 
-        assert body.expenses.size() == 4
-        assert body.incomes.size() == 4
-        assert body.balances.size() == 4
+        assert body.expenses.size() == 3
+        assert body.incomes.size() == 3
+        assert body.balances.size() == 3
 
         assert  body.balances.last().date == body.incomes.last().date
         assert  body.balances.first().date == body.expenses.first().date
@@ -260,6 +282,66 @@ class ResumeControllerSpec extends Specification{
 
         assert bodyFilter.expenses.size() == 1
         assert bodyFilter.incomes.size() == 1
+
+    }
+
+    def "Should not get a list of transactions in from date before to 6 months ago"(){
+
+        given:'a transaction list'
+        User user1 = generateUser()
+        Account account1 = generateAccount(user1)
+        Account account2 = generateAccount(user1)
+        Category category1 = generateCategory(user1)
+        Category category2 = generateCategory(user1)
+
+
+        Date sevenMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
+        Date sixMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
+        Date fiveMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(5).toInstant())
+        Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
+        Date thisMonth =  Date.from(ZonedDateTime.now().toInstant())
+
+        generateTransaction(account2, oneMonthAgo, category2, EXPENSE)
+        generateTransaction(account1, oneMonthAgo, category1, INCOME)
+        generateTransaction(account1, thisMonth, category2, EXPENSE)
+        generateTransaction(account2, thisMonth, category2, INCOME)
+        generateTransaction(account1, fiveMonthAgo, category2, EXPENSE)
+        generateTransaction(account2, fiveMonthAgo, category2, INCOME)
+        generateTransaction(account1, sixMonthAgo, category2, EXPENSE)
+        generateTransaction(account1, sixMonthAgo, category2, INCOME)
+
+        and:'a 7 months ago transaction'
+        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE)
+        generateTransaction(account1, sevenMonthAgo, category1, INCOME)
+
+
+        and:'a this month deleted one transaction'
+        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME)
+        transaction8.dateDeleted = new Date()
+        transactionGormService.save(transaction8)
+
+        and:
+        HttpRequest fromRequest = HttpRequest.GET(
+                "${RESUME_ROOT}?userId=${user1.id}&accountId=$account1.id&dateFrom=${sevenMonthAgo.getTime()}")
+                .bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(fromRequest, Argument.of(ResumeDto) as Argument<ResumeDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'date.range.invalid'
+            assert title == 'The date range is incorrect'
+            assert detail == 'The date range is incorrect verify id the from date is higher than the to date or is older than six months ago'
+        }
 
     }
 

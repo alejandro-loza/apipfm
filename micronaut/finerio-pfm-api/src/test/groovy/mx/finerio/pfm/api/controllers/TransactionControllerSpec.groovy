@@ -78,6 +78,14 @@ class TransactionControllerSpec extends Specification {
         accessToken = rsp.body.get().accessToken
     }
 
+    void cleanup(){
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
+    }
+
     def "Should get unauthorized"() {
 
         given:

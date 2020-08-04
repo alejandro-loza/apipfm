@@ -76,7 +76,7 @@ class ResumeServiceImp implements ResumeService{
     private static Date validateFromDate(Long dateFrom) {
         Date from = new Date(dateFrom)
         if(from.before(FROM_LIMIT)){
-            throw new BadRequestException("THe date is out of range")
+            throw new BadRequestException("date.range.invalid")
         }
         from
     }
@@ -84,7 +84,7 @@ class ResumeServiceImp implements ResumeService{
     private static Date validateToDate(Long dateTo, Date from) {
         Date to =  new Date(dateTo)
         if(to.before(from)){
-            throw new BadRequestException()
+            throw new BadRequestException("date.range.invalid")
         }
         to
     }
