@@ -78,7 +78,7 @@ class ResumeControllerSpec extends Specification{
         accessToken = rsp.body.get().accessToken
     }
 
-    void setup(){
+    void cleanup(){
         List<Transaction> transactions = transactionGormService.findAll()
         transactions.each {
             transactionGormService.delete(it.id)
@@ -183,9 +183,9 @@ class ResumeControllerSpec extends Specification{
         rspGET.status == HttpStatus.OK
         ResumeDto body = rspGET.body()
 
-        assert body.expenses.size() == 3
-        assert body.incomes.size() == 3
-        assert body.balances.size() == 3
+        assert body.expenses.size() == 4
+        assert body.incomes.size() == 4
+        assert body.balances.size() == 4
 
         assert  body.balances.last().date == body.incomes.last().date
         assert  body.balances.first().date == body.expenses.first().date
@@ -194,7 +194,7 @@ class ResumeControllerSpec extends Specification{
 
     }
 
-    def "Should get a list of transactions incomes of the accounts of the user issue test"(){
+    def "Should get a list of transactions  of the account of the user on a range of dates"(){
 
         given:'a transaction list'
         User user1 = generateUser()
@@ -203,28 +203,36 @@ class ResumeControllerSpec extends Specification{
         Category category1 = generateCategory(user1)
         Category category2 = generateCategory(user1)
 
-        and:'a list of months ranges to test'
-        Date sixMonthshAgo =  Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
+
+        Date sevenMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
+        Date sixMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
+        Date fiveMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(5).toInstant())
         Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
         Date thisMonth =  Date.from(ZonedDateTime.now().toInstant())
 
-
         Transaction transaction1 = generateTransaction(account2, oneMonthAgo, category2, EXPENSE)
-        Transaction transaction2 = generateTransaction(account2, oneMonthAgo, category1, INCOME)
-        Transaction transaction3 = generateTransaction(account2, thisMonth, category2, EXPENSE)
+        Transaction transaction2 = generateTransaction(account1, oneMonthAgo, category1, INCOME)
+        Transaction transaction3 = generateTransaction(account1, thisMonth, category2, EXPENSE)
         Transaction transaction4 = generateTransaction(account2, thisMonth, category2, INCOME)
+        generateTransaction(account1, fiveMonthAgo, category2, EXPENSE)
+        generateTransaction(account2, fiveMonthAgo, category2, INCOME)
+
+        Transaction transaction5 = generateTransaction(account1, sixMonthAgo, category2, EXPENSE)
+        Transaction transaction6 = generateTransaction(account1, sixMonthAgo, category2, INCOME)
 
         and:'a 7 months ago transaction'
-        Transaction sevenMonthsAgoTransactionExpense =  generateTransaction(account1, sixMonthshAgo, category1, EXPENSE)
-        Transaction sevenMonthsAgoTransactionIncome =  generateTransaction(account1, sixMonthshAgo, category1, INCOME)
+        Transaction sevenMonthsAgoTransactionExpense =  generateTransaction(account1, sevenMonthAgo, category1, EXPENSE)
+        Transaction sevenMonthsAgoTransactionIncome =  generateTransaction(account1, sevenMonthAgo, category1, INCOME)
+
 
         and:'a this month deleted one transaction'
         Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME)
         transaction8.dateDeleted = new Date()
         transactionGormService.save(transaction8)
 
+
         and:
-        HttpRequest getReq = HttpRequest.GET("${RESUME_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("${RESUME_ROOT}?userId=${user1.id}&accountId=$account1.id").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Argument.of(ResumeDto))
@@ -233,27 +241,25 @@ class ResumeControllerSpec extends Specification{
         rspGET.status == HttpStatus.OK
         ResumeDto body = rspGET.body()
 
-        assert body.expenses.size() == 2
+        assert body.expenses.size() == 3
         assert body.incomes.size() == 2
         assert body.balances.size() == 2
 
-        def dates = body.balances*.date. collect{
-            new Date(it)
-        }
+        and:
+        HttpRequest fromRequest = HttpRequest.GET(
+                "${RESUME_ROOT}?userId=${user1.id}&accountId=$account1.id&dateFrom=${oneMonthAgo.getTime()}")
+                .bearerAuth(accessToken)
 
-        and:'assert the month group on balances dates is actually the two valid ones'
-
-        assert dates.size() == 2
-        assert dates.find{ it.month == thisMonth.month && it.year == thisMonth.year}
-        assert dates.find{ it.month == oneMonthAgo.month && it.year == oneMonthAgo.year}
-        assert !dates.find{ it.month == sixMonthshAgo.month && it.year == sixMonthshAgo.year}
+        when:
+        def dateFromRange = client.toBlocking().exchange(fromRequest, Argument.of(ResumeDto))
 
 
-        assert  body.balances.last().date == body.incomes.last().date
-        assert  body.balances.first().date == body.expenses.first().date
+        then:
+        dateFromRange.status == HttpStatus.OK
+        ResumeDto bodyFilter = dateFromRange.body()
 
-        assert  body.balances*.incomes
-        assert  body.balances*.expenses
+        assert bodyFilter.expenses.size() == 1
+        assert bodyFilter.incomes.size() == 1
 
     }
 

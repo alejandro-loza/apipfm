@@ -80,7 +80,7 @@ class ResumeServiceSpec extends Specification {
         List<Transaction> transactions = [t1, t2, t3, t4, t5]
 
         when:
-        List<MovementsDto> movementsByMonth = resumeService.getTransactionsGroupByMonth(transactions)
+        List<MovementsDto> movementsByMonth = resumeService.groupTransactionsByMonth(transactions)
 
         then:
         assert movementsByMonth.size() == 2
