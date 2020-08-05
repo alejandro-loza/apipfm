@@ -91,12 +91,29 @@ class ResumeServiceImp implements ResumeService{
 
     @Override
     List<BalancesDto> getBalance(List<MovementsDto> incomesResult, List<MovementsDto> expensesResult) {
-        [incomesResult.collect {
-            [date: it.date, incomes: it.amount]
+        def lists = [incomesResult.collect {
+            BalancesDto balance =new BalancesDto()
+            balance.date = it.date
+            balance.incomes = it.amount
+            balance
         },
          expensesResult.collect {
-             [date: it.date, expenses: it.amount]
-         }].transpose()*.sum() as List<BalancesDto>
+             BalancesDto balance =new BalancesDto()
+             balance.date = it.date
+             balance.expenses = it.amount
+             balance
+         }]
+        Map<Long, List<BalancesDto>>  resp = lists.flatten().stream()
+                .collect ( Collectors.groupingBy({ BalancesDto balancesDto -> balancesDto.date}))
+        resp.collect {  Long dateKey , List<BalancesDto> balances ->
+           BalancesDto balancesDto = new BalancesDto()
+            balancesDto.with {
+                date = dateKey
+                incomes = balances*.incomes.sum()
+                expenses = balances*.expenses.sum()
+            }
+            balancesDto
+        }
     }
 
     private List<CategoryResumeDto> getTransactionsGroupByParentCategory(List<Transaction> transactionList){
