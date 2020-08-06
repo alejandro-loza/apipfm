@@ -22,6 +22,7 @@ import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -29,6 +30,7 @@ import javax.inject.Inject
 
 @Property(name = 'spec.name', value = 'usercontroller')
 @MicronautTest(application = Application.class)
+
 class UserControllerSpec extends Specification {
 
     public static final String LOGIN_ROOT = "/login"

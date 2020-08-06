@@ -103,9 +103,10 @@ class ResumeServiceImp implements ResumeService{
              balance.expenses = it.amount
              balance
          }]
-        Map<Long, List<BalancesDto>>  resp = lists.flatten().stream()
+        Map<Long, List<BalancesDto>>  dateGroupTransactions = lists.flatten().stream()
                 .collect ( Collectors.groupingBy({ BalancesDto balancesDto -> balancesDto.date}))
-        resp.collect {  Long dateKey , List<BalancesDto> balances ->
+
+        dateGroupTransactions.collect {  Long dateKey , List<BalancesDto> balances ->
            BalancesDto balancesDto = new BalancesDto()
             balancesDto.with {
                 date = dateKey

@@ -29,6 +29,7 @@ import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
