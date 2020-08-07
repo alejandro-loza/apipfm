@@ -72,7 +72,8 @@ class ResumeControllerSpec extends Specification{
     @Shared
     String accessToken
 
-    def setupSpec(){
+    def setupSpec()
+    {
         def generatedUserName = this.getClass().getCanonicalName()
         loggedInClient = clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
@@ -150,13 +151,11 @@ class ResumeControllerSpec extends Specification{
         Category category1 = generateCategory(user1)
         Category category2 = generateCategory(user1)
 
-
         Date sevenMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
         Date sixMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
         Date fiveMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(5).toInstant())
         Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
         Date thisMonth =  Date.from(ZonedDateTime.now().toInstant())
-
 
         generateTransaction(account2, oneMonthAgo, category2, EXPENSE)
         generateTransaction(account1, oneMonthAgo, category1, INCOME)
@@ -219,8 +218,6 @@ class ResumeControllerSpec extends Specification{
         assert  userBody.balances*.incomes
         assert  userBody.balances*.expenses
 
-
-
         and:
         HttpRequest getReq = HttpRequest.GET("${RESUME_ROOT}?userId=${user1.id}&accountId=$account1.id").bearerAuth(accessToken)
 
@@ -282,13 +279,28 @@ class ResumeControllerSpec extends Specification{
         when:
         def dateToRange = client.toBlocking().exchange(toRequest, Argument.of(ResumeDto))
 
-
         then:
         dateFromRange.status == HttpStatus.OK
         ResumeDto bodyToFilter = dateToRange.body()
 
         assert bodyToFilter.expenses.size() == 2
         assert bodyToFilter.incomes.size() == 2
+
+        and:
+        HttpRequest fromToRequest = HttpRequest.GET(
+                "${RESUME_ROOT}?userId=${user1.id}&accountId=$account1.id&dateFrom=${fiveMonthAgo.getTime()}&dateTo=${oneMonthAgo.getTime()}")
+                .bearerAuth(accessToken)
+
+
+        when:
+        def fromToRange = client.toBlocking().exchange(fromToRequest, Argument.of(ResumeDto))
+
+        then:
+        dateFromRange.status == HttpStatus.OK
+        ResumeDto bodyFromToFilter = fromToRange.body()
+
+        assert bodyFromToFilter.expenses.size() == 1
+        assert bodyFromToFilter.incomes.size() == 1
 
     }
 
