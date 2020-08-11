@@ -16,7 +16,12 @@ interface TransactionGormService {
     List<Transaction> findAllByAccountAndChargeAndDateDeletedIsNullAndDateBetween(
             Account account, Boolean charge, Date from, Date to, Map args)
     List<Transaction> findAllByAccountAndDateDeletedIsNull(Account account, Map args)
+    List<Transaction> findAllByAccount(Account account)
     void delete(Serializable id)
     @Query("from ${Transaction a} where $a.id = $id and a.dateDeleted is Null")
     Transaction findByIdAndDateDeletedIsNull(Long id)
+
+    @Query("update ${Transaction t} set t.dateDeleted = ${new Date()} where $t.account = $account")
+    void deleteAllByAccount(Account account)
+
 }

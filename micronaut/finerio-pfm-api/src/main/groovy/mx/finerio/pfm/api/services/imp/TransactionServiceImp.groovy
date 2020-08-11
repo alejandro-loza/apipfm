@@ -116,6 +116,11 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     @Override
+    void deleteAllByAccount(Account account) {
+        transactionGormService.deleteAllByAccount(account)
+    }
+
+    @Override
     List<Transaction> findAllByAccountAndChargeAndDateRange(Account account, Boolean charge, Date from, Date to) {
         transactionGormService
                 .findAllByAccountAndChargeAndDateDeletedIsNullAndDateBetween(

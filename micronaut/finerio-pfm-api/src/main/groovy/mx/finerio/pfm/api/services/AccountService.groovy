@@ -18,7 +18,7 @@ interface AccountService {
     Account update(AccountUpdateCommand cmd, Long id)
 
     @Log
-    void delete(Long id)
+    void delete(Account account)
 
     @Log
     List<AccountDto> findAllByUserAndCursor(Long userId, Long cursor)

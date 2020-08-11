@@ -60,8 +60,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     }
 
     @Override
-    void delete(Long id){
-        Account account = getAccount(id)
+    void delete(Account account){
         account.dateDeleted = new Date()
         accountGormService.save(account)
     }
