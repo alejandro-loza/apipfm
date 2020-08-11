@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
+import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
@@ -11,9 +12,11 @@ import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.AccountUpdateCommand
+import org.springframework.stereotype.Service
 
 import javax.inject.Inject
 
+@Service
 class AccountServiceImp extends ServiceTemplate implements AccountService {
 
     @Inject
@@ -60,6 +63,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     }
 
     @Override
+    @Transactional
     void delete(Account account){
         account.dateDeleted = new Date()
         accountGormService.save(account)
@@ -82,6 +86,12 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Override
     List<Account> findAllByUserId(Long userId) {
         User user = userService.getUser(userId)
+        findAllByUser(user)
+    }
+
+    @Override
+    @Transactional
+    List<Account> findAllByUser(User user) {
         verifyLoggedClient(user.client)
         accountGormService.findAllByUserAndDateDeletedIsNull(
                 user, [max: MAX_ROWS, sort: 'id', order: 'desc'])

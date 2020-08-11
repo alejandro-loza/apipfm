@@ -18,7 +18,7 @@ interface UserService {
     User update(UserCommand cmd, Long id)
 
     @Log
-    void delete(Long id)
+    void delete(User user)
 
     @Log
     List<UserDto> findAllByCursor(long cursor)
