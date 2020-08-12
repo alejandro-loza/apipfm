@@ -2,10 +2,8 @@ package mx.finerio.pfm.api.services.gorm
 
 import grails.gorm.services.Query
 import grails.gorm.services.Service
-import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
-import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 
 @Service(Category)
@@ -21,4 +19,7 @@ interface CategoryGormService {
     void delete(Serializable id)
     @Query("from ${Category c} where $c.id = $id and c.dateDeleted is Null")
     Category findByIdAndDateDeletedIsNull(Long id)
+
+    @Query("update ${Category c} set c.dateDeleted = ${new Date()} where $c.parent = $category")
+    void deleteAllByParentCategory(Category category)
 }

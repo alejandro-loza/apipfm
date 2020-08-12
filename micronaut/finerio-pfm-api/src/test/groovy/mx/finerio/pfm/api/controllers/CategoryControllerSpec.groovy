@@ -684,10 +684,13 @@ class CategoryControllerSpec extends Specification {
         given: 'a saved category'
         User user1 = generateUser()
 
-        Category category1 =  generateCategory(user1)
+        Category parentCategory =  generateCategory(user1)
+        Category subCategory =  generateCategory(user1)
+        subCategory.parent = parentCategory
+        categoryGormService.save(subCategory)
 
         and: 'a client request'
-        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${category1.id}").bearerAuth(accessToken)
+        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
 
         when:
         def response = client.toBlocking().exchange(request, CategoryDto)
@@ -696,7 +699,7 @@ class CategoryControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
 
         and:
-        HttpRequest.GET("${CATEGORIES_ROOT}/${category1.id}").bearerAuth(accessToken)
+        HttpRequest.GET("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
 
         when:
         client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
@@ -705,6 +708,13 @@ class CategoryControllerSpec extends Specification {
         then:
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        def categoryRequest = categoryGormService.findAllByUserAndDateDeletedIsNull(user1,[sort: 'id', order: 'desc'])
+
+        then:
+        assert categoryRequest.isEmpty()
+
 
     }
 
