@@ -24,14 +24,9 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     @Inject
     UserService userService
 
-    @Inject
-    CategoryService categoryService
-
     @Override
-    Budget create(BudgetCreateCommand cmd){
-        verifyBody(cmd)
-        User user = userService.getUser(cmd.userId)
-        budgetGormService.save(new Budget(cmd, user, findCategoryToSet(cmd.categoryId, user)))
+    Budget create(BudgetCreateCommand cmd, Category category, User user){
+        budgetGormService.save(new Budget(cmd, user, category))
     }
 
     @Override
@@ -41,10 +36,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     }
 
     @Override
-    Budget update(BudgetUpdateCommand cmd, Long id){
-        verifyBody(cmd)
-        Budget budget = find(id)
-        Category categoryToSet = cmd.categoryId ? findCategoryToSet(cmd.categoryId, budget.user) : budget.category
+    Budget update(BudgetUpdateCommand cmd, Budget budget, Category categoryToSet){
         budget.with {
             user = cmd.userId ? userService.getUser(cmd.userId): budget.user
             category = categoryToSet
@@ -87,19 +79,22 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
                 .collect{new BudgetDto(it)}
     }
 
+    @Override
+    Budget findByUserAndCategory(User user, Category category){
+        budgetGormService.findByUserAndCategoryAndDateDeletedIsNull(user, category)
+    }
+
+    @Override
+    Budget findByCategory(Category category) {
+        budgetGormService.findByCategoryAndDateDeletedIsNull(category)
+    }
+
     private void verifyLoggedClient(Client client) {
         if (client.id != getCurrentLoggedClient().id) {
             throw new ItemNotFoundException('account.notFound')
         }
     }
 
-    private Category findCategoryToSet(Long categoryId, User user) {
-        Category categoryToSet = categoryService.getById(categoryId)
-        if (categoryToSet
-                && budgetGormService.findByUserAndCategoryAndDateDeletedIsNull(user, categoryToSet)) {
-            throw new BadRequestException('budget.category.nonUnique')
-        }
-        categoryToSet
-    }
+
 
 }

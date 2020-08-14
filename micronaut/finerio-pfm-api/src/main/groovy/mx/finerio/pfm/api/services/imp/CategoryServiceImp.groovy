@@ -58,8 +58,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    void delete(Long id){
-        Category category = getById(id)
+    void delete(Category category){
         if(!category.isSubcategory()){
             categoryGormService.deleteAllByParentCategory(category)
         }

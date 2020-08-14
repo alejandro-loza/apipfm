@@ -165,11 +165,10 @@ class CategoryServiceSpec extends Specification {
         category.parent = new Category()
 
         when:
-        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long) >> category
-        0 * categoryService.categoryGormService.deleteAllByParentCategory(category)
+
         1 * categoryService.categoryGormService.save(_ as Category)
 
-        def response = categoryService.delete(1L)
+        def response = categoryService.delete(category)
 
         then:
         !response
@@ -181,11 +180,10 @@ class CategoryServiceSpec extends Specification {
         Category category = new Category()
 
         when:
-        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long) >> category
         1 * categoryService.categoryGormService.deleteAllByParentCategory(category)
         1 * categoryService.categoryGormService.save(_ as Category)
 
-        def response = categoryService.delete(1L)
+        def response = categoryService.delete(category)
 
         then:
         !response

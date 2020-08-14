@@ -253,7 +253,6 @@ class BudgetControllerSpec extends Specification {
         }
     }
 
-
     def "Should not create a transaction and throw bad request on wrong body"() {
         given: 'a transaction request body with empty body'
 

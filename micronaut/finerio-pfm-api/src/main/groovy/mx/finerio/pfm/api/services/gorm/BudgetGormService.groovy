@@ -13,6 +13,7 @@ interface BudgetGormService {
     Budget findByUserAndCategoryAndDateDeletedIsNull(User user, Category category)
     List<Budget> findAllByDateDeletedIsNull(Map args)
     List<Budget> findAllByUserAndDateDeletedIsNull(User user, Map args)
+    Budget findByCategoryAndDateDeletedIsNull(Category category)
     List<Budget> findAllByUserAndIdLessThanEqualsAndDateDeletedIsNull(User user,Long id, Map args)
     List<Budget> findAll()
     @Query("from ${Budget a} where $a.id = $id and a.dateDeleted is Null")

@@ -718,6 +718,44 @@ class CategoryControllerSpec extends Specification {
 
     }
 
+    def "Should throw bad request exception on delete a category who has budgets"() {
+        given: 'a saved category'
+        User user1 = generateUser()
+
+        Category parentCategory =  generateCategory(user1)
+        Category subCategory =  generateCategory(user1)
+        subCategory.parent = parentCategory
+        categoryGormService.save(subCategory)
+
+        and: 'a client request'
+        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
+
+        when:
+        def response = client.toBlocking().exchange(request, CategoryDto)
+
+        then:
+        response.status == HttpStatus.NO_CONTENT
+
+        and:
+        HttpRequest.GET("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
+                Argument.of(ItemNotFoundException))
+
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        def categoryRequest = categoryGormService.findAllByUserAndDateDeletedIsNull(user1,[sort: 'id', order: 'desc'])
+
+        then:
+        assert categoryRequest.isEmpty()
+
+
+    }
+
     private User generateUser() {
         userGormService.save(new User('awesome user', loggedInClient))
     }
