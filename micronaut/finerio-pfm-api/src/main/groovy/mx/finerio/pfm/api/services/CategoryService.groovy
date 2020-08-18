@@ -26,7 +26,10 @@ interface CategoryService {
     List<CategoryDto> findAllByCurrentLoggedClientAndUserNul()
 
     @Log
-    List<CategoryDto> findAllByUser(User user)
+    List<CategoryDto> findAllCategoryDtosByUser(User user)
+
+    @Log
+    List<Category> findAllByUser(User user)
 
     @Log
     List<CategoryDto> findAllByCategory(Category category)

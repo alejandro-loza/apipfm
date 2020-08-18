@@ -60,7 +60,7 @@ class CategoryController {
         List<CategoryDto> clientCategories
             clientCategories = categoryService.findAllByCurrentLoggedClientAndUserNul()
         if(userId) {
-            clientCategories.addAll( categoryService.findAllByUser(userService.getUser(userId)))
+            clientCategories.addAll( categoryService.findAllCategoryDtosByUser(userService.getUser(userId)))
         }
 
         Single.just(new ResourcesDto(clientCategories, null))

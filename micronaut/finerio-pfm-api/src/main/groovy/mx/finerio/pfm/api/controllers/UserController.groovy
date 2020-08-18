@@ -8,12 +8,16 @@ import io.micronaut.security.utils.SecurityService
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.BudgetService
+import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.TransactionService
@@ -46,6 +50,12 @@ class UserController {
 
     @Inject
     AccountService accountService
+
+    @Inject
+    BudgetService budgetService
+
+    @Inject
+    CategoryService categoryService
 
     @Inject
     NextCursorService nextCursorService
@@ -82,13 +92,22 @@ class UserController {
     @Transactional
     HttpResponse delete(@NotNull Long id) {
         User user = userService.getUser(id)
-        List<Account> accounts = accountService.findAllByUser(user)
-        accounts.each { Account account ->
+        deleteAllUserChildEntities(user)
+        userService.delete(user)
+        HttpResponse.noContent()
+    }
+
+    void deleteAllUserChildEntities(User user) {
+        accountService.findAllByUser(user).each { Account account ->
             transactionService.deleteAllByAccount(account)
             accountService.delete(account)
         }
-        userService.delete(user)
-        HttpResponse.noContent()
+        budgetService.findAllByUser(user).each { BudgetDto budgetDto ->
+            budgetService.delete(budgetDto.id)
+        }
+        categoryService.findAllByUser(user).each { Category category ->
+            categoryService.delete(category)
+        }
     }
 
     private Client getCurrentLoggedClient() {

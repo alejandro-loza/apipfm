@@ -33,7 +33,10 @@ interface BudgetService {
     List<BudgetDto> findAllByUserAndCursor(Long userId, Long cursor)
 
     @Log
-    List<BudgetDto> findAllByUser(Long userId)
+    List<BudgetDto> findAllByUserId(Long userId)
+
+    @Log
+    List<BudgetDto>findAllByUser(User user)
 
     @Log
     Budget findByUserAndCategory(User user, Category category)

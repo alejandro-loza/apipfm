@@ -72,9 +72,13 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    List<CategoryDto> findAllByUser(User user) {
+    List<CategoryDto> findAllCategoryDtosByUser(User user) {
+        findAllByUser(user).collect{new CategoryDto(it)}
+    }
+
+    @Override
+    List<Category> findAllByUser(User user) {
         categoryGormService.findAllByUserAndDateDeletedIsNull(user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{new CategoryDto(it)}
     }
 
     @Override

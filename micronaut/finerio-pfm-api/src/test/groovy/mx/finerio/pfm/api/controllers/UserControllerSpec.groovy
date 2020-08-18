@@ -11,6 +11,7 @@ import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
@@ -20,6 +21,7 @@ import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
+import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
@@ -65,6 +67,9 @@ class UserControllerSpec extends Specification {
     @Shared
     TransactionGormService transactionGormService
 
+    @Inject
+    @Shared
+    CategoryGormService categoryGormService
 
     @Shared
     mx.finerio.pfm.api.domain.Client loggedInClient
@@ -463,6 +468,28 @@ class UserControllerSpec extends Specification {
         generateTransaction(account1)
         generateTransaction(account2)
 
+        and:
+
+        Category parentCategory = new Category()
+        parentCategory.with {
+            parentCategory.user = user
+            parentCategory.client = loggedInClient
+            name = 'parent category name'
+        }
+
+        categoryGormService.save(parentCategory)
+
+        Category childCategory = new Category()
+        childCategory.with {
+            childCategory.user = user
+            childCategory.client = loggedInClient
+            name = 'child category name'
+            parent = parentCategory
+        }
+
+        categoryGormService.save(childCategory)
+
+
         and:'a client request'
         HttpRequest request = HttpRequest.DELETE("${USER_ROOT}/${id}").bearerAuth(accessToken)
 
@@ -489,6 +516,12 @@ class UserControllerSpec extends Specification {
 
         then:
         assert transactions2.isEmpty()
+
+        when:
+        List<Category> categories = categoryGormService.findAllByUserAndDateDeletedIsNull(user, [sort: 'id', order: 'desc'])
+
+        then:
+        assert categories.isEmpty()
 
     }
 
@@ -532,5 +565,6 @@ class UserControllerSpec extends Specification {
         }
         financialEntityGormService.save(entity1)
     }
+
 
 }

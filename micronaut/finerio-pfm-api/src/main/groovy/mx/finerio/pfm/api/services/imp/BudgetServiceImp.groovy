@@ -71,12 +71,16 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     }
 
     @Override
-    List<BudgetDto> findAllByUser(Long userId) {
-        User user = userService.getUser(userId)
+    List<BudgetDto> findAllByUserId(Long userId) {
+        findAllByUser(userService.getUser(userId))
+    }
+
+    @Override
+    List<BudgetDto>findAllByUser(User user) {
         verifyLoggedClient(user.client)
         budgetGormService
-                .findAllByUserAndDateDeletedIsNull(user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{new BudgetDto(it)}
+           .findAllByUserAndDateDeletedIsNull(user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+           .collect { new BudgetDto(it) }
     }
 
     @Override

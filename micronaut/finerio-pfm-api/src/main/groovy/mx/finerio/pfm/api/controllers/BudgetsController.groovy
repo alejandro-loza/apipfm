@@ -63,7 +63,7 @@ class BudgetsController {
     Single<ResourcesDto> showAll(@Nullable Long cursor,  @QueryValue('userId') Long userId) {
         nextCursorService.generateResourcesDto(cursor
                 ? budgetService.findAllByUserAndCursor(userId, cursor)
-                : budgetService.findAllByUser(userId)
+                : budgetService.findAllByUserId(userId)
         )
     }
 
