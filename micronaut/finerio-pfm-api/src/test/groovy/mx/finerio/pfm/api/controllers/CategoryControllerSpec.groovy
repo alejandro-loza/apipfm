@@ -9,7 +9,10 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Budget
+import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.Application
@@ -19,8 +22,11 @@ import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
+import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
+import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
@@ -30,7 +36,7 @@ import spock.lang.Specification
 
 import javax.inject.Inject
 
-@Property(name = 'spec.name', value = 'account controller')
+@Property(name = 'spec.name', value = 'category controller')
 @MicronautTest(application = Application.class)
 class CategoryControllerSpec extends Specification {
 
@@ -50,6 +56,15 @@ class CategoryControllerSpec extends Specification {
 
     @Inject
     CategoryGormService categoryGormService
+
+    @Inject
+    TransactionGormService transactionGormService
+
+    @Inject
+    AccountGormService accountGormService
+
+    @Inject
+    FinancialEntityGormService financialEntityGormService
 
     @Inject
     @Shared
@@ -756,6 +771,68 @@ class CategoryControllerSpec extends Specification {
             assert code == 'category.budget.existence'
             assert title == 'Budget child existence'
             assert detail == 'There is at least one budget that is still using this category entity'
+        }
+
+    }
+
+    def "Should throw bad request exception on delete a category who has transactions"() {
+        given: 'a saved category'
+        User user1 = generateUser()
+
+        Category parentCategory =  generateCategory(user1)
+
+        and:
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'test financial'
+            code = 'FINANCIAL CODE'
+            entity.client = user1.client
+        }
+        financialEntityGormService.save(entity)
+
+        and:
+        Account account1 = new  Account()
+        account1.with {
+            name = 'test name'
+            nature = 'test nature'
+            number = 'CREDIT CARD NUMBER'
+            user = user1
+            financialEntity = entity
+            balance = 100.50
+            dateCreated = new Date()
+        }
+        accountGormService.save(account1)
+
+        and: 'a saved transaction'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            date = new Date()
+            description = 'test description'
+            amount = 100.50
+            category = parentCategory
+            account = account1
+        }
+        transactionGormService.save(transaction)
+
+        and: 'a client request'
+        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
+
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.transaction.existence'
+            assert title == 'Transaction child existence'
+            assert detail == 'There is at least one transaction that is still using this category entity'
         }
 
     }
