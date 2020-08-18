@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.UserService
+import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
 
@@ -32,6 +33,12 @@ class CategoryController {
 
     @Inject
     UserService userService
+
+    @Inject
+    BudgetService budgetService
+
+    @Inject
+    TransactionService transactionService
 
     @Log
     @Post("/")
@@ -70,8 +77,23 @@ class CategoryController {
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
-        categoryService.delete(categoryService.getById(id))
+        Category category = categoryService.getById(id)
+        validateIfSomeOneIsUsingThisCategory(category)
+        categoryService.delete(category)
         HttpResponse.noContent()
+    }
+
+    private void validateIfSomeOneIsUsingThisCategory(Category category) {
+        if (budgetService.findByCategory(category)) {
+            throw new BadRequestException('category.budget.existence')
+        }
+        if (transactionService.findAllByCategory(category)) {
+            throw new BadRequestException('category.transaction.existence')
+        }
+
+        if (categoryService.findAllByCategory(category)) {
+            throw new BadRequestException('category.childCategory.existence')
+        }
     }
 
 }

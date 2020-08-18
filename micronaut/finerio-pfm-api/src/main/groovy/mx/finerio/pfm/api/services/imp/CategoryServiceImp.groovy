@@ -59,9 +59,6 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
     @Override
     void delete(Category category){
-        if(!category.isSubcategory()){
-            categoryGormService.deleteAllByParentCategory(category)
-        }
         category.dateDeleted = new Date()
         categoryGormService.save(category)
     }
@@ -77,6 +74,12 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     @Override
     List<CategoryDto> findAllByUser(User user) {
         categoryGormService.findAllByUserAndDateDeletedIsNull(user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect{new CategoryDto(it)}
+    }
+
+    @Override
+    List<CategoryDto> findAllByCategory(Category category) {
+        categoryGormService.findAllByParent (category)
                 .collect{new CategoryDto(it)}
     }
 

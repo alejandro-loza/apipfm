@@ -9,6 +9,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.Application
@@ -18,6 +19,7 @@ import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
@@ -42,6 +44,9 @@ class CategoryControllerSpec extends Specification {
 
     @Inject
     UserGormService userGormService
+
+    @Inject
+    BudgetGormService budgetGormService
 
     @Inject
     CategoryGormService categoryGormService
@@ -670,6 +675,7 @@ class CategoryControllerSpec extends Specification {
 
         when:
         Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
         then:
         assert jsonError.isPresent()
         jsonError.get().errors.first().with {
@@ -685,9 +691,6 @@ class CategoryControllerSpec extends Specification {
         User user1 = generateUser()
 
         Category parentCategory =  generateCategory(user1)
-        Category subCategory =  generateCategory(user1)
-        subCategory.parent = parentCategory
-        categoryGormService.save(subCategory)
 
         and: 'a client request'
         HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
@@ -723,6 +726,45 @@ class CategoryControllerSpec extends Specification {
         User user1 = generateUser()
 
         Category parentCategory =  generateCategory(user1)
+
+
+        and: 'a saved budget'
+        Budget budget = new Budget()
+        budget.with {
+            name = 'test budget name'
+            user = user1
+            category = parentCategory
+        }
+        budgetGormService.save(budget)
+
+        and: 'a client request'
+        HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
+
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.budget.existence'
+            assert title == 'Budget child existence'
+            assert detail == 'There is at least one budget that is still using this category entity'
+        }
+
+    }
+
+    def "Should throw bad request exception on delete a category who has child categories"() {
+        given: 'a saved category'
+        User user1 = generateUser()
+
+        Category parentCategory =  generateCategory(user1)
         Category subCategory =  generateCategory(user1)
         subCategory.parent = parentCategory
         categoryGormService.save(subCategory)
@@ -731,27 +773,22 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.DELETE("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
 
         when:
-        def response = client.toBlocking().exchange(request, CategoryDto)
-
-        then:
-        response.status == HttpStatus.NO_CONTENT
-
-        and:
-        HttpRequest.GET("${CATEGORIES_ROOT}/${parentCategory.id}").bearerAuth(accessToken)
-
-        when:
-        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>,
-                Argument.of(ItemNotFoundException))
+        client.toBlocking().exchange(request, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
 
         then:
         def e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.NOT_FOUND
+        e.response.status == HttpStatus.BAD_REQUEST
 
         when:
-        def categoryRequest = categoryGormService.findAllByUserAndDateDeletedIsNull(user1,[sort: 'id', order: 'desc'])
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
 
         then:
-        assert categoryRequest.isEmpty()
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.childCategory.existence'
+            assert title == 'Category child existence'
+            assert detail == 'There is at least one category that is still using this parent category entity'
+        }
 
 
     }

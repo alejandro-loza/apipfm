@@ -14,6 +14,7 @@ interface CategoryGormService {
     List<Category> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
     List<Category> findAll()
     List<Category> findAllByParentIsNotNull()
+    List<Category> findAllByParent(Category category)
     List<Category> findAllByClientAndUserIsNullAndDateDeletedIsNull(Client client, Map args)
     List<Category> findAllByUserAndDateDeletedIsNull(User user, Map args)
     void delete(Serializable id)

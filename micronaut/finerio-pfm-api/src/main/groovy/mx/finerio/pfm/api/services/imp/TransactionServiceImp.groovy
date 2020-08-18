@@ -116,6 +116,12 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     @Override
+    List<TransactionDto> findAllByCategory(Category category) {
+        transactionGormService.findAllByCategory(category)
+                .collect{new TransactionDto(it)}
+    }
+
+    @Override
     void deleteAllByAccount(Account account) {
         transactionGormService.deleteAllByAccount(account)
     }

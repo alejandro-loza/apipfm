@@ -8,7 +8,7 @@ import mx.finerio.pfm.api.domain.Category
 
 @Service(Budget)
 interface BudgetGormService {
-    Budget save(Budget transaction)
+    Budget save(Budget budget)
     Budget getById(Long id)
     Budget findByUserAndCategoryAndDateDeletedIsNull(User user, Category category)
     List<Budget> findAllByDateDeletedIsNull(Map args)

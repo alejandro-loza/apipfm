@@ -28,4 +28,7 @@ interface CategoryService {
     @Log
     List<CategoryDto> findAllByUser(User user)
 
+    @Log
+    List<CategoryDto> findAllByCategory(Category category)
+
 }
