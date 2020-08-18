@@ -10,12 +10,14 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
@@ -45,6 +47,9 @@ class FinancialEntityControllerSpec extends Specification {
     @Inject
     @Shared
     ClientService registerService
+
+    @Inject
+    AccountService accountService
 
     @Shared
     String accessToken
@@ -539,6 +544,37 @@ class FinancialEntityControllerSpec extends Specification {
         given:'a entity'
         FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
+
+        and:'a client request'
+        HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${financialEntity1.id}").bearerAuth(accessToken)
+
+        when:
+        def response = client.toBlocking().exchange(request, FinancialEntityDto)
+
+        then:
+        response.status == HttpStatus.NO_CONTENT
+
+        and:
+        HttpRequest.GET("${FINANCIAL_ROOT}/${financialEntity1.id}")
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
+                Argument.of(ItemNotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+
+    }
+
+    def "Should not delete an financial entity get bad request on a financial entity delete who has child accounts"() {
+        given:'a entity'
+        FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
+        financialGormService.save(financialEntity1)
+
+        and:
+        Account account = new Account()
 
         and:'a client request'
         HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${financialEntity1.id}").bearerAuth(accessToken)
