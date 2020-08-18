@@ -11,6 +11,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.resource.AccountDto
 
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.NextCursorService
@@ -73,7 +74,9 @@ class AccountController {
     @Transactional
     HttpResponse delete(@NotNull Long id) {
         Account account = accountService.getAccount(id)
-        transactionService.deleteAllByAccount(account)
+        if (transactionService.findAllByAccount(account)) {
+            throw new BadRequestException('account.transaction.existence')
+        }
         accountService.delete(account)
         HttpResponse.noContent()
     }
