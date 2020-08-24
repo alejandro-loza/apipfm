@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: credential_failure_message_data
+      id: categpry_data
       author: alejandro.hernandez
       changes:
         - insert:
