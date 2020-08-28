@@ -5,7 +5,10 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
+import io.reactivex.Flowable
 import io.reactivex.Single
+import mx.finerio.pfm.api.clients.CategorizerClient
+import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
@@ -30,6 +33,9 @@ class CategoryController {
 
     @Inject
     UserService userService
+
+    @Inject
+    CategorizerClient categorizerClient
 
     @Log
     @Post("/")
@@ -70,6 +76,13 @@ class CategoryController {
     HttpResponse delete(@NotNull Long id) {
         categoryService.delete(id)
         HttpResponse.noContent()
+    }
+
+    @Log
+    @Get("/search")
+    @Transactional
+    Flowable<CategorizerDto> categorize(@QueryValue('input') String input) {
+        categorizerClient.fetchData(input)
     }
 
 }

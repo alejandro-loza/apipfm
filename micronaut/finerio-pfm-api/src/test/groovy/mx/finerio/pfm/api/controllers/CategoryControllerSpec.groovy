@@ -9,6 +9,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.Application
@@ -91,6 +92,20 @@ class CategoryControllerSpec extends Specification {
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.UNAUTHORIZED
+    }
+
+    def  "Should get a categorizer"() {
+
+        given: 'a client'
+        String input = 'UBER+EATS'
+        HttpRequest getReq = HttpRequest.GET("$CATEGORIES_ROOT/search?input=$input").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, CategorizerDto)
+
+        then:
+        assert rspGET
+
     }
 
     def  "Should get a empty list of categories"() {

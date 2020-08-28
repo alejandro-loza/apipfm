@@ -9,6 +9,6 @@ import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 
 @Client(CategorizerConfig.CATEGORIZER_API_URL)
 interface CategorizerClient {
-    @Get("{/search}")
+    @Get("/search")
     Flowable<CategorizerDto> fetchData(@QueryValue('input') String input)
 }
