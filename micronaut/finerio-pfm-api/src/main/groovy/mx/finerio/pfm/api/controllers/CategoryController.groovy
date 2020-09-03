@@ -1,19 +1,20 @@
 package mx.finerio.pfm.api.controllers
 
 import grails.gorm.transactions.Transactional
+import io.micronaut.context.annotation.Value
+import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.http.client.RxStreamingHttpClient
+import io.micronaut.http.client.annotation.Client
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
-import io.reactivex.Flowable
 import io.reactivex.Single
-import mx.finerio.pfm.api.clients.CategorizerClient
-import mx.finerio.pfm.api.dtos.resource.CategorizerDto
+import mx.finerio.pfm.api.config.CategorizerConfig
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.CategoryService
-import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
@@ -35,7 +36,14 @@ class CategoryController {
     UserService userService
 
     @Inject
-    CategorizerClient categorizerClient
+    @Client(CategorizerConfig.CATEGORIZER_API_URL)
+    RxStreamingHttpClient client
+
+    @Value('${categorizer.username}')
+    String username
+
+    @Value('${categorizer.password}')
+    String password
 
     @Log
     @Post("/")
@@ -81,8 +89,13 @@ class CategoryController {
     @Log
     @Get("/search")
     @Transactional
-    Flowable<CategorizerDto> categorize(@QueryValue('input') String input) {
-        categorizerClient.fetchData(input)
+    HttpResponse categorize(@QueryValue('input') String input) {
+
+        HttpRequest getReq = HttpRequest.GET("/search?input=${input}")
+                    .basicAuth(username, password)
+        def result = client.toBlocking().exchange(getReq, Map)
+        System.out.println(result)
+        return HttpResponse.ok().body(result)
     }
 
 }

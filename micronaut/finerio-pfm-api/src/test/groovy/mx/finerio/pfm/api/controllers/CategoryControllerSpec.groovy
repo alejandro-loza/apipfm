@@ -101,7 +101,7 @@ class CategoryControllerSpec extends Specification {
         HttpRequest getReq = HttpRequest.GET("$CATEGORIES_ROOT/search?input=$input").bearerAuth(accessToken)
 
         when:
-        def rspGET = client.toBlocking().exchange(getReq, CategorizerDto)
+        def rspGET = client.toBlocking().exchange(getReq, Map)
 
         then:
         assert rspGET
