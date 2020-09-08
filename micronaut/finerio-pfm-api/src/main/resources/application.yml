@@ -17,14 +17,12 @@ micronaut:
             generator:
               secret: secret01234567890ABCDEFGHIJKLMNO
 dataSource:
-  username: root
-  password: dinerio73
-  url: jdbc:mysql://127.0.0.1:3306/pfm_develop?verifyServerCertificate=false&useSSL=true
-  dbCreate: update
   pooled: true
-  jmxExport: true
-  driverClassName: com.mysql.jdbc.Driver
-  dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  dbCreate: none
+  url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
+  driverClassName: ${JDBC_DRIVER:org.h2.Driver}
+  username: ${JDBC_USER:sa}
+  password: ${JDBC_PASSWORD:""}
 liquibase:
   datasources:
     default:
