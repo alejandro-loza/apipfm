@@ -1,5 +1,5 @@
 databaseChangeLog:
-  - - include:
-        file: db/category.yaml
-    - include:
-        file: db/category_data.yaml
+  - include:
+      file: db/category.yaml
+  - include:
+      file: db/category_data.yaml
