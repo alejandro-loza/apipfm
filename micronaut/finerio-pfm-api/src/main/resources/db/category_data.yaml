@@ -7,9 +7,6 @@ databaseChangeLog:
             tableName: category
             columns:
               - column:
-                  name: id
-                  value: 1
-              - column:
                   name: version
                   value: 0
               - column:
