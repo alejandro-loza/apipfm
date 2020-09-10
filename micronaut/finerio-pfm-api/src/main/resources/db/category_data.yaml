@@ -10,26 +10,164 @@ databaseChangeLog:
                   name: version
                   value: 0
               - column:
-                  name: user_id
-                  value: null
-              - column:
-                  name: parent_id
-                  value: null
-              - column:
-                  name: client_id
-                  value: null
-              - column:
                   name: name
                   value: 'Hogar'
               - column:
                   name: color
                   value: '#A3CB38'
+        - insert:
+            tableName: category
+            columns:
               - column:
-                  name: date_created
-                  value: '2020-06-01 00:00:00'
+                  name: version
+                  value: 0
               - column:
-                  name: last_updated
-                  value: '2020-06-01 00:00:00'
+                  name: name
+                  value: 'Alimentos'
               - column:
-                  name: date_deleted
-                  value: null
+                  name: color
+                  value: '#FECA46'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Alimentos'
+              - column:
+                  name: color
+                  value: '#FECA46'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Entretenimiento'
+              - column:
+                  name: color
+                  value: '#FF9F43'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Salud y Belleza'
+              - column:
+                  name: color
+                  value: '#FC427B'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Auto y Transporte'
+              - column:
+                  name: color
+                  value: '#33D9B2'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Educación y Trabajo'
+              - column:
+                  name: color
+                  value: '#B33771'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Regalos y Ayuda'
+              - column:
+                  name: color
+                  value: '#F368E0'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Viajes'
+              - column:
+                  name: color
+                  value: '#8E44AD'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Finanzas e Impuestos'
+              - column:
+                  name: color
+                  value: '#8C7AE6'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Ropa y Calzado'
+              - column:
+                  name: color
+                  value: '#01A3A4'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Transacciones Bancarias'
+              - column:
+                  name: color
+                  value: '#5F27CD'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Ingresos'
+              - column:
+                  name: color
+                  value: '#099FE2'
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Ingresos'
+              - column:
+                  name: color
+                  value: '#099FE2'
