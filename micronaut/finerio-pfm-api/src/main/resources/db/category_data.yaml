@@ -35,18 +35,6 @@ databaseChangeLog:
                   value: 0
               - column:
                   name: name
-                  value: 'Alimentos'
-              - column:
-                  name: color
-                  value: '#FECA46'
-        - insert:
-            tableName: category
-            columns:
-              - column:
-                  name: version
-                  value: 0
-              - column:
-                  name: name
                   value: 'Entretenimiento'
               - column:
                   name: color
@@ -167,7 +155,1165 @@ databaseChangeLog:
                   value: 0
               - column:
                   name: name
-                  value: 'Ingresos'
+                  value: 'Ropa'
               - column:
                   name: color
-                  value: '#099FE2'
+                  value: '#41BABB'
+              - column:
+                  name: parent_id
+                  value: 10
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Servicios Públicos'
+              - column:
+                  name: color
+                  value: '#C7E088'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Construcción y Remodelación'
+              - column:
+                  name: color
+                  value: '#ACD04C'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Despensa'
+              - column:
+                  name: color
+                  value: '#FECF58'
+              - column:
+                  name: parent_id
+                  value: 2
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Alcohol y Tabaco'
+              - column:
+                  name: color
+                  value: '#FEC185'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Ropa'
+              - column:
+                  name: color
+                  value: '#4EBFBF'
+              - column:
+                  name: parent_id
+                  value: 10
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Artículos para el Hogar'
+              - column:
+                  name: color
+                  value: '#B1D356'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Accesorios'
+              - column:
+                  name: color
+                  value: '#27B1B2'
+              - column:
+                  name: parent_id
+                  value: 10
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Cuidado Personal'
+              - column:
+                  name: color
+                  value: '#FD8EB0'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Calzado'
+              - column:
+                  name: color
+                  value: '#1BACAD'
+              - column:
+                  name: parent_id
+                  value: 10
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Farmacia'
+              - column:
+                  name: color
+                  value: '#FD7BA3'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Perfumes y Cosméticos'
+              - column:
+                  name: color
+                  value: '#FC5588'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Cine y Música'
+              - column:
+                  name: color
+                  value: '#FDA956'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Juguetes y Videojuegos'
+              - column:
+                  name: color
+                  value: '#FDAD5F'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Auto y Transporte'
+              - column:
+                  name: color
+                  value: '#99ECD8'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Entretenimiento'
+              - column:
+                  name: color
+                  value: '#FECA98'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Ejercicio y Deportes'
+              - column:
+                  name: color
+                  value: '#FD719B'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Papelería'
+              - column:
+                  name: color
+                  value: '#CD7DA3'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Libros'
+              - column:
+                  name: color
+                  value: '#D187AA'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Suscripciones y Apps'
+              - column:
+                  name: color
+                  value: '#FDB772'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Mascotas'
+              - column:
+                  name: color
+                  value: '#B5D560'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Regalos'
+              - column:
+                  name: color
+                  value: '#F586E6'
+              - column:
+                  name: parent_id
+                  value: 7
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Muebles y Aparatos Eléctricos'
+              - column:
+                  name: color
+                  value: '#BFDB74'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Limpieza y Mantenimiento'
+              - column:
+                  name: color
+                  value: '#BAD86A'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Automóvil y Motocicleta'
+              - column:
+                  name: color
+                  value: '#48DDBA'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Mantenimiento y Refacciones'
+              - column:
+                  name: color
+                  value: '#51DFBC'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Gasolina'
+              - column:
+                  name: color
+                  value: '#71E4C9'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Vuelos'
+              - column:
+                  name: color
+                  value: '#AA73C2'
+              - column:
+                  name: parent_id
+                  value: 8
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Transporte Viajes'
+              - column:
+                  name: color
+                  value: '#A569BD'
+              - column:
+                  name: parent_id
+                  value: 8
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Botes y Cruceros'
+              - column:
+                  name: color
+                  value: '#9F60B8'
+              - column:
+                  name: parent_id
+                  value: 8
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Hogar'
+              - column:
+                  name: color
+                  value: '#D1E59B'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Transporte Público'
+              - column:
+                  name: color
+                  value: '#66E3C5'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Taxi'
+              - column:
+                  name: color
+                  value: '#7AE6CD'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Casetas '
+              - column:
+                  name: color
+                  value: '#85E8D1'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Correo '
+              - column:
+                  name: color
+                  value: '#BB4B7F'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Servicios Profesionales '
+              - column:
+                  name: color
+                  value: '#D99BB8'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Servicios Financieros'
+              - column:
+                  name: color
+                  value: '#A395EB'
+              - column:
+                  name: parent_id
+                  value: 9
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Ahorro e Inversiones'
+              - column:
+                  name: color
+                  value: '#AFA2EE'
+              - column:
+                  name: parent_id
+                  value: 9
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Créditos'
+              - column:
+                  name: color
+                  value: '#A99BEC'
+              - column:
+                  name: parent_id
+                  value: 9
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Seguros y Fianzas'
+              - column:
+                  name: color
+                  value: '#9888E9'
+              - column:
+                  name: parent_id
+                  value: 9
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Renta y Compra'
+              - column:
+                  name: color
+                  value: '#C3DD7D'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Espectáculos y Eventos'
+              - column:
+                  name: color
+                  value: '#FEC58E'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Servicios Legales'
+              - column:
+                  name: color
+                  value: '#BE5586'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Servicios Contables'
+              - column:
+                  name: color
+                  value: '#C25F8D'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Colegiatura'
+              - column:
+                  name: color
+                  value: '#CA739C'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Educación y Trabajo'
+              - column:
+                  name: color
+                  value: '#C66995'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Médico'
+              - column:
+                  name: color
+                  value: '#FD84A9'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Dentista'
+              - column:
+                  name: color
+                  value: '#FD6895'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Salud y Belleza'
+              - column:
+                  name: color
+                  value: '#FD97B7'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Donaciones'
+              - column:
+                  name: color
+                  value: '#F477E3'
+              - column:
+                  name: parent_id
+                  value: 7
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Museos y Parques'
+              - column:
+                  name: color
+                  value: '#FDB269'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Bares y Restaurantes'
+              - column:
+                  name: color
+                  value: '#FDBC7C'
+              - column:
+                  name: parent_id
+                  value: 3
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Hospedaje'
+              - column:
+                  name: color
+                  value: '#9A57B5'
+              - column:
+                  name: parent_id
+                  value: 8
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Restaurante'
+              - column:
+                  name: color
+                  value: '#FED261'
+              - column:
+                  name: parent_id
+                  value: 2
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Autolavado'
+              - column:
+                  name: color
+                  value: '#5CE1C1'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Salón de belleza'
+              - column:
+                  name: color
+                  value: '#FC5E8F'
+              - column:
+                  name: parent_id
+                  value: 4
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Lavandería y Tintorería'
+              - column:
+                  name: color
+                  value: '#34B5B6'
+              - column:
+                  name: parent_id
+                  value: 10
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Estacionamiento'
+              - column:
+                  name: color
+                  value: '#8FEAD5'
+              - column:
+                  name: parent_id
+                  value: 5
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Impuestos'
+              - column:
+                  name: color
+                  value: '#9D8EEA'
+              - column:
+                  name: parent_id
+                  value: 9
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Pago Tarjeta de Crédito'
+              - column:
+                  name: color
+                  value: '#6F3DD1'
+              - column:
+                  name: parent_id
+                  value: 11
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Transferencias'
+              - column:
+                  name: color
+                  value: '#865DDA'
+              - column:
+                  name: parent_id
+                  value: 11
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Finanzas e Impuestos'
+              - column:
+                  name: color
+                  value: '#B4A8EF'
+              - column:
+                  name: parent_id
+                  value: 9
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Viajes'
+              - column:
+                  name: color
+                  value: '#B07CC6'
+              - column:
+                  name: parent_id
+                  value: 8
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Software'
+              - column:
+                  name: color
+                  value: '#D591B1'
+              - column:
+                  name: parent_id
+                  value: 6
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Cheques '
+              - column:
+                  name: color
+                  value: '#7748D4'
+              - column:
+                  name: parent_id
+                  value: 11
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Cajero automático'
+              - column:
+                  name: color
+                  value: '#7E52D7'
+              - column:
+                  name: parent_id
+                  value: 11
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Transacciones Bancarias'
+              - column:
+                  name: color
+                  value: '#8F68DC'
+              - column:
+                  name: parent_id
+                  value: 11
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Préstamos'
+              - column:
+                  name: color
+                  value: '#22C9FD'
+              - column:
+                  name: parent_id
+                  value: 12
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Bonos'
+              - column:
+                  name: color
+                  value: '#26CCFD'
+              - column:
+                  name: parent_id
+                  value: 12
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Sueldo'
+              - column:
+                  name: color
+                  value: '#40D2FE'
+              - column:
+                  name: parent_id
+                  value: 12
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Rentas'
+              - column:
+                  name: color
+                  value: '#4DD5FE'
+              - column:
+                  name: parent_id
+                  value: 12
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Inversiones'
+              - column:
+                  name: color
+                  value: '#59D8FE'
+              - column:
+                  name: parent_id
+                  value: 12
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Ingresos'
+              - column:
+                  name: color
+                  value: '#66DBFE'
+              - column:
+                  name: parent_id
+                  value: 12
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Reembolsos y Devoluciones'
+              - column:
+                  name: color
+                  value: '#33CFFD'
+              - column:
+                  name: parent_id
+                  value: 12
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Teléfono Celular'
+              - column:
+                  name: color
+                  value: '#CBE292'
+              - column:
+                  name: parent_id
+                  value: 1
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Alimentos'
+              - column:
+                  name: color
+                  value: '#FED56B'
+              - column:
+                  name: parent_id
+                  value: 2
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Apoyo a Familiares y Amigos'
+              - column:
+                  name: color
+                  value: '#F57FE5'
+              - column:
+                  name: parent_id
+                  value: 7
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Otros Regalos y Ayuda'
+              - column:
+                  name: color
+                  value: '#F68EE8'
+              - column:
+                  name: parent_id
+                  value: 7
