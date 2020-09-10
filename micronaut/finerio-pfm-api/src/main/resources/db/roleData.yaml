@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: role_data
+      author: alejandro.garcia
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: authority
+                  value: 'ROLE_CLIENT'
