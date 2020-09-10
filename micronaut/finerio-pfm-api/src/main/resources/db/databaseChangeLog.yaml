@@ -18,7 +18,7 @@ databaseChangeLog:
   - include:
       file: db/role.yaml
   - include:
-      file: db/roleData.yaml
+      file: db/role_data.yaml
   - include:
       file: db/transaction.yaml
   - include:
