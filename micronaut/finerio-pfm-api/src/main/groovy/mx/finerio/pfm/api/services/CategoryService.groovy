@@ -23,7 +23,7 @@ interface CategoryService {
     void delete(Long id)
 
     @Log
-    List<CategoryDto> findAllByCurrentLoggedClientAndUserNul()
+    List<CategoryDto> findAllByCurrentLoggedClientAndUserNull()
 
     @Log
     List<CategoryDto> findAllByUser(User user)

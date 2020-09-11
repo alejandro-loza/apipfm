@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: system_system_category
+      author: alejandro.hernandez
+      changes:
+        - createTable:
+            tableName: system_category
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: parent_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: name
+                  type: java.sql.Types.VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: color
+                  type: java.sql.Types.VARCHAR(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: date_created
+                  type: DATETIME(6)
+              - column:
+                  name: last_updated
+                  type: DATETIME(6)
+              - column:
+                  name: date_deleted
+                  type: DATETIME(6)

@@ -142,7 +142,7 @@ class CategoryServiceSpec extends Specification {
         1 * categoryService.securityService.getAuthentication() >> of(Principal)
         1 * categoryService.categoryGormService.findAllByClientAndUserIsNullAndDateDeletedIsNull(_ as Client, _ as Map) >> [category]
 
-        def response = categoryService.findAllByCurrentLoggedClientAndUserNul()
+        def response = categoryService.findAllByCurrentLoggedClientAndUserNull()
 
         then:
         response instanceof  List<Category>
@@ -153,7 +153,7 @@ class CategoryServiceSpec extends Specification {
         1 * categoryService.clientService.findByUsername(_ as String) >>  new Client()
         1 * categoryService.securityService.getAuthentication() >> of(Principal)
         1 * categoryService.categoryGormService.findAllByClientAndUserIsNullAndDateDeletedIsNull(_ as Client , _ as Map) >> []
-        def response = categoryService.findAllByCurrentLoggedClientAndUserNul()
+        def response = categoryService.findAllByCurrentLoggedClientAndUserNull()
 
         then:
         response instanceof  List<Category>

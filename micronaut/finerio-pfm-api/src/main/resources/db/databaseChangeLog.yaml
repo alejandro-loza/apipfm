@@ -6,8 +6,6 @@ databaseChangeLog:
   - include:
       file: db/category.yaml
   - include:
-      file: db/category_data.yaml
-  - include:
       file: db/client.yaml
   - include:
       file: db/client_profile.yaml
@@ -19,6 +17,10 @@ databaseChangeLog:
       file: db/role.yaml
   - include:
       file: db/role_data.yaml
+  - include:
+      file: db/system_category.yaml
+  - include:
+      file: db/system_category_data.yaml
   - include:
       file: db/transaction.yaml
   - include:
