@@ -10,6 +10,7 @@ import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.CategoryService
+import mx.finerio.pfm.api.services.SystemCategoryService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
@@ -26,6 +27,9 @@ class CategoryController {
 
     @Inject
     CategoryService categoryService
+
+    @Inject
+    SystemCategoryService systemCategoryService
 
     @Inject
     UserService userService
@@ -47,8 +51,9 @@ class CategoryController {
     @Get("{?userId}")
     @Transactional
     Single<ResourcesDto> showAll( @Nullable Long userId) {
-        List<CategoryDto> clientCategories
-            clientCategories = categoryService.findAllByCurrentLoggedClientAndUserNull()
+        List<CategoryDto> clientCategories = systemCategoryService.findAll()
+        clientCategories.addAll( categoryService.findAllByCurrentLoggedClientAndUserNull() )
+
         if(userId) {
             clientCategories.addAll( categoryService.findAllByUser(userService.getUser(userId)))
         }
