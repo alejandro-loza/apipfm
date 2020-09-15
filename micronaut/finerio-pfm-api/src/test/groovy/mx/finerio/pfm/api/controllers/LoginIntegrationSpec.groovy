@@ -13,6 +13,7 @@ import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.Flowable
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.services.ClientService
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 

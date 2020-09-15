@@ -8,11 +8,12 @@ import mx.finerio.pfm.api.domain.Category
 
 @Service(Budget)
 interface BudgetGormService {
-    Budget save(Budget transaction)
+    Budget save(Budget budget)
     Budget getById(Long id)
     Budget findByUserAndCategoryAndDateDeletedIsNull(User user, Category category)
     List<Budget> findAllByDateDeletedIsNull(Map args)
     List<Budget> findAllByUserAndDateDeletedIsNull(User user, Map args)
+    Budget findByCategoryAndDateDeletedIsNull(Category category)
     List<Budget> findAllByUserAndIdLessThanEqualsAndDateDeletedIsNull(User user,Long id, Map args)
     List<Budget> findAll()
     @Query("from ${Budget a} where $a.id = $id and a.dateDeleted is Null")

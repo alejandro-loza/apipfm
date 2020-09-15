@@ -7,12 +7,15 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.dtos.resource.AccountDto
 
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.NextCursorService
+import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.AccountUpdateCommand
 
@@ -31,6 +34,9 @@ class AccountController {
 
     @Inject
     NextCursorService nextCursorService
+
+    @Inject
+    TransactionService transactionService
 
     @Log
     @Post("/")
@@ -67,7 +73,11 @@ class AccountController {
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
-        accountService.delete(id)
+        Account account = accountService.getAccount(id)
+        if (transactionService.findAllByAccount(account)) {
+            throw new BadRequestException('account.transaction.existence')
+        }
+        accountService.delete(account)
         HttpResponse.noContent()
     }
 

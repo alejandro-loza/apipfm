@@ -132,8 +132,7 @@ class CategoryServiceSpec extends Specification {
         e.message == 'category.notFound'
     }
 
-    def
-    "Should get all categories" () {
+    def "Should get all categories" () {
         def category = new Category()
         category.user = new User()
 
@@ -160,7 +159,37 @@ class CategoryServiceSpec extends Specification {
         response.isEmpty()
     }
 
-    private CategoryCreateCommand generateCommand() {
+    def "Should delete a category"(){
+
+        Category category = new Category()
+        category.parent = new Category()
+
+        when:
+
+        1 * categoryService.categoryGormService.save(_ as Category)
+
+        def response = categoryService.delete(category)
+
+        then:
+        !response
+
+    }
+
+    def "Should delete a category and its categories"(){
+
+        Category category = new Category()
+
+        when:
+        1 * categoryService.categoryGormService.save(_ as Category)
+
+        def response = categoryService.delete(category)
+
+        then:
+        !response
+
+    }
+
+    private static CategoryCreateCommand generateCommand() {
         CategoryCreateCommand cmd = new CategoryCreateCommand()
         cmd.with {
             userId = 123

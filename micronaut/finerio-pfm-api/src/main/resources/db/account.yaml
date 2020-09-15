@@ -45,15 +45,21 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: balance
-                  type: DECIMAL(18,12)
+                  type: DECIMAL(19,2)
                   constraints:
                     nullable: false
               - column:
                   name: date_created
                   type: DATETIME(6)
+                  constraints:
+                    nullable: false
               - column:
                   name: last_updated
                   type: DATETIME(6)
+                  constraints:
+                    nullable: false
               - column:
                   name: date_deleted
                   type: DATETIME(6)
+                  constraints:
+                    nullable: true

@@ -11,6 +11,8 @@ import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
@@ -19,9 +21,12 @@ import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
+import mx.finerio.pfm.api.services.gorm.CategoryGormService
+import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -29,6 +34,7 @@ import javax.inject.Inject
 
 @Property(name = 'spec.name', value = 'usercontroller')
 @MicronautTest(application = Application.class)
+
 class UserControllerSpec extends Specification {
 
     public static final String LOGIN_ROOT = "/login"
@@ -55,8 +61,15 @@ class UserControllerSpec extends Specification {
 
     @Inject
     @Shared
+    FinancialEntityGormService financialEntityGormService
+
+    @Inject
+    @Shared
     TransactionGormService transactionGormService
 
+    @Inject
+    @Shared
+    CategoryGormService categoryGormService
 
     @Shared
     mx.finerio.pfm.api.domain.Client loggedInClient
@@ -447,6 +460,36 @@ class UserControllerSpec extends Specification {
         User user = generateUser()
         Long id = user.id
 
+        and:'a list of accounts'
+        Account account1 = generateAccount(user)
+        Account account2 = generateAccount(user)
+
+        and:
+        generateTransaction(account1)
+        generateTransaction(account2)
+
+        and:
+
+        Category parentCategory = new Category()
+        parentCategory.with {
+            parentCategory.user = user
+            parentCategory.client = loggedInClient
+            name = 'parent category name'
+        }
+
+        categoryGormService.save(parentCategory)
+
+        Category childCategory = new Category()
+        childCategory.with {
+            childCategory.user = user
+            childCategory.client = loggedInClient
+            name = 'child category name'
+            parent = parentCategory
+        }
+
+        categoryGormService.save(childCategory)
+
+
         and:'a client request'
         HttpRequest request = HttpRequest.DELETE("${USER_ROOT}/${id}").bearerAuth(accessToken)
 
@@ -457,7 +500,52 @@ class UserControllerSpec extends Specification {
         response.status == HttpStatus.NO_CONTENT
         assert userGormService.findById(user.id).dateDeleted
 
+        when:
+        def accounts =  accountGormService.findAllByUserAndDateDeletedIsNull(user, [sort: 'id', order: 'desc'])
 
+        then:
+        assert accounts.isEmpty()
+        when:
+        def transactions1 =  transactionGormService.findAllByAccountAndDateDeletedIsNull(account1, [sort: 'id', order: 'desc'])
+
+        then:
+        assert transactions1.isEmpty()
+
+        when:
+        def transactions2 =  transactionGormService.findAllByAccountAndDateDeletedIsNull(account2, [sort: 'id', order: 'desc'])
+
+        then:
+        assert transactions2.isEmpty()
+
+        when:
+        List<Category> categories = categoryGormService.findAllByUserAndDateDeletedIsNull(user, [sort: 'id', order: 'desc'])
+
+        then:
+        assert categories.isEmpty()
+
+    }
+
+    private Account generateAccount(User user1) {
+        Account account = new Account()
+        account.with {
+            user = user1
+            balance = 0.0
+            name = 'test'
+            number = 'asd'
+            nature = 'test'
+            financialEntity = generateEntity()
+        }
+        accountGormService.save(account)
+    }
+
+    private  Transaction generateTransaction(Account account1){
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = account1
+            date = new Date()
+            description = 'test description'
+        }
+        transactionGormService.save(transaction)
     }
 
     private User generateUser() {
@@ -466,6 +554,16 @@ class UserControllerSpec extends Specification {
 
     private mx.finerio.pfm.api.domain.Client generateClient(){
         clientService.register("another client", 'elementary', ['ROLE_DETECTIVE'])
+    }
+
+    private FinancialEntity generateEntity() {
+        FinancialEntity entity1 = new FinancialEntity()
+        entity1.with {
+            name = 'Gringotts'
+            code = 'Gringotts Bank'
+            entity1.client = loggedInClient
+        }
+        financialEntityGormService.save(entity1)
     }
 
 

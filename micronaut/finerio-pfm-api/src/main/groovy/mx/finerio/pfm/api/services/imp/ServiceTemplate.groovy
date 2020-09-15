@@ -22,7 +22,7 @@ class ServiceTemplate {
         MAX_ROWS
     }
 
-    static void verifyBody(ValidationCommand cmd) {
+    void verifyBody(ValidationCommand cmd) {
         if (!cmd) {
             throw new IllegalArgumentException(
                     'request.body.invalid')

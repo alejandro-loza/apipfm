@@ -70,6 +70,7 @@ class ResumeServiceSpec extends Specification {
 
         Date september98Date = new SimpleDateFormat("dd/MM/yyyy").parse("13/09/1998")
         Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
+        Date december19Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2019")
 
         def t2 = generateTransaction(december20Date, sub2)
         def t3 = generateTransaction(december20Date, sub3)
@@ -80,7 +81,7 @@ class ResumeServiceSpec extends Specification {
         List<Transaction> transactions = [t1, t2, t3, t4, t5]
 
         when:
-        List<MovementsDto> movementsByMonth = resumeService.getTransactionsGroupByMonth(transactions)
+        List<MovementsDto> movementsByMonth = resumeService.groupTransactionsByMonth(transactions)
 
         then:
         assert movementsByMonth.size() == 2
@@ -108,12 +109,12 @@ class ResumeServiceSpec extends Specification {
 
     }
 
-
     def "Should get the balance"(){
         given:
 
         Date december98Date = new SimpleDateFormat("dd/MM/yyyy").parse("13/12/1998")
         Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
+        Date december19Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/20")
 
         MovementsDto incomeMovements98 = new MovementsDto()
         incomeMovements98.with {
@@ -139,20 +140,46 @@ class ResumeServiceSpec extends Specification {
             amount = 99.99
         }
 
+        MovementsDto expensesMovements19 = new MovementsDto()
+        expensesMovements19.with {
+            date = december19Date.getTime()
+            amount = 99.99
+        }
+
         when:
         List<BalancesDto> result =resumeService
-                .getBalance([incomeMovements98, incomeMovements20],  [expensesMovements98, expensesMovements20])
+                .getBalance([incomeMovements98, incomeMovements20],  [expensesMovements98, expensesMovements20, expensesMovements19])
+
+        def balanceDates = result.collect{
+            new Date(it.date)
+        }
 
         then:
         assert result instanceof List<BalancesDto>
         assert !result.isEmpty()
-        assert result.first().date == december98Date.getTime()
-        assert result.first().incomes == 235.35F
-        assert result.first().expenses == 100.00F
+        assert balanceDates.size() == 3
+        assert  balanceDates.find{it.date == december20Date.date}
+        assert  balanceDates.find{it.date == december19Date.date}
+        assert  balanceDates.find{it.date == december98Date.date}
 
-        assert result.last().date == december20Date.getTime()
-        assert result.last().incomes == 300.00F
-        assert result.last().expenses == 99.99F
+        def result98 = result.find{it.date == december98Date.getTime()}
+        result98.with {
+            assert incomes == 235.35F
+            assert expenses == 100.00F
+        }
+
+        def result19 = result.find{it.date == december19Date.getTime()}
+        result19.with {
+           assert incomes == 0.0F
+           assert expenses == 99.99F
+        }
+
+        def result20 = result.find{it.date == december20Date.getTime()}
+        result20.with {
+            assert incomes == 300.0F
+            assert expenses == 99.99F
+        }
+
     }
 
     private static Transaction generateTransaction(Date date1, Category category1) {

@@ -25,6 +25,7 @@ import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.AccountUpdateCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -712,6 +713,58 @@ class AccountControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
+
+    }
+
+    def "Should not delete an account and throw exception on account who has transactions set"() {
+        given:'a saved user'
+        User user1 = generateUser()
+
+        and:'a saved entity'
+        FinancialEntity entity = generateEntity()
+
+        and:'a saved account'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account)
+
+        and: 'a saved transaction how has set the account'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            date = new Date()
+            description = 'test description'
+            amount = 1000.00
+            transaction.account = account
+        }
+        transactionGormService.save(transaction)
+
+        and:'a client request'
+        HttpRequest request = HttpRequest.DELETE("${ACCOUNT_ROOT}/${account.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request,  Argument.of(AccountDto) as Argument<AccountDto>,
+                Argument.of(ErrorsDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.BAD_REQUEST
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'account.transaction.existence'
+            assert title == 'Transaction child existence'
+            assert detail == 'There is at least one transaction that is still using this account entity'
+        }
 
     }
 

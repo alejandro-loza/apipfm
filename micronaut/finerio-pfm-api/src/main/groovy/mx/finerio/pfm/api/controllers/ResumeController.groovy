@@ -6,9 +6,11 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
+import javax.annotation.Nullable
 import mx.finerio.pfm.api.dtos.utilities.ResumeDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.ResumeService
+import mx.finerio.pfm.api.validation.ResumeFilterParamsCommand
 
 import javax.inject.Inject
 
@@ -21,10 +23,15 @@ class ResumeController {
     ResumeService resumeService
 
     @Log
-    @Get
+    @Get("{?accountId,dateFrom,dateTo}")
     @Transactional
-    ResumeDto resume(@QueryValue('userId') Long userId) {
-        resumeService.getResume(userId)
+    ResumeDto resume(
+            @QueryValue('userId') Long userId,
+            @Nullable Long accountId,
+            @Nullable Long dateFrom,
+            @Nullable Long dateTo) {
+
+        resumeService.getResume(userId, new ResumeFilterParamsCommand(accountId, dateFrom, dateTo))
     }
 
 }
