@@ -64,7 +64,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    List<CategoryDto> findAllByCurrentLoggedClientAndUserNul() {
+    List<CategoryDto> findAllByCurrentLoggedClientAndUserNull() {
         categoryGormService
                 .findAllByClientAndUserIsNullAndDateDeletedIsNull(
                         getCurrentLoggedClient(), [max: MAX_ROWS, sort: 'id', order: 'desc'])

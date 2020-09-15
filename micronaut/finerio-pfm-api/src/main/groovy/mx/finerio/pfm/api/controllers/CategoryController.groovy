@@ -13,6 +13,7 @@ import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.CategoryService
+import mx.finerio.pfm.api.services.SystemCategoryService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
@@ -30,6 +31,9 @@ class CategoryController {
 
     @Inject
     CategoryService categoryService
+
+    @Inject
+    SystemCategoryService systemCategoryService
 
     @Inject
     UserService userService
@@ -57,12 +61,14 @@ class CategoryController {
     @Get("{?userId}")
     @Transactional
     Single<ResourcesDto> showAll( @Nullable Long userId) {
-        List<CategoryDto> clientCategories
-            clientCategories = categoryService.findAllByCurrentLoggedClientAndUserNul()
+        List<CategoryDto> clientCategories = systemCategoryService.findAll()
+        clientCategories.addAll( categoryService.findAllByCurrentLoggedClientAndUserNull() )
+
         if(userId) {
             clientCategories.addAll( categoryService.findAllCategoryDtosByUser(userService.getUser(userId)))
         }
 
+        clientCategories = clientCategories.sort { c1, c2 -> c2.id <=> c1.id }
         Single.just(new ResourcesDto(clientCategories, null))
     }
 

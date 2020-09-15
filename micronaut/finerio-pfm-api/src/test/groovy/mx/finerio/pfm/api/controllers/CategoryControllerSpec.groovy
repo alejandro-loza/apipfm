@@ -128,7 +128,7 @@ class CategoryControllerSpec extends Specification {
         assert body.get("nextCursor") == null
 
         List<CategoryDto> categoryDtos= body.get("data") as List<CategoryDto>
-        assert categoryDtos.isEmpty()
+        assert categoryDtos.size() == 90
     }
 
     def "Should create a category"() {
@@ -596,12 +596,12 @@ class CategoryControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<CategoryDto> categoryDtos = body.get("data") as List<CategoryDto>
-        categoryDtos.size() == 2
-        assert !categoryDtos.find {it.id == category1.id}
-        assert !categoryDtos.find {it.id == category2.id}
-        assert !categoryDtos.find {it.id == category4.id}
-        assert categoryDtos.find {it.id == category3.id}
-        assert categoryDtos.find {it.id == category5.id}
+        categoryDtos.size() == 92
+        assert !categoryDtos.find {it.name == category1.name}
+        assert !categoryDtos.find {it.name == category2.name }
+        assert !categoryDtos.find {it.name == category4.name }
+        assert categoryDtos.find {it.name == category3.name }
+        assert categoryDtos.find {it.name == category5.name }
 
         assert body.get("nextCursor") == null
     }
@@ -632,12 +632,12 @@ class CategoryControllerSpec extends Specification {
         Map body = rspGET.getBody(Map).get()
         List<CategoryDto> categoryDtos = body.get("data") as List<CategoryDto>
 
-        assert categoryDtos.size() == 3
-        assert categoryDtos.find {it.id == category1.id}
-        assert !categoryDtos.find {it.id == category2.id}
-        assert !categoryDtos.find {it.id == category4.id}
-        assert categoryDtos.find {it.id == category3.id}
-        assert categoryDtos.find {it.id == category5.id}
+        assert categoryDtos.size() == 93
+        assert categoryDtos.find {it.name == category1.name}
+        assert !categoryDtos.find {it.name == category2.name}
+        assert !categoryDtos.find {it.name == category4.name}
+        assert categoryDtos.find {it.name == category3.name}
+        assert categoryDtos.find {it.name == category5.name}
 
         assert body.get("nextCursor") == null
     }
@@ -878,7 +878,7 @@ class CategoryControllerSpec extends Specification {
         CategoryCreateCommand cmd = new CategoryCreateCommand()
         cmd.with {
             userId = user1.id
-            name = 'Shoes and clothes'
+            name = "${UUID.randomUUID().toString()}"
             color = "#00FFAA"
         }
         cmd
@@ -893,7 +893,7 @@ class CategoryControllerSpec extends Specification {
     private Category generateCategoryWithoutUser() {
         Category category = new Category()
         category.with {
-            name = 'ALONE ONE'
+            name = "${UUID.randomUUID().toString()}"
             category.client = loggedInClient
         }
         categoryGormService.save(category)

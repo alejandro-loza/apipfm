@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: category
+      id: system_system_category
       author: alejandro.hernandez
       changes:
         - createTable:
-            tableName: category
+            tableName: system_category
             columns:
               - column:
                   name: id
@@ -19,17 +19,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: user_id
-                  type: BIGINT
-                  constraints:
-                    nullable: true
-              - column:
                   name: parent_id
-                  type: BIGINT
-                  constraints:
-                    nullable: true
-              - column:
-                  name: client_id
                   type: BIGINT
                   constraints:
                     nullable: true
@@ -52,15 +42,3 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
-  - changeSet:
-      id: category_auto_increment
-      author: alejandro.garcia
-      changes:
-        - addAutoIncrement:
-            columnName: id
-            columnDataType: BIGINT
-            defaultOnNull: false
-            generationType: ALWAYS
-            incrementBy: 1
-            startWith: 91
-            tableName: category

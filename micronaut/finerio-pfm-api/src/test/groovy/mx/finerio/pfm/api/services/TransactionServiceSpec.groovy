@@ -51,7 +51,11 @@ class TransactionServiceSpec extends Specification {
 
     def 'Should not save an transaction on no parent category'(){
         given:'a transaction command request body'
-        Category category = generateCategory()
+        Category category = new Category()
+        category.with {
+            name: 'sub category'
+            category.id = 666
+        }
         category.parent = null
 
         def account = new Account()

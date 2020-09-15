@@ -8,6 +8,8 @@ databaseChangeLog:
   - include:
       file: db/client.yaml
   - include:
+      file: db/client_profile.yaml
+  - include:
       file: db/client_role.yaml
   - include:
       file: db/financialEntity.yaml
@@ -16,7 +18,9 @@ databaseChangeLog:
   - include:
       file: db/role_data.yaml
   - include:
-      file: db/client_profile.yaml
+      file: db/system_category.yaml
+  - include:
+      file: db/system_category_data.yaml
   - include:
       file: db/transaction.yaml
   - include:
