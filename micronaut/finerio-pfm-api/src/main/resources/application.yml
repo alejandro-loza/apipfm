@@ -16,6 +16,10 @@ micronaut:
           secret:
             generator:
               secret: secret01234567890ABCDEFGHIJKLMNO
+  server:
+    port: 8080
+    cors:
+      enabled: true
 dataSource:
   pooled: true
   dbCreate: none
