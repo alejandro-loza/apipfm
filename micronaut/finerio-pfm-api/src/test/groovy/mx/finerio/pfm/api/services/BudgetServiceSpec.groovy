@@ -24,7 +24,6 @@ class BudgetServiceSpec extends Specification {
     void setup(){
         budgetService.budgetGormService = Mock(BudgetGormService)
         budgetService.userService = Mock(UserService)
-        budgetService.categoryService = Mock(CategoryService)
         budgetService.securityService = Mock(SecurityService)
         budgetService.clientService = Mock(ClientService)
     }
@@ -36,45 +35,12 @@ class BudgetServiceSpec extends Specification {
         def category = new Category()
 
         when:
-        1 * budgetService.userService.getUser(_ as Long) >> user
-        1 * budgetService.categoryService.getById(_ as Long) >> category
-
         1 * budgetService.budgetGormService.save(_  as Budget) >> new Budget(cmd, user, category)
 
-        def response = budgetService.create(cmd)
+        def response = budgetService.create(cmd, category, user)
 
         then:
         response instanceof Budget
-    }
-
-    def 'Should not save an budget on category already exist'(){
-        given:'a budget command request body'
-        BudgetCreateCommand cmd = generateCommand()
-        def user = new User()
-        def category = new Category()
-
-        when:
-        1 * budgetService.userService.getUser(_ as Long) >> user
-        1 * budgetService.categoryService.getById(_ as Long) >> category
-        1 * budgetService.budgetGormService.findByUserAndCategoryAndDateDeletedIsNull(_  as User, _  as Category) >> new Budget(cmd, user, category)
-
-        0 * budgetService.budgetGormService.save(_  as Budget)
-
-        budgetService.create(cmd)
-
-        then:
-        BadRequestException e = thrown()
-        e.message ==  'budget.category.nonUnique'
-    }
-
-    def "Should throw exception on null body"() {
-
-        when:
-        budgetService.create(null)
-        then:
-        IllegalArgumentException e = thrown()
-        e.message ==
-                'request.body.invalid'
     }
 
     def "Should get a budget"(){

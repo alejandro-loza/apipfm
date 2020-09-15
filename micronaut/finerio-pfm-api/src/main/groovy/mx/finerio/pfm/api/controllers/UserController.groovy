@@ -1,17 +1,26 @@
 package mx.finerio.pfm.api.controllers
 
+import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.utils.SecurityService
 import io.micronaut.validation.Validated
 import io.reactivex.Single
+import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
+import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.logging.Log
+import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.BudgetService
+import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.NextCursorService
+import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.UserCommand
 
@@ -37,12 +46,24 @@ class UserController {
     ClientService clientService
 
     @Inject
+    TransactionService transactionService
+
+    @Inject
+    AccountService accountService
+
+    @Inject
+    BudgetService budgetService
+
+    @Inject
+    CategoryService categoryService
+
+    @Inject
     NextCursorService nextCursorService
 
     @Log
     @Post("/")
     Single<UserDto> save(@Body @Valid UserCommand cmd){
-        just(new UserDto(userService.create(cmd, getCurrenLoggedClient())))
+        just(new UserDto(userService.create(cmd, getCurrentLoggedClient())))
     }
 
     @Log
@@ -55,8 +76,8 @@ class UserController {
     @Get("{?cursor}")
     Single<ResourcesDto>  showAll(@Nullable Long cursor) {
         nextCursorService.generateResourcesDto( cursor
-                ? userService.getAllByClientAndCursor(getCurrenLoggedClient(), cursor)
-                :  userService.getAllByClient(getCurrenLoggedClient())
+                ? userService.getAllByClientAndCursor(getCurrentLoggedClient(), cursor)
+                :  userService.getAllByClient(getCurrentLoggedClient())
         )
     }
 
@@ -68,12 +89,28 @@ class UserController {
 
     @Log
     @Delete("/{id}")
+    @Transactional
     HttpResponse delete(@NotNull Long id) {
-        userService.delete(id)
+        User user = userService.getUser(id)
+        deleteAllUserChildEntities(user)
+        userService.delete(user)
         HttpResponse.noContent()
     }
 
-    private Client getCurrenLoggedClient() {
+    void deleteAllUserChildEntities(User user) {
+        accountService.findAllByUser(user).each { Account account ->
+            transactionService.deleteAllByAccount(account)
+            accountService.delete(account)
+        }
+        budgetService.findAllByUser(user).each { BudgetDto budgetDto ->
+            budgetService.delete(budgetDto.id)
+        }
+        categoryService.findAllByUser(user).each { Category category ->
+            categoryService.delete(category)
+        }
+    }
+
+    private Client getCurrentLoggedClient() {
         clientService.findByUsername(securityService.getAuthentication().get().name)
     }
 }

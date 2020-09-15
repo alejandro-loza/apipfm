@@ -64,8 +64,7 @@ class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEnti
 
     @Override
     @Transactional
-    void delete(Long id){
-        FinancialEntity entity = getById(id)
+    void delete(FinancialEntity entity){
         entity.dateDeleted = new Date()
         financialEntityGormService.save(entity)
     }

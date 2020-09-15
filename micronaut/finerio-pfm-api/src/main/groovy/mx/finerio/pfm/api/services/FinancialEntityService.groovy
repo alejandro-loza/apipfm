@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services
 
+import grails.gorm.annotation.Entity
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 import mx.finerio.pfm.api.logging.Log
@@ -24,6 +25,6 @@ interface FinancialEntityService {
     List<FinancialEntityDto> findAllByCursor(Long cursor)
 
     @Log
-    void delete(Long id)
+    void delete(FinancialEntity financialEntity)
 
 }

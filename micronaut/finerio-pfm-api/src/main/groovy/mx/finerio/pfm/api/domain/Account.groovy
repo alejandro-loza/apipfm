@@ -18,7 +18,7 @@ class Account  implements GormEntity<Account> {
     String nature
     String name
     String number
-    BigDecimal balance
+    float balance
     Date dateCreated
     Date lastUpdated
     Date dateDeleted

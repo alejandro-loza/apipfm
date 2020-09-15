@@ -328,53 +328,13 @@ class AccountServiceSpec extends Specification {
         }
 
         when:
-        1 * accountService.securityService.getAuthentication() >> of(Principal)
-        1 * accountService.clientService.findByUsername(_ as String) >>  client
-        1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
+
         1 * accountService.accountGormService.save(_  as Account) >> account
 
-        def response = accountService.delete(account.user.id)
+        def response = accountService.delete(account)
 
         then:
         assert response == null
-
-    }
-
-    def "Should throw not found exception on delete an account and client user not match"(){
-        given:
-        Client client = generateClient()
-        Account account = generateAccount(client)
-
-        and:
-        AccountCreateCommand cmd = new AccountCreateCommand()
-        cmd.with {
-            userId = account.user.id
-            financialEntityId = 666
-            nature = 'No test'
-            name = 'no test'
-            number = 1234123412341234
-            balance = 1000.00
-        }
-
-        def entity = new FinancialEntity()
-        entity.with {
-            name = 'name'
-            code = 'code'
-        }
-
-        when:
-        1 * accountService.securityService.getAuthentication() >> of(Principal)
-        1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
-        1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
-        0 * accountService.financialEntityService.getById(_ as Long) >> entity
-        0 * accountService.accountGormService.save(_  as Account) >> account
-
-        accountService.delete(account.user.id)
-
-
-        then:
-        ItemNotFoundException e = thrown()
-        e.message == 'account.notFound'
 
     }
 
