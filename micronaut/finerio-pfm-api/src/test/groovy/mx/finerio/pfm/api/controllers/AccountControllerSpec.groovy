@@ -25,6 +25,7 @@ import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.AccountUpdateCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 

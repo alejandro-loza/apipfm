@@ -22,6 +22,7 @@ import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 

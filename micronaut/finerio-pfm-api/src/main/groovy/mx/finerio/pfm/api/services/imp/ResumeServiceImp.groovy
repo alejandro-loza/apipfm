@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.utilities.BalancesDto
 import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
@@ -9,17 +10,24 @@ import mx.finerio.pfm.api.dtos.utilities.ResumeDto
 import mx.finerio.pfm.api.dtos.utilities.SubCategoryResumeDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.utilities.TransactionsByDateDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ResumeService
 import  mx.finerio.pfm.api.services.TransactionService
+import mx.finerio.pfm.api.validation.ResumeFilterParamsCommand
 
 import javax.inject.Inject
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.stream.Collectors
 
 class ResumeServiceImp implements ResumeService{
+
+    public static final Date FROM_LIMIT = Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
+    public static final boolean INCOME = false
+    public static final boolean EXPENSE = true
 
     @Inject
     AccountService accountService
@@ -27,24 +35,13 @@ class ResumeServiceImp implements ResumeService{
     @Inject
     TransactionService transactionsService
 
-    @Override
-    @Transactional
-    List<Transaction> getExpenses(Long userId) {
-        getAccountsTransactions(userId, true)
-    }
 
     @Override
     @Transactional
-    List<Transaction> getIncomes(Long userId) {
-        getAccountsTransactions(userId, false)
-    }
-
-    @Override
-    @Transactional
-    List<MovementsDto> getTransactionsGroupByMonth(List<Transaction> transactionList){
+    List<MovementsDto> groupTransactionsByMonth(List<Transaction> transactionList){
         List<MovementsDto> movementsDtoList= []
         Map<String, List<Transaction>> list =  transactionList.stream()
-               .collect( Collectors.groupingBy({ Transaction transaction ->
+                .collect( Collectors.groupingBy({ Transaction transaction ->
                     new SimpleDateFormat("yyyy-MM").format(transaction.date)
                 }))
         for ( Map.Entry<String, List<Transaction>> entry : list.entrySet() ) {
@@ -55,12 +52,19 @@ class ResumeServiceImp implements ResumeService{
 
     @Override
     @Transactional
-    ResumeDto getResume(Long userId) {
+    ResumeDto getResume(Long userId, ResumeFilterParamsCommand cmd) {
 
-        def incomes = getIncomes(userId)
-        def expenses = getExpenses(userId)
-        List<MovementsDto> incomesResult = getTransactionsGroupByMonth(incomes)
-        List<MovementsDto> expensesResult = getTransactionsGroupByMonth( expenses)
+        Date fromDate = cmd.dateFrom ? validateFromDate(cmd.dateFrom) : FROM_LIMIT
+        Date toDate = cmd.dateTo ? validateToDate(cmd.dateTo , fromDate) : new Date()
+
+        List<Account> accounts = cmd.accountId
+                ? [accountService.getAccount(cmd.accountId)]
+                : accountService.findAllByUserId(userId)
+
+        List<MovementsDto> incomesResult = groupTransactionsByMonth(
+                getAccountsTransactions(accounts, INCOME, fromDate, toDate))
+        List<MovementsDto> expensesResult = groupTransactionsByMonth(
+                getAccountsTransactions(accounts, EXPENSE, fromDate, toDate))
 
         ResumeDto resumeDto = new ResumeDto()
         resumeDto.incomes = incomesResult
@@ -69,14 +73,48 @@ class ResumeServiceImp implements ResumeService{
         resumeDto
     }
 
+    private static Date validateFromDate(Long dateFrom) {
+        Date from = new Date(dateFrom)
+        if(from.before(FROM_LIMIT)){
+            throw new BadRequestException("date.range.invalid")
+        }
+        from
+    }
+
+    private static Date validateToDate(Long dateTo, Date from) {
+        Date to =  new Date(dateTo)
+        if(to.before(from)){
+            throw new BadRequestException("date.range.invalid")
+        }
+        to
+    }
+
     @Override
     List<BalancesDto> getBalance(List<MovementsDto> incomesResult, List<MovementsDto> expensesResult) {
-        [incomesResult.collect {
-            [date: it.date, incomes: it.amount]
+        def lists = [incomesResult.collect {
+            BalancesDto balance =new BalancesDto()
+            balance.date = it.date
+            balance.incomes = it.amount
+            balance
         },
          expensesResult.collect {
-             [date: it.date, expenses: it.amount]
-         }].transpose()*.sum() as List<BalancesDto>
+             BalancesDto balance =new BalancesDto()
+             balance.date = it.date
+             balance.expenses = it.amount
+             balance
+         }]
+        Map<Long, List<BalancesDto>>  dateGroupTransactions = lists.flatten().stream()
+                .collect ( Collectors.groupingBy({ BalancesDto balancesDto -> balancesDto.date}))
+
+        dateGroupTransactions.collect {  Long dateKey , List<BalancesDto> balances ->
+           BalancesDto balancesDto = new BalancesDto()
+            balancesDto.with {
+                date = dateKey
+                incomes = balances*.incomes.sum()
+                expenses = balances*.expenses.sum()
+            }
+            balancesDto
+        }
     }
 
     private List<CategoryResumeDto> getTransactionsGroupByParentCategory(List<Transaction> transactionList){
@@ -95,10 +133,10 @@ class ResumeServiceImp implements ResumeService{
         List<SubCategoryResumeDto> subCategoryResumeDtos = []
         Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
                 .collect ( Collectors.groupingBy({ Transaction transaction ->
-            transaction.category.id
-        }))
+                    transaction.category.id
+                }))
         for ( Map.Entry<Long, List<Transaction>> entry : transactionsGrouped.entrySet() ) {
-             subCategoryResumeDtos.add( generateSubCategoryResume( entry.key, entry.value ) )
+            subCategoryResumeDtos.add( generateSubCategoryResume( entry.key, entry.value ) )
         }
         subCategoryResumeDtos
     }
@@ -130,7 +168,8 @@ class ResumeServiceImp implements ResumeService{
         MovementsDto movementsDto = new MovementsDto()
         movementsDto.date = generateFixedDate(stringDate).getTime()
         movementsDto.categories = getTransactionsGroupByParentCategory(
-            transactions )
+                transactions )
+
         movementsDto.amount = transactions*.amount.sum() as float
         movementsDto
     }
@@ -139,7 +178,7 @@ class ResumeServiceImp implements ResumeService{
         CategoryResumeDto parentCategory = new CategoryResumeDto()
         parentCategory.categoryId = parentId
         parentCategory.subcategories = getTransactionsGroupBySubCategory(
-            transactions)
+                transactions)
         parentCategory.amount = transactions*.amount.sum() as float
         parentCategory
     }
@@ -148,7 +187,7 @@ class ResumeServiceImp implements ResumeService{
         SubCategoryResumeDto subCategoryResumeDto = new SubCategoryResumeDto()
         subCategoryResumeDto.categoryId = parentId
         subCategoryResumeDto.transactionsByDate =
-            getTransactionsGroupByDay( transactions )
+                getTransactionsGroupByDay( transactions )
         subCategoryResumeDto.amount = transactions*.amount.sum() as float
         subCategoryResumeDto
     }
@@ -161,12 +200,11 @@ class ResumeServiceImp implements ResumeService{
         Date.from(LocalDate.parse(rawDate).atStartOfDay(ZoneId.systemDefault()).toInstant())
     }
 
-    private List<Transaction> getAccountsTransactions(Long userId, Boolean charge) {
+    private List<Transaction> getAccountsTransactions(List<Account> accounts, Boolean charge, Date dateFrom, Date dateTo) {
         List<Transaction> transactions = []
-        def accounts = accountService.findAllByUserId( userId )
-
         for ( account in accounts ) {
-            transactions.addAll(transactionsService.findAllByAccountAndCharge(account, charge))
+            transactions.addAll(transactionsService
+                    .findAllByAccountAndChargeAndDateRange(account, charge, dateFrom, dateTo))
         }
         transactions
     }

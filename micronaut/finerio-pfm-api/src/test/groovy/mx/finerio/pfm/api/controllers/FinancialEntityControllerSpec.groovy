@@ -20,6 +20,7 @@ import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 

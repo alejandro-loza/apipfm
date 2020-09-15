@@ -10,7 +10,6 @@ import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.CategoryService
-import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand

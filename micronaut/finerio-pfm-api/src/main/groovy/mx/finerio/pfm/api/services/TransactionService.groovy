@@ -34,6 +34,6 @@ interface TransactionService {
     List<TransactionDto> findAllByAccount(Account account)
 
     @Log
-    List<Transaction> findAllByAccountAndCharge(Account account, Boolean charge)
+    List<Transaction> findAllByAccountAndChargeAndDateRange(Account account, Boolean charge, Date from, Date to)
 
 }
