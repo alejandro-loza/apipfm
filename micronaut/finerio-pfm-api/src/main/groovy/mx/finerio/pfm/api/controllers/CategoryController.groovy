@@ -2,15 +2,12 @@ package mx.finerio.pfm.api.controllers
 
 import grails.gorm.transactions.Transactional
 import io.micronaut.context.annotation.Value
-import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
-import io.micronaut.http.client.RxStreamingHttpClient
-import io.micronaut.http.client.annotation.Client
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.config.CategorizerConfig
+import mx.finerio.pfm.api.clients.LowLevelClient
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
@@ -36,8 +33,7 @@ class CategoryController {
     UserService userService
 
     @Inject
-    @Client(CategorizerConfig.CATEGORIZER_API_URL)
-    RxStreamingHttpClient client
+    LowLevelClient categorizerClient
 
     @Value('${categorizer.username}')
     String username
@@ -91,11 +87,8 @@ class CategoryController {
     @Transactional
     HttpResponse categorize(@QueryValue('input') String input) {
 
-        HttpRequest getReq = HttpRequest.GET("/search?input=${input}")
-                    .basicAuth(username, password)
-        def result = client.toBlocking().exchange(getReq, Map)
-        System.out.println(result)
-        return HttpResponse.ok().body(result)
+        def response = categorizerClient.fetchPackages(input)
+        return HttpResponse.ok().body(response)
     }
 
 }
