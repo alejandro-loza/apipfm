@@ -58,6 +58,7 @@ class CategoryController {
             clientCategories.addAll( categoryService.findAllByUser(userService.getUser(userId)))
         }
 
+        clientCategories = clientCategories.sort { c1, c2 -> c2.id <=> c1.id }
         Single.just(new ResourcesDto(clientCategories, null))
     }
 
