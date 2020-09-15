@@ -29,7 +29,8 @@ class Account  implements GormEntity<Account> {
         this.nature = accountCommand.nature
         this.name = accountCommand.name
         this.number = accountCommand.number
-        this.balance = accountCommand.balance
+        this.balance = accountCommand.balance.setScale(
+            2, BigDecimal.ROUND_HALF_UP )
     }
 
     Account(){}
