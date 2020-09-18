@@ -53,7 +53,7 @@ class TransactionServiceImp  implements TransactionService {
             transaction.category = category
         }
         else{
-            categorizerClient.fetchCategory(cmd.description)
+            categorizerClient.fetchCategory(cmd.description)//TODO this must be a system category
         }
 
         transactionGormService.save(transaction)
