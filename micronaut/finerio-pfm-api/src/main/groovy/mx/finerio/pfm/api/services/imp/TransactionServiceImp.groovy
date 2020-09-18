@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
+import mx.finerio.pfm.api.clients.CategorizerClient
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
@@ -31,6 +32,9 @@ class TransactionServiceImp  implements TransactionService {
     @Inject
     CategoryService categoryService
 
+    @Inject
+    CategorizerClient categorizerClient
+
     @Override
     @Transactional
     Transaction create(TransactionCreateCommand cmd){
@@ -47,6 +51,9 @@ class TransactionServiceImp  implements TransactionService {
             Category category = categoryService.getById(cmd.categoryId)
             verifyParentCategory(category)
             transaction.category = category
+        }
+        else{
+            categorizerClient.fetchCategory(cmd.description)
         }
 
         transactionGormService.save(transaction)

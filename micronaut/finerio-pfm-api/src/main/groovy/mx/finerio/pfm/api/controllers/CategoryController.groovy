@@ -1,13 +1,11 @@
 package mx.finerio.pfm.api.controllers
 
 import grails.gorm.transactions.Transactional
-import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.clients.LowLevelClient
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
@@ -31,15 +29,6 @@ class CategoryController {
 
     @Inject
     UserService userService
-
-    @Inject
-    LowLevelClient categorizerClient
-
-    @Value('${categorizer.username}')
-    String username
-
-    @Value('${categorizer.password}')
-    String password
 
     @Log
     @Post("/")
@@ -81,14 +70,4 @@ class CategoryController {
         categoryService.delete(id)
         HttpResponse.noContent()
     }
-
-    @Log
-    @Get("/search")
-    @Transactional
-    HttpResponse categorize(@QueryValue('input') String input) {
-
-        def response = categorizerClient.fetchPackages(input)
-        return HttpResponse.ok().body(response)
-    }
-
 }

@@ -4,8 +4,8 @@ import io.micronaut.core.annotation.Introspected
 
 @Introspected
 class CategorizerDto {
-    Long id
+    String id
     String description
-    Long categoryId
+    String categoryId
     CategorizerDto parent
 }

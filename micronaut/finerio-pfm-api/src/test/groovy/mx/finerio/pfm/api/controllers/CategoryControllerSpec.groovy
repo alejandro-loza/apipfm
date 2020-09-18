@@ -103,21 +103,6 @@ class CategoryControllerSpec extends Specification {
         e.response.status == HttpStatus.UNAUTHORIZED
     }
 
-    def
-    "Should get a categorizer"() {
-
-        given: 'a client'
-        String input = 'UBER+EATS'
-        HttpRequest getReq = HttpRequest.GET("$CATEGORIES_ROOT/search?input=$input").bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, Map)
-
-        then:
-        assert rspGET
-
-    }
-
     def  "Should get a empty list of categories"() {
 
         given: 'a client'
