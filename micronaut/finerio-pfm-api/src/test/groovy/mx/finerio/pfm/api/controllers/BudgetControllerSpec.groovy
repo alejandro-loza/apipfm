@@ -29,6 +29,7 @@ import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -58,6 +59,7 @@ class BudgetControllerSpec extends Specification {
     CategoryGormService categoryGormService
 
     @Inject
+    @Shared
     BudgetGormService budgetGormService
 
     @Inject
@@ -77,7 +79,6 @@ class BudgetControllerSpec extends Specification {
                 .bearerAuth(accessToken)
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
-
 
     }
 
@@ -109,20 +110,22 @@ class BudgetControllerSpec extends Specification {
         given: 'a budget list'
         User user1 = generateUser()
         User user2 = generateUser()
+        List<Budget> budgets = []
 
         Category category1 = generateCategory(user1)
-        20.times {
-            generateSavedBudget(user1, category1)
+        10.times {
+            budgets.add(generateSavedBudget(user1, category1))
         }
-        100.times {
+        50.times {
             generateSavedBudget(user2, category1)
         }
-        90.times {
-            generateSavedBudget(user1, category1)
+        98.times {
+            budgets.add(generateSavedBudget(user1, category1))
         }
 
+
         and:
-        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${209}&userId=${user1.id}").bearerAuth(accessToken)
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budgets.last().id}&userId=${user1.id}").bearerAuth(accessToken)
 
         when:
         def rspGET = client.toBlocking().exchange(getReq, Map)
@@ -130,12 +133,12 @@ class BudgetControllerSpec extends Specification {
         then:
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
-        List<BudgetDto> budgets= body.get("data") as List<BudgetDto>
+        List<BudgetDto> budgetDtos= body.get("data") as List<BudgetDto>
 
-        assert budgets.size() == 100
-        assert budgets.first().id == 209
-        assert budgets.last().id == 10
-        assert body.get("nextCursor") == 9
+
+        assert budgetDtos.first().id == budgets.last().id
+        assert budgetDtos.last().id == budgets[8].id
+        assert body.get("nextCursor") ==  budgets[7].id
 
     }
 
@@ -251,7 +254,6 @@ class BudgetControllerSpec extends Specification {
             assert detail == 'The category you provided already exist'
         }
     }
-
 
     def "Should not create a transaction and throw bad request on wrong body"() {
         given: 'a transaction request body with empty body'

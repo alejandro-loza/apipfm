@@ -17,7 +17,7 @@ class Budget implements GormEntity<Budget> {
     User user
     Category category
     String name
-    BigDecimal amount
+    float amount
     Date dateCreated
     Date lastUpdated
     Date dateDeleted

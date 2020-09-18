@@ -18,7 +18,7 @@ class Account  implements GormEntity<Account> {
     String nature
     String name
     String number
-    BigDecimal balance
+    float balance
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
@@ -29,7 +29,8 @@ class Account  implements GormEntity<Account> {
         this.nature = accountCommand.nature
         this.name = accountCommand.name
         this.number = accountCommand.number
-        this.balance = accountCommand.balance
+        this.balance = accountCommand.balance.setScale(
+            2, BigDecimal.ROUND_HALF_UP )
     }
 
     Account(){}

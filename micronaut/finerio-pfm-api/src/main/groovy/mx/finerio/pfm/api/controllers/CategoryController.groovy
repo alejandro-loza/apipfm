@@ -6,11 +6,16 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.logging.Log
+import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.CategoryService
+import mx.finerio.pfm.api.services.SystemCategoryService
 import mx.finerio.pfm.api.services.UserService
+import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
 
@@ -28,7 +33,16 @@ class CategoryController {
     CategoryService categoryService
 
     @Inject
+    SystemCategoryService systemCategoryService
+
+    @Inject
     UserService userService
+
+    @Inject
+    BudgetService budgetService
+
+    @Inject
+    TransactionService transactionService
 
     @Log
     @Post("/")
@@ -47,12 +61,14 @@ class CategoryController {
     @Get("{?userId}")
     @Transactional
     Single<ResourcesDto> showAll( @Nullable Long userId) {
-        List<CategoryDto> clientCategories
-            clientCategories = categoryService.findAllByCurrentLoggedClientAndUserNul()
+        List<CategoryDto> clientCategories = systemCategoryService.findAll()
+        clientCategories.addAll( categoryService.findAllByCurrentLoggedClientAndUserNull() )
+
         if(userId) {
-            clientCategories.addAll( categoryService.findAllByUser(userService.getUser(userId)))
+            clientCategories.addAll( categoryService.findAllCategoryDtosByUser(userService.getUser(userId)))
         }
 
+        clientCategories = clientCategories.sort { c1, c2 -> c2.id <=> c1.id }
         Single.just(new ResourcesDto(clientCategories, null))
     }
 
@@ -67,7 +83,24 @@ class CategoryController {
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
-        categoryService.delete(id)
+        Category category = categoryService.getById(id)
+        validateIfSomeOneIsUsingThisCategory(category)
+        categoryService.delete(category)
         HttpResponse.noContent()
     }
+
+    private void validateIfSomeOneIsUsingThisCategory(Category category) {
+        if (budgetService.findByCategory(category)) {
+            throw new BadRequestException('category.budget.existence')
+        }
+        if (transactionService.findAllByCategory(category)) {
+            throw new BadRequestException('category.transaction.existence')
+        }
+
+        if (categoryService.findAllByCategory(category)) {
+            throw new BadRequestException('category.childCategory.existence')
+        }
+    }
+
+
 }

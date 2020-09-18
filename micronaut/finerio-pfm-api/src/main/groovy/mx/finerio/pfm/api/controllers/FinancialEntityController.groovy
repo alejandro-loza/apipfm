@@ -11,9 +11,11 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
+import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.logging.Log
+import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.FinancialEntityService
 import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
@@ -33,6 +35,9 @@ class FinancialEntityController {
 
     @Inject
     FinancialEntityService financialEntityService
+
+    @Inject
+    AccountService accountService
 
     @Inject
     NextCursorService nextCursorService
@@ -67,8 +72,10 @@ class FinancialEntityController {
 
     @Log
     @Delete("/{id}")
+    @Transactional
     HttpResponse delete(@NotNull Long id) {
-        financialEntityService.delete(id)
+        FinancialEntity entity = financialEntityService.getById(id)
+        financialEntityService.delete(entity)
         HttpResponse.noContent()
     }
 

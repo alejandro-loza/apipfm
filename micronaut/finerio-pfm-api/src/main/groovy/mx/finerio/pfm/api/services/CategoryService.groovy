@@ -20,12 +20,18 @@ interface CategoryService {
     Category update(CategoryUpdateCommand cmd, Long id)
 
     @Log
-    void delete(Long id)
+    void delete(Category category)
 
     @Log
-    List<CategoryDto> findAllByCurrentLoggedClientAndUserNul()
+    List<CategoryDto> findAllByCurrentLoggedClientAndUserNull()
 
     @Log
-    List<CategoryDto> findAllByUser(User user)
+    List<CategoryDto> findAllCategoryDtosByUser(User user)
+
+    @Log
+    List<Category> findAllByUser(User user)
+
+    @Log
+    List<CategoryDto> findAllByCategory(Category category)
 
 }

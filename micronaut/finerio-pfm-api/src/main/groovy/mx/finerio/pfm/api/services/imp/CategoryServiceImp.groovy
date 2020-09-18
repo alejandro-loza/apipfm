@@ -58,14 +58,13 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    void delete(Long id){
-        Category category = getById(id)
+    void delete(Category category){
         category.dateDeleted = new Date()
         categoryGormService.save(category)
     }
 
     @Override
-    List<CategoryDto> findAllByCurrentLoggedClientAndUserNul() {
+    List<CategoryDto> findAllByCurrentLoggedClientAndUserNull() {
         categoryGormService
                 .findAllByClientAndUserIsNullAndDateDeletedIsNull(
                         getCurrentLoggedClient(), [max: MAX_ROWS, sort: 'id', order: 'desc'])
@@ -73,8 +72,18 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     @Override
-    List<CategoryDto> findAllByUser(User user) {
+    List<CategoryDto> findAllCategoryDtosByUser(User user) {
+        findAllByUser(user).collect{new CategoryDto(it)}
+    }
+
+    @Override
+    List<Category> findAllByUser(User user) {
         categoryGormService.findAllByUserAndDateDeletedIsNull(user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+    }
+
+    @Override
+    List<CategoryDto> findAllByCategory(Category category) {
+        categoryGormService.findAllByParent (category)
                 .collect{new CategoryDto(it)}
     }
 

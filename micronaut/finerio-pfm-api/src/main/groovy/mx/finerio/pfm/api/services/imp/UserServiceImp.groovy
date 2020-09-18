@@ -1,11 +1,13 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.UserCommand
@@ -46,14 +48,9 @@ class UserServiceImp extends ServiceTemplate implements UserService {
 
     @Override
     @Transactional
-    void delete(Long id){
-
-        User user = getUser(id)
-        user.with {
-            dateDeleted = new Date()
-        }
+    void delete(User user){
+        user.dateDeleted = new Date()
         userGormService.save(user)
-
     }
 
     @Override

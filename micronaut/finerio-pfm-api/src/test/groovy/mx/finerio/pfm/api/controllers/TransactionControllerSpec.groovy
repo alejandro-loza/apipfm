@@ -27,6 +27,7 @@ import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import javax.inject.Inject
@@ -76,6 +77,14 @@ class TransactionControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
+    }
+
+    void cleanup(){
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
     }
 
     def "Should get unauthorized"() {
@@ -723,6 +732,38 @@ class TransactionControllerSpec extends Specification {
         e.response.status == HttpStatus.NOT_FOUND
 
     }
+
+    def "Should delete a list of transactions by account"(){
+
+        given:'a transaction list'
+        Account account1 = generateAccount()
+        Account account2 = generateAccount()
+
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account2), account2)
+        transactionGormService.save(transaction2)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction3)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction4)
+
+        and:
+        HttpRequest getReq = HttpRequest.DELETE("${TRANSACTION_ROOT}?accountId=${account1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.NO_CONTENT
+
+        and:
+        List<Transaction> transactions = transactionGormService.findAllByAccount(account1)
+        assert transactions.every {it.dateDeleted}
+
+    }
+
 
     private static TransactionCreateCommand generateTransactionCommand(Account account1) {
         def date1 = new Date()

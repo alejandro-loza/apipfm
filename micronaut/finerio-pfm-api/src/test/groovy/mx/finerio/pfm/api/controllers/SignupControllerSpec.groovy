@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.services.gorm.ClientProfileGormService
 import mx.finerio.pfm.api.services.gorm.ClientRoleGormService
 import mx.finerio.pfm.api.services.gorm.RoleGormService
 import mx.finerio.pfm.api.validation.SignupCommand
+import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 

@@ -74,4 +74,12 @@ class TransactionController {
         HttpResponse.noContent()
     }
 
+    @Log
+    @Delete
+    @Transactional
+    HttpResponse deleteAllByAccount( @QueryValue('accountId') Long accountId) {
+        transactionsService.deleteAllByAccount(accountService.getAccount(accountId))
+        HttpResponse.noContent()
+    }
+
 }

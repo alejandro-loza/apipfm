@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: account
+      id: system_system_category
       author: alejandro.hernandez
       changes:
         - createTable:
-            tableName: account
+            tableName: system_category
             columns:
               - column:
                   name: id
@@ -19,47 +19,26 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: user_id
+                  name: parent_id
                   type: BIGINT
                   constraints:
-                    nullable: false
-              - column:
-                  name: financial_entity_id
-                  type: BIGINT
-                  constraints:
-                    nullable: false
-              - column:
-                  name: nature
-                  type: java.sql.Types.VARCHAR(100)
-                  constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: name
                   type: java.sql.Types.VARCHAR(100)
                   constraints:
                     nullable: false
               - column:
-                  name: number
+                  name: color
                   type: java.sql.Types.VARCHAR(100)
                   constraints:
-                    nullable: false
-              - column:
-                  name: balance
-                  type: DECIMAL(19,2)
-                  constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: date_created
                   type: DATETIME(6)
-                  constraints:
-                    nullable: false
               - column:
                   name: last_updated
                   type: DATETIME(6)
-                  constraints:
-                    nullable: false
               - column:
                   name: date_deleted
                   type: DATETIME(6)
-                  constraints:
-                    nullable: true
