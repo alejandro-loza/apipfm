@@ -22,6 +22,7 @@ class Transaction implements GormEntity<Transaction> {
     Date lastUpdated
     Date dateDeleted
     Category category
+    SystemCategory systemCategory
 
     Transaction(){}
 
@@ -31,7 +32,7 @@ class Transaction implements GormEntity<Transaction> {
         this.charge = cmd.charge
         this.description = cmd.description
         this.amount = cmd.amount
-        this.category = category
+
     }
 
     static constraints = {
@@ -40,6 +41,7 @@ class Transaction implements GormEntity<Transaction> {
         amount nullable: false
         dateDeleted nullable:true
         category nullable:true
+        systemCategory nullable:true
     }
 
     static mapping = {

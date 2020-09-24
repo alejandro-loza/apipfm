@@ -1,16 +1,20 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
+import io.micronaut.http.HttpResponse
 import mx.finerio.pfm.api.clients.CategorizerClient
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.CategoryService
+import mx.finerio.pfm.api.services.SystemCategoryService
 import mx.finerio.pfm.api.services.TransactionService
+import mx.finerio.pfm.api.services.gorm.SystemCategoryGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
@@ -30,6 +34,9 @@ class TransactionServiceImp  implements TransactionService {
 
     @Inject
     CategoryService categoryService
+
+    @Inject
+    SystemCategoryGormService systemCategoryGormService
 
     @Inject
     CategorizerClient categorizerClient
@@ -52,7 +59,8 @@ class TransactionServiceImp  implements TransactionService {
             transaction.category = category
         }
         else{
-            categorizerClient.fetchCategory(cmd.description)//TODO this must be a system category
+            CategorizerDto fetchCategory = categorizerClient.fetchCategory(cmd.description).body()
+            transaction.systemCategory = systemCategoryGormService.findByFinerioConnectId(fetchCategory.id)
         }
 
         transactionGormService.save(transaction)

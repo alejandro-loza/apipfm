@@ -15,6 +15,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#A3CB38'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000001'
         - insert:
             tableName: system_category
             columns:
@@ -27,6 +30,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#FECA46'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000002'
         - insert:
             tableName: system_category
             columns:
@@ -39,6 +45,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#FF9F43'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000003'
         - insert:
             tableName: system_category
             columns:
@@ -51,6 +60,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#FC427B'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000005'
         - insert:
             tableName: system_category
             columns:
@@ -63,6 +75,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#33D9B2'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000006'
         - insert:
             tableName: system_category
             columns:
@@ -75,6 +90,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#B33771'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000007'
         - insert:
             tableName: system_category
             columns:
@@ -87,6 +105,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#F368E0'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000008'
         - insert:
             tableName: system_category
             columns:
@@ -99,6 +120,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#8E44AD'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000009'
         - insert:
             tableName: system_category
             columns:
@@ -111,6 +135,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#8C7AE6'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000000b'
         - insert:
             tableName: system_category
             columns:
@@ -123,6 +150,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#01A3A4'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000046'
         - insert:
             tableName: system_category
             columns:
@@ -135,6 +165,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#5F27CD'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000047'
         - insert:
             tableName: system_category
             columns:
@@ -147,6 +180,9 @@ databaseChangeLog:
               - column:
                   name: color
                   value: '#099FE2'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000050'
         - insert:
             tableName: system_category
             columns:
@@ -162,6 +198,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 10
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000004'
         - insert:
             tableName: system_category
             columns:
@@ -177,6 +216,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000000c'
         - insert:
             tableName: system_category
             columns:
@@ -192,6 +234,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000000d'
         - insert:
             tableName: system_category
             columns:
@@ -207,6 +252,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 2
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000000e'
         - insert:
             tableName: system_category
             columns:
@@ -222,6 +270,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000000f'
         - insert:
             tableName: system_category
             columns:
@@ -237,6 +288,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 10
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000010'
         - insert:
             tableName: system_category
             columns:
@@ -252,6 +306,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000011'
         - insert:
             tableName: system_category
             columns:
@@ -267,6 +324,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 10
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000012'
         - insert:
             tableName: system_category
             columns:
@@ -282,6 +342,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000013'
         - insert:
             tableName: system_category
             columns:
@@ -297,6 +360,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 10
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000014'
         - insert:
             tableName: system_category
             columns:
@@ -312,6 +378,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000015'
         - insert:
             tableName: system_category
             columns:
@@ -327,6 +396,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000016'
         - insert:
             tableName: system_category
             columns:
@@ -342,6 +414,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000017'
         - insert:
             tableName: system_category
             columns:
@@ -357,6 +432,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000018'
         - insert:
             tableName: system_category
             columns:
@@ -372,6 +450,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000019'
         - insert:
             tableName: system_category
             columns:
@@ -387,6 +468,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000001a'
         - insert:
             tableName: system_category
             columns:
@@ -402,6 +486,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000001b'
         - insert:
             tableName: system_category
             columns:
@@ -417,6 +504,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000001c'
         - insert:
             tableName: system_category
             columns:
@@ -432,6 +522,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000001d'
         - insert:
             tableName: system_category
             columns:
@@ -447,6 +540,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000001e'
         - insert:
             tableName: system_category
             columns:
@@ -462,6 +558,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000001f'
         - insert:
             tableName: system_category
             columns:
@@ -477,6 +576,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 7
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000020'
         - insert:
             tableName: system_category
             columns:
@@ -492,6 +594,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000021'
         - insert:
             tableName: system_category
             columns:
@@ -507,6 +612,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000022'
         - insert:
             tableName: system_category
             columns:
@@ -522,6 +630,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000023'
         - insert:
             tableName: system_category
             columns:
@@ -537,6 +648,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000024'
         - insert:
             tableName: system_category
             columns:
@@ -552,6 +666,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000025'
         - insert:
             tableName: system_category
             columns:
@@ -567,6 +684,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 8
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000026'
         - insert:
             tableName: system_category
             columns:
@@ -582,6 +702,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 8
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000027'
         - insert:
             tableName: system_category
             columns:
@@ -597,6 +720,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 8
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000028'
         - insert:
             tableName: system_category
             columns:
@@ -612,6 +738,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000029'
         - insert:
             tableName: system_category
             columns:
@@ -627,6 +756,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000002a'
         - insert:
             tableName: system_category
             columns:
@@ -642,6 +774,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000002b'
         - insert:
             tableName: system_category
             columns:
@@ -657,6 +792,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000002c'
         - insert:
             tableName: system_category
             columns:
@@ -672,6 +810,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000002d'
         - insert:
             tableName: system_category
             columns:
@@ -687,6 +828,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000002e'
         - insert:
             tableName: system_category
             columns:
@@ -702,6 +846,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 9
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000002f'
         - insert:
             tableName: system_category
             columns:
@@ -717,6 +864,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 9
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000030'
         - insert:
             tableName: system_category
             columns:
@@ -732,6 +882,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 9
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000031'
         - insert:
             tableName: system_category
             columns:
@@ -747,6 +900,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 9
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000032'
         - insert:
             tableName: system_category
             columns:
@@ -762,6 +918,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000033'
         - insert:
             tableName: system_category
             columns:
@@ -777,6 +936,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000034'
         - insert:
             tableName: system_category
             columns:
@@ -792,6 +954,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000035'
         - insert:
             tableName: system_category
             columns:
@@ -807,6 +972,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000036'
         - insert:
             tableName: system_category
             columns:
@@ -822,6 +990,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000037'
         - insert:
             tableName: system_category
             columns:
@@ -837,6 +1008,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000038'
         - insert:
             tableName: system_category
             columns:
@@ -852,6 +1026,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000039'
         - insert:
             tableName: system_category
             columns:
@@ -867,6 +1044,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000003a'
         - insert:
             tableName: system_category
             columns:
@@ -882,6 +1062,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000003b'
         - insert:
             tableName: system_category
             columns:
@@ -897,6 +1080,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 7
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000003c'
         - insert:
             tableName: system_category
             columns:
@@ -912,6 +1098,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000003d'
         - insert:
             tableName: system_category
             columns:
@@ -927,6 +1116,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 3
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000003e'
         - insert:
             tableName: system_category
             columns:
@@ -942,6 +1134,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 8
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000003f'
         - insert:
             tableName: system_category
             columns:
@@ -957,6 +1152,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 2
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000040'
         - insert:
             tableName: system_category
             columns:
@@ -972,6 +1170,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000041'
         - insert:
             tableName: system_category
             columns:
@@ -987,6 +1188,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 4
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000042'
         - insert:
             tableName: system_category
             columns:
@@ -1002,6 +1206,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 10
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000043'
         - insert:
             tableName: system_category
             columns:
@@ -1017,6 +1224,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 5
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000044'
         - insert:
             tableName: system_category
             columns:
@@ -1032,6 +1242,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 9
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000045'
         - insert:
             tableName: system_category
             columns:
@@ -1047,6 +1260,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 11
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000048'
         - insert:
             tableName: system_category
             columns:
@@ -1062,6 +1278,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 11
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000049'
         - insert:
             tableName: system_category
             columns:
@@ -1077,6 +1296,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 9
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000004a'
         - insert:
             tableName: system_category
             columns:
@@ -1092,6 +1314,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 8
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000004b'
         - insert:
             tableName: system_category
             columns:
@@ -1107,6 +1332,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 6
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000004c'
         - insert:
             tableName: system_category
             columns:
@@ -1122,6 +1350,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 11
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000004d'
         - insert:
             tableName: system_category
             columns:
@@ -1137,6 +1368,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 11
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000004e'
         - insert:
             tableName: system_category
             columns:
@@ -1152,6 +1386,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 11
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000004f'
         - insert:
             tableName: system_category
             columns:
@@ -1167,6 +1404,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 12
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000051'
         - insert:
             tableName: system_category
             columns:
@@ -1182,6 +1422,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 12
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000052'
         - insert:
             tableName: system_category
             columns:
@@ -1197,6 +1440,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 12
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000053'
         - insert:
             tableName: system_category
             columns:
@@ -1212,6 +1458,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 12
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000054'
         - insert:
             tableName: system_category
             columns:
@@ -1227,6 +1476,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 12
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000055'
         - insert:
             tableName: system_category
             columns:
@@ -1242,6 +1494,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 12
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000056'
         - insert:
             tableName: system_category
             columns:
@@ -1257,6 +1512,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 12
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000005b'
         - insert:
             tableName: system_category
             columns:
@@ -1272,6 +1530,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 1
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000057'
         - insert:
             tableName: system_category
             columns:
@@ -1287,6 +1548,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 2
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000058'
         - insert:
             tableName: system_category
             columns:
@@ -1302,6 +1566,9 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 7
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000059'
         - insert:
             tableName: system_category
             columns:
@@ -1317,3 +1584,6 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   value: 7
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-00000000005a'
