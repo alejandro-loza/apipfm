@@ -7,7 +7,6 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.uri.UriBuilder
-import jdk.nashorn.internal.objects.annotations.Property
 import mx.finerio.pfm.api.config.CategorizerConfig
 import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 import org.springframework.beans.factory.annotation.Value
@@ -30,13 +29,13 @@ class CategorizerClient {
     @Value('${cagorizer.password}')
     String password
 
-    HttpResponse<CategorizerDto> fetchCategory(String input) {
+    CategorizerDto fetchCategory(String input) {
         def url  = UriBuilder.of("/search")
                 .queryParam('input',input)
                 .build()
         httpClient.toBlocking().exchange(HttpRequest.GET(url)
                 .basicAuth(username, password
-                ), CategorizerDto)
+                ), CategorizerDto).body()
     }
 
 }

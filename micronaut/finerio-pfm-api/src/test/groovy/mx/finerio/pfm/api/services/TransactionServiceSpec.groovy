@@ -3,12 +3,16 @@ package mx.finerio.pfm.api.services
 import io.micronaut.context.annotation.Property
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.clients.CategorizerClient
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.gorm.SystemCategoryGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.imp.TransactionServiceImp
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
@@ -24,6 +28,8 @@ class TransactionServiceSpec extends Specification {
         transactionService.categoryService = Mock(CategoryService)
         transactionService.transactionGormService = Mock(TransactionGormService)
         transactionService.accountService = Mock(AccountService)
+        transactionService.categorizerClient = Mock(CategorizerClient)
+        transactionService.systemCategoryGormService = Mock(SystemCategoryGormService)
     }
 
     def 'Should save an transaction'(){
@@ -42,6 +48,34 @@ class TransactionServiceSpec extends Specification {
         1 * transactionService.categoryService.getById( _ as Long) >> category
         1 * transactionService.accountService.getAccount( _ as Long) >> new Account()
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
+
+        def response = transactionService.create(cmd)
+
+        then:
+        response instanceof Transaction
+    }
+
+    def 'Should save an transaction with no category'(){
+        given:'a transaction command request body'
+        Category category = generateCategory()
+
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = 666
+            date =  new Date().getTime()
+        }
+
+        CategorizerDto categorizerDto = new CategorizerDto()
+        categorizerDto.with {
+            id = 'uuid'
+        }
+
+        when:
+
+        1 * transactionService.categorizerClient.fetchCategory(cmd.description) >> categorizerDto
+        1 * transactionService.systemCategoryGormService.findByFinerioConnectId(_ as String) >> new SystemCategory()
+        1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
+
 
         def response = transactionService.create(cmd)
 
@@ -83,8 +117,7 @@ class TransactionServiceSpec extends Specification {
         e.message == 'category.parentCategory.null'
     }
 
-    def
-    'Should not save an transaction on category not found'(){
+    def 'Should not save an transaction on category not found'(){
         given:'a transaction command request body'
         TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {

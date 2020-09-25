@@ -59,11 +59,12 @@ class TransactionServiceImp  implements TransactionService {
             transaction.category = category
         }
         else{
-            CategorizerDto fetchCategory = categorizerClient.fetchCategory(cmd.description).body()
-            transaction.systemCategory = systemCategoryGormService.findByFinerioConnectId(fetchCategory.id)
-        }
+            transaction.systemCategory = systemCategoryGormService.findByFinerioConnectId(
+                    categorizerClient.fetchCategory(cmd.description).id)
 
-        transactionGormService.save(transaction)
+        }
+        return  transactionGormService.save(transaction)
+
     }
 
     @Override
