@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/financial_entity.yaml
   - include:
       file: db/account.yaml
+  - include:
+      file: db/transaction.yaml
