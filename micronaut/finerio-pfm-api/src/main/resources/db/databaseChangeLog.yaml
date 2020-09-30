@@ -1,27 +1,15 @@
 databaseChangeLog:
   - include:
-      file: db/account.yaml
-  - include:
-      file: db/budget.yaml
-  - include:
-      file: db/category.yaml
-  - include:
       file: db/client.yaml
+  - include:
+      file: db/role.yaml
   - include:
       file: db/client_profile.yaml
   - include:
       file: db/client_role.yaml
   - include:
-      file: db/financialEntity.yaml
-  - include:
-      file: db/role.yaml
-  - include:
-      file: db/role_data.yaml
-  - include:
-      file: db/system_category.yaml
-  - include:
-      file: db/system_category_data.yaml
-  - include:
-      file: db/transaction.yaml
-  - include:
       file: db/user.yaml
+  - include:
+      file: db/financial_entity.yaml
+  - include:
+      file: db/account.yaml

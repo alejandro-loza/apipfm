@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: BIGINT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -42,3 +42,15 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
+  - changeSet:
+      id: financial_entity_client_fk
+      author: alejandro.hernnadez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: client_id
+            baseTableName: financial_entity
+            constraintName: fk_financial_entity_client
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: financial_entity
