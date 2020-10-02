@@ -3,7 +3,7 @@ package mx.finerio.pfm.api.services
 import io.micronaut.context.annotation.Property
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.clients.CategorizerClient
+import mx.finerio.pfm.api.clients.CategorizerDeclarativeClient
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
@@ -28,7 +28,7 @@ class TransactionServiceSpec extends Specification {
         transactionService.categoryService = Mock(CategoryService)
         transactionService.transactionGormService = Mock(TransactionGormService)
         transactionService.accountService = Mock(AccountService)
-        transactionService.categorizerClient = Mock(CategorizerClient)
+        transactionService.categorizerDeclarativeClient = Mock(CategorizerDeclarativeClient)
         transactionService.systemCategoryGormService = Mock(SystemCategoryGormService)
     }
 
@@ -67,12 +67,12 @@ class TransactionServiceSpec extends Specification {
 
         CategorizerDto categorizerDto = new CategorizerDto()
         categorizerDto.with {
-            id = 'uuid'
+            categoryId = 'uuid'
         }
 
         when:
 
-        1 * transactionService.categorizerClient.fetchCategory(cmd.description) >> categorizerDto
+        1 * transactionService.categorizerDeclarativeClient.getCategories(_ as String, cmd.description) >> categorizerDto
         1 * transactionService.systemCategoryGormService.findByFinerioConnectId(_ as String) >> new SystemCategory()
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
 
