@@ -147,17 +147,6 @@ class TransactionServiceSpec extends Specification {
                 'request.body.invalid'
     }
 
-    def "Should get a transaction"(){
-
-        when:
-        1 * transactionService.transactionGormService.findByIdAndDateDeletedIsNull(_ as Long) >> new Transaction()
-
-        def result = transactionService.find(1L)
-
-        then:
-        result instanceof Transaction
-    }
-
     def "Should not get a transaction and throw exception"(){
 
         when:

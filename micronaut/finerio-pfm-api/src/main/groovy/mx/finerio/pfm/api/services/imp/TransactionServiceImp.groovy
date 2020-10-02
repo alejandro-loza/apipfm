@@ -113,7 +113,7 @@ class TransactionServiceImp  implements TransactionService {
     List<TransactionDto> getAll() {
         transactionGormService
                 .findAllByDateDeletedIsNull([max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{new TransactionDto(it)}
+                .collect{generateTransactionDto(it)}
     }
 
     @Override
@@ -121,7 +121,7 @@ class TransactionServiceImp  implements TransactionService {
         transactionGormService
                 .findAllByDateDeletedIsNullAndIdLessThanEquals(
                         cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{new TransactionDto(it)}
+                .collect{generateTransactionDto(it)}
     }
 
     @Override
@@ -129,20 +129,20 @@ class TransactionServiceImp  implements TransactionService {
         transactionGormService
                 .findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(
                         account, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{new TransactionDto(it)}
+                .collect{generateTransactionDto(it)}
     }
 
     @Override
     List<TransactionDto> findAllByAccount(Account account) {
         transactionGormService
                 .findAllByAccountAndDateDeletedIsNull(account, [max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{new TransactionDto(it)}
+                .collect{generateTransactionDto(it)}
     }
 
     @Override
     List<TransactionDto> findAllByCategory(Category category) {
         transactionGormService.findAllByCategory(category)
-                .collect{new TransactionDto(it)}
+                .collect{generateTransactionDto(it)}
     }
 
     @Override
@@ -156,6 +156,25 @@ class TransactionServiceImp  implements TransactionService {
                 .findAllByAccountAndChargeAndDateDeletedIsNullAndDateBetween(
                         account, charge, from, to, [ sort: 'id', order: 'desc'])
     }
+
+    @Override
+    TransactionDto generateTransactionDto(transaction) {
+        TransactionDto transactionDto = new TransactionDto()
+        transactionDto.with {
+            id = transaction.id
+            date = transaction.date
+            charge = transaction.charge
+            description = transaction.description
+            amount = transaction.amount
+            dateCreated = transaction.dateCreated
+            lastUpdated = transaction.lastUpdated
+            categoryId = transaction.category
+                    ? transaction?.category?.id
+                    : transaction?.systemCategory?.id
+        }
+        transactionDto
+    }
+
 
     private static void verifyBody(ValidationCommand cmd) {
         if (!cmd) {
