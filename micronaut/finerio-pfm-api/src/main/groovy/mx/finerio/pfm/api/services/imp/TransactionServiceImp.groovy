@@ -18,7 +18,6 @@ import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
-import org.springframework.beans.factory.annotation.Value
 
 import javax.inject.Inject
 
@@ -43,10 +42,8 @@ class TransactionServiceImp  implements TransactionService {
     @Inject
     CategorizerDeclarativeClient categorizerDeclarativeClient
 
-    @Value('${cagorizer.username}')
     private String username
 
-    @Value('${cagorizer.password}')
     private String password
 
     @Override
