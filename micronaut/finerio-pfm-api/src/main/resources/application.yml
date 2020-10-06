@@ -31,3 +31,7 @@ liquibase:
   datasources:
     default:
       change-log: 'classpath:db/databaseChangeLog.yaml'
+categorizer:
+  url: 'http://ec2-3-12-253-103.us-east-2.compute.amazonaws.com:8085'
+  username: '9j7gnsHf9Nn6kWnmx5cEFtcHq962jyFzbSj7ULkYRXSadrhjSS'
+  password: 'zehx6XCAZXpsxZAm2UBQhteabjUED86EvtqfL2j54qQzBawTeGz9m87dAjEeCuRzPcmstf96jDY6Fbap2NFaAz3YxkVMaDAZxQy8'
