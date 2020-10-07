@@ -47,15 +47,3 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
-  - changeSet:
-      id: budget_user_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: user_id
-            baseTableName: budget
-            constraintName: fk_account_budget
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: user
