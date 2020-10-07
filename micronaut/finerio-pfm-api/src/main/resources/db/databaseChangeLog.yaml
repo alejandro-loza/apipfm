@@ -2,6 +2,8 @@ databaseChangeLog:
   - include:
       file: db/client.yaml
   - include:
+      file: db/financial_entity.yaml
+  - include:
       file: db/role.yaml
   - include:
       file: db/client_profile.yaml
@@ -9,8 +11,6 @@ databaseChangeLog:
       file: db/client_role.yaml
   - include:
       file: db/user.yaml
-  - include:
-      file: db/financial_entity.yaml
   - include:
       file: db/account.yaml
   - include:
