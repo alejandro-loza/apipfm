@@ -7,6 +7,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.logging.Log
@@ -38,14 +39,14 @@ class TransactionController {
     @Log
     @Post("/")
     Single<TransactionDto> save(@Body @Valid TransactionCreateCommand cmd){
-        Single.just(new TransactionDto(transactionsService.create(cmd)))
+        Single.just(transactionsService.generateTransactionDto(transactionsService.create(cmd)))
     }
 
     @Log
     @Get("/{id}")
     @Transactional
     Single<TransactionDto> show(@NotNull Long id) {
-        Single.just(new TransactionDto(transactionsService.find(id)))
+        Single.just(transactionsService.generateTransactionDto(transactionsService.find(id)))
     }
 
     @Log
@@ -63,7 +64,7 @@ class TransactionController {
     @Put("/{id}")
     @Transactional
     Single<TransactionDto> edit(@Body TransactionUpdateCommand cmd, @NotNull Long id ) {
-        Single.just(new TransactionDto(transactionsService.update(cmd, id)))
+        Single.just(transactionsService.generateTransactionDto(transactionsService.update(cmd, id)))
     }
 
     @Log

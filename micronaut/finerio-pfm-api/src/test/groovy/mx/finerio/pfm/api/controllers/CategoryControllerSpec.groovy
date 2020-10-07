@@ -30,7 +30,6 @@ import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import mx.finerio.pfm.api.validation.CategoryUpdateCommand
-import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -52,6 +51,7 @@ class CategoryControllerSpec extends Specification {
     UserGormService userGormService
 
     @Inject
+    @Shared
     BudgetGormService budgetGormService
 
     @Inject
@@ -82,11 +82,19 @@ class CategoryControllerSpec extends Specification {
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
         def rsp = client.toBlocking().exchange(request, AccessRefreshToken)
         accessToken = rsp.body.get().accessToken
-        cleanupData()
+
     }
 
     void cleanup(){
-        cleanupData()
+        List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
+        categoriesChild.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
     }
 
     private void cleanupData() {
@@ -114,7 +122,7 @@ class CategoryControllerSpec extends Specification {
         e.response.status == HttpStatus.UNAUTHORIZED
     }
 
-    def  "Should get a empty list of categories"() {
+    def "Should not get a empty list of categories and get the default system ones"() {
 
         given: 'a client'
         HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT).bearerAuth(accessToken)
