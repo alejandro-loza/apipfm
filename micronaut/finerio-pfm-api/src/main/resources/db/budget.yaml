@@ -48,14 +48,14 @@ databaseChangeLog:
                   name: date_deleted
                   type: DATETIME(6)
   - changeSet:
-      id: budget_user_fk
-      author: alejandro.hernnadez
+      id: budget_category_fk
+      author: alejandro.hernandez
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: user_id
+            baseColumnNames: category_id
             baseTableName: budget
-            constraintName: fk_budget_user
+            constraintName: fk_budget_category
             deferrable: false
             initiallyDeferred: false
             referencedColumnNames: id
-            referencedTableName: user
+            referencedTableName: category
