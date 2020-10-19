@@ -62,3 +62,15 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
+  - changeSet:
+      id: transaction_account_fk
+      author: alejandro.hernnadez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: account_id
+            baseTableName: transaction
+            constraintName: fk_transaction_account
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: account
