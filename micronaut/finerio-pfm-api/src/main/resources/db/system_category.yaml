@@ -49,3 +49,15 @@ databaseChangeLog:
                   type: DATETIME(6)
                   constraints:
                     nullable: true
+  - changeSet:
+      id: system_category_parent_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: parent_id
+            baseTableName: system_category
+            constraintName: fk_system_category_parent
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: system_category
