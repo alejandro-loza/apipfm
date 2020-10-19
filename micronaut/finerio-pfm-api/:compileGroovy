@@ -1,2 +1,0 @@
-^C%                                                                                                                                                                                                                                                                      ➜  finerio-pfm-api git:(feature/review) ✗ ./gradlew clean test --tests    mx.finerio.pfm.api.controllers.UserControllerSpec
-<==-----------> 18% EXECUTING [677ms]
