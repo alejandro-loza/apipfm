@@ -96,6 +96,16 @@ class UserControllerSpec extends Specification {
             accountGormService.delete(account.id)
         }
 
+        List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
+        categoriesChild.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
+        List<Category> categories = categoryGormService.findAll()
+        categories.each { Category category ->
+            categoryGormService.delete(category.id)
+        }
+
         List<User> users = userGormService.findAll()
         users.each { user ->
             userGormService.delete(user.id)

@@ -82,7 +82,7 @@ class BudgetControllerSpec extends Specification {
 
     }
 
-    void cleanup(){
+    void cleanup() {
         List<Budget> budgetList = budgetGormService.findAll()
         budgetList.each {
             budgetGormService.delete(it.id)

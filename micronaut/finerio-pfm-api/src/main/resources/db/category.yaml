@@ -90,3 +90,15 @@ databaseChangeLog:
             initiallyDeferred: false
             referencedColumnNames: id
             referencedTableName: category
+  - changeSet:
+      id: category_user_fk
+      author: alejandro.hernnadez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: category
+            constraintName: fk_category_user
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: user
