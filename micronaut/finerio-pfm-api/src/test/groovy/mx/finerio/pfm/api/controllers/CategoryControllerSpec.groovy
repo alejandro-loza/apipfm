@@ -92,6 +92,11 @@ class CategoryControllerSpec extends Specification {
             budgetGormService.delete(budget.id)
         }
 
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
         List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
         categoriesChild.each { Category category ->
             categoryGormService.delete(category.id)

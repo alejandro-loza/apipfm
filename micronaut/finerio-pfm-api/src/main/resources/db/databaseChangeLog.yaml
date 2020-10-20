@@ -14,9 +14,9 @@ databaseChangeLog:
   - include:
       file: db/account.yaml
   - include:
-      file: db/transaction.yaml
-  - include:
       file: db/category.yaml
+  - include:
+      file: db/transaction.yaml
   - include:
       file: db/budget.yaml
   - include:
