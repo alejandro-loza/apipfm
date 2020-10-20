@@ -75,6 +75,18 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: account
   - changeSet:
+      id: transaction_system_category_fk
+      author: alejandro.hernnadez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: system_category_id
+            baseTableName: transaction
+            constraintName: fk_transaction_system_category
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: system_category
+  - changeSet:
       id: transaction_category_fk
       author: alejandro.hernnadez
       changes:
