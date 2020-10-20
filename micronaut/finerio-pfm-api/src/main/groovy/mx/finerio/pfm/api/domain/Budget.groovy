@@ -16,6 +16,7 @@ class Budget implements GormEntity<Budget> {
     Long id
     User user
     Category category
+    SystemCategory systemCategory
     String name
     float amount
     Date dateCreated
@@ -35,6 +36,8 @@ class Budget implements GormEntity<Budget> {
         name nullable: false, blank:false
         user nullable: false
         dateDeleted nullable:true
+        systemCategory nullable:true
+        category nullable:true
     }
 
     static mapping = {
