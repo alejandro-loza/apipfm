@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
+import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
 
@@ -45,13 +46,14 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         budgetGormService.save(budget)
     }
 
-    void setCategoryOrSystemCategory(BudgetCreateCommand cmd, Budget budget, User userToSet) {
-        if (cmd.categoryId) {
-            SystemCategory systemCategory = systemCategoryService.find(cmd.categoryId)
+    void setCategoryOrSystemCategory(ValidationCommand cmd, Budget budget, User userToSet) {
+        Long categoryId = cmd["categoryId"] as Long
+        if (categoryId) {
+            SystemCategory systemCategory = systemCategoryService.find(categoryId)
             if (systemCategory) {
                 budget.systemCategory = systemCategory
             } else {
-                budget.category = findCategoryToSet(cmd.categoryId, userToSet)
+                budget.category = findCategoryToSet(categoryId, userToSet)
             }
         }
     }
@@ -63,13 +65,16 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     }
 
     @Override
-    Budget update(BudgetUpdateCommand cmd, Budget budget, Category categoryToSet){
+    Budget update(BudgetUpdateCommand cmd, Budget budget){
+        User userToSet = cmd.userId ? userService.getUser(cmd.userId) : budget.user
+
         budget.with {
-            user = cmd.userId ? userService.getUser(cmd.userId): budget.user
-            category = categoryToSet
+            user = userToSet
             name = cmd.name ?: budget.name
             amount = cmd.amount ?: budget.amount
         }
+        setCategoryOrSystemCategory(cmd, budget, userToSet)
+
         budgetGormService.save(budget)
     }
 

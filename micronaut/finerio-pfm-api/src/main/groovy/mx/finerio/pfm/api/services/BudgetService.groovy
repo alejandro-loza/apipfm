@@ -21,7 +21,7 @@ interface BudgetService {
     Budget find(Long id)
 
     @Log
-    Budget update(BudgetUpdateCommand cmd, Budget budget, Category categoryToSet)
+    Budget update(BudgetUpdateCommand cmd, Budget budget)
 
     @Log
     void delete(Long id)

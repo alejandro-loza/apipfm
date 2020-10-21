@@ -12,6 +12,8 @@ import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.BudgetGormService
 import mx.finerio.pfm.api.services.imp.BudgetServiceImp
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
+import mx.finerio.pfm.api.validation.BudgetUpdateCommand
+import mx.finerio.pfm.api.validation.ValidationCommand
 import spock.lang.Specification
 
 import java.security.Principal
@@ -74,6 +76,66 @@ class BudgetServiceSpec extends Specification {
         1 * budgetService.budgetGormService.save(_  as Budget) >> budget
 
         def response = budgetService.create(cmd)
+
+        then:
+        response instanceof Budget
+    }
+
+    def 'Should edit an budget with no category and system category'(){
+        given:'a budget command request body'
+        BudgetUpdateCommand cmd = new BudgetUpdateCommand()
+        cmd.with {
+            userId= 123
+            name = "Food budget"
+            amount= 1234.56
+            categoryId = 123
+        }
+
+        def user1 = new User()
+        def systemCategory1 = new SystemCategory()
+        Budget budget = new Budget()
+        budget.with {
+            user = user1
+            systemCategory = systemCategory1
+            name = 'test name'
+        }
+
+        when:
+        1 * budgetService.systemCategoryService.find(_ as Long) >> systemCategory1
+        0 * budgetService.categoryService.getById(_ as Long)
+        1 * budgetService.budgetGormService.save(_  as Budget) >> budget
+
+        def response = budgetService.update(cmd, budget)
+
+        then:
+        response instanceof Budget
+    }
+
+    def 'Should edit an budget with category and no system category'(){
+        given:'a budget command request body'
+        BudgetUpdateCommand cmd = new BudgetUpdateCommand()
+        cmd.with {
+            userId= 123
+            name = "Food budget"
+            amount= 1234.56
+            categoryId = 123
+        }
+
+        def user1 = new User()
+        def categoryToSet = new Category()
+        Budget budget = new Budget()
+        budget.with {
+            user = user1
+            category = categoryToSet
+            name = 'test name'
+        }
+
+        when:
+        1 * budgetService.systemCategoryService.find(_ as Long) >> null
+        1 * budgetService.categoryService.getById(_ as Long) >> categoryToSet
+        1 * budgetService.budgetGormService.save(_  as Budget) >> budget
+
+        def response = budgetService.update(cmd, budget)
 
         then:
         response instanceof Budget
