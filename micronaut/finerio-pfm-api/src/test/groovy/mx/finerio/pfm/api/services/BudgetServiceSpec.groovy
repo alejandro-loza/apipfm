@@ -4,6 +4,7 @@ import io.micronaut.security.utils.SecurityService
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
+import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
@@ -24,20 +25,55 @@ class BudgetServiceSpec extends Specification {
     void setup(){
         budgetService.budgetGormService = Mock(BudgetGormService)
         budgetService.userService = Mock(UserService)
-        budgetService.securityService = Mock(SecurityService)
+        budgetService.systemCategoryService = Mock(SystemCategoryService)
+        budgetService.categoryService = Mock(CategoryService)
         budgetService.clientService = Mock(ClientService)
+        budgetService.securityService = Mock(SecurityService)
     }
 
-    def 'Should save an budget'(){
+    def 'Should save an budget with category and no system category'(){
         given:'a budget command request body'
         BudgetCreateCommand cmd = generateCommand()
-        def user = new User()
-        def category = new Category()
+        def user1 = new User()
+        def category1 = new Category()
+        def budget = new Budget()
+        budget.with {
+            user = user1
+            category = category1
+            name = 'test name'
+        }
 
         when:
-        1 * budgetService.budgetGormService.save(_  as Budget) >> new Budget(cmd, user, category)
+        1 * budgetService.userService.getUser(_ as Long) >> user1
+        1 * budgetService.systemCategoryService.find(_ as Long) >> null
+        1 * budgetService.categoryService.getById(_ as Long) >> category1
+        1 * budgetService.budgetGormService.save(_  as Budget) >> budget
 
-        def response = budgetService.create(cmd, category, user)
+        def response = budgetService.create(cmd)
+
+        then:
+        response instanceof Budget
+    }
+
+    def 'Should save an budget with no category and system category'(){
+        given:'a budget command request body'
+        BudgetCreateCommand cmd = generateCommand()
+        def user1 = new User()
+        def systemCategory1 = new SystemCategory()
+        def budget = new Budget()
+        budget.with {
+            user = user1
+            systemCategory = systemCategory1
+            name = 'test name'
+        }
+
+        when:
+        1 * budgetService.userService.getUser(_ as Long) >> user1
+        1 * budgetService.systemCategoryService.find(_ as Long) >> systemCategory1
+        0 * budgetService.categoryService.getById(_ as Long)
+        1 * budgetService.budgetGormService.save(_  as Budget) >> budget
+
+        def response = budgetService.create(cmd)
 
         then:
         response instanceof Budget

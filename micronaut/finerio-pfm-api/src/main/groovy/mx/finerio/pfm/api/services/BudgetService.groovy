@@ -14,8 +14,8 @@ interface BudgetService {
     @Log
     void verifyBody(ValidationCommand cmd)
 
-    @ Log
-    Budget create(BudgetCreateCommand cmd, Category category, User user)
+    @Log
+    Budget create(BudgetCreateCommand cmd)
 
     @Log
     Budget find(Long id)

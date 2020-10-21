@@ -9,4 +9,7 @@ interface SystemCategoryGormService {
     List<SystemCategory> findAll()
     @Query("from ${SystemCategory sc} where $sc.finerioConnectId = $finerioConnectId")
     SystemCategory findByFinerioConnectId(String finerioConnectId)
+
+    @Query("from ${SystemCategory c} where $c.id = $id and c.dateDeleted is Null")
+    SystemCategory findByIdAndDateDeletedIsNull(Long id)
 }

@@ -17,18 +17,27 @@ class SystemCategoryServiceImp extends ServiceTemplate implements SystemCategory
     List<CategoryDto> findAll() {
         systemCategoryGormService.findAll()
                 .collect{ SystemCategory systemCategory ->
-                    CategoryDto category = new CategoryDto()
-                    category.with {
-                        id = systemCategory.id
-                        name = systemCategory.name
-                        color = systemCategory.color
-                        parentCategoryId = systemCategory.parent?.id//TODO really need ofuscate system category with category parents
-                        dateCreated = systemCategory.dateCreated
-                        lastUpdated = systemCategory.lastUpdated
-                        dateCreated = systemCategory.dateDeleted
-                    }
-                    category
+                    generateDto(systemCategory)
                 }
+    }
+
+    @Override
+    SystemCategory find(Long id) {
+        systemCategoryGormService.findByIdAndDateDeletedIsNull(id)
+    }
+
+    static CategoryDto generateDto(systemCategory) {
+        CategoryDto category = new CategoryDto()
+        category.with {
+            id = systemCategory.id
+            name = systemCategory.name
+            color = systemCategory.color
+            parentCategoryId = systemCategory.parent?.id
+            dateCreated = systemCategory.dateCreated
+            lastUpdated = systemCategory.lastUpdated
+            dateCreated = systemCategory.dateDeleted
+        }
+        category
     }
 
 }

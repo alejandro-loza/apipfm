@@ -37,17 +37,13 @@ class BudgetsController {
     CategoryService categoryService
 
     @Inject
-    UserService userService
-
-    @Inject
     NextCursorService nextCursorService
 
     @Log
     @Post("/")
     Single<BudgetDto> save(@Body @Valid BudgetCreateCommand cmd){
         budgetService.verifyBody(cmd)
-        User user = userService.getUser(cmd.userId)
-        Single.just(new BudgetDto(budgetService.create(cmd, findCategoryToSet(cmd.categoryId, user), user)))
+        Single.just(new BudgetDto(budgetService.create(cmd)))
     }
 
     @Log
