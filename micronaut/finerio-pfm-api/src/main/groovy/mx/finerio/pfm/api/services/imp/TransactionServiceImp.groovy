@@ -3,10 +3,12 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import io.micronaut.context.annotation.ConfigurationProperties
 import io.micronaut.context.annotation.Requires
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import mx.finerio.pfm.api.clients.CategorizerDeclarativeClient
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -64,9 +66,14 @@ class TransactionServiceImp  implements TransactionService {
             transaction.category = category
         }
         else{
-            transaction.systemCategory = systemCategoryGormService.findByFinerioConnectId(
-                    categorizerDeclarativeClient.getCategories(getAuthorizationHeader(), cmd.description).categoryId
-            )
+            try{
+                transaction.systemCategory = systemCategoryGormService.findByFinerioConnectId(
+                        categorizerDeclarativeClient.getCategories(getAuthorizationHeader(), cmd.description).categoryId
+                )
+            }catch(HttpClientResponseException e){
+               //TODO LOG or improve this
+            }
+
         }
         return  transactionGormService.save(transaction)
 
