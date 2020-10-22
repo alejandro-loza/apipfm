@@ -29,7 +29,7 @@ class TransactionServiceSpec extends Specification {
         transactionService.transactionGormService = Mock(TransactionGormService)
         transactionService.accountService = Mock(AccountService)
         transactionService.categorizerDeclarativeClient = Mock(CategorizerDeclarativeClient)
-        transactionService.systemCategoryGormService = Mock(SystemCategoryGormService)
+        transactionService.systemCategoryService = Mock(SystemCategoryService)
     }
 
     def 'Should save an transaction'(){
@@ -55,7 +55,36 @@ class TransactionServiceSpec extends Specification {
         response instanceof Transaction
     }
 
-    def 'Should save an transaction with no category'(){
+    def 'Should save an transaction with no category and use categorizer to set it'(){
+        given:'a transaction command request body'
+        Category category = generateCategory()
+
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = 666
+            date =  new Date().getTime()
+        }
+
+
+        CategorizerDto categorizerDto = new CategorizerDto()
+        categorizerDto.with {
+            categoryId = 'uuid'
+        }
+
+        when:
+
+        1 * transactionService.categorizerDeclarativeClient.getCategories(_ as String, cmd.description) >> categorizerDto
+        1 * transactionService.systemCategoryService.findByFinerioConnectId(_ as String) >> new SystemCategory()
+        1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
+
+
+        def response = transactionService.create(cmd)
+
+        then:
+        response instanceof Transaction
+    }
+
+    def 'Should save an transaction with  category null on categorizer  responses empty '(){
         given:'a transaction command request body'
         Category category = generateCategory()
 
@@ -72,8 +101,8 @@ class TransactionServiceSpec extends Specification {
 
         when:
 
-        1 * transactionService.categorizerDeclarativeClient.getCategories(_ as String, cmd.description) >> categorizerDto
-        1 * transactionService.systemCategoryGormService.findByFinerioConnectId(_ as String) >> new SystemCategory()
+        1 * transactionService.categorizerDeclarativeClient.getCategories(_ as String, cmd.description) >> []
+        0 * transactionService.categoryService.getById(_ as Long)
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
 
 

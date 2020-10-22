@@ -26,6 +26,11 @@ class SystemCategoryServiceImp extends ServiceTemplate implements SystemCategory
         systemCategoryGormService.findByIdAndDateDeletedIsNull(id)
     }
 
+    @Override
+    SystemCategory findByFinerioConnectId(String finnerioConnectId) {
+        systemCategoryGormService.findByFinerioConnectId(finnerioConnectId)
+    }
+
     static CategoryDto generateDto(systemCategory) {
         CategoryDto category = new CategoryDto()
         category.with {
