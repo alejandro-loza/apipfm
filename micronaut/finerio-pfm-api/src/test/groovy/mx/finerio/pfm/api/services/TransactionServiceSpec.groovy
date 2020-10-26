@@ -72,6 +72,7 @@ class TransactionServiceSpec extends Specification {
 
         when:
 
+        1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
         1 * transactionService.categorizerDeclarativeClient.getCategories(_ as String, cmd.description) >> categorizerDto
         1 * transactionService.systemCategoryGormService.findByFinerioConnectId(_ as String) >> new SystemCategory()
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()

@@ -27,6 +27,8 @@ class AccountCreateCommand extends ValidationCommand{
     @Size(min = 3, max =100, message= 'account.number.size')
     String number
 
+    boolean chargeable
+
     BigDecimal balance = 0
 
 }

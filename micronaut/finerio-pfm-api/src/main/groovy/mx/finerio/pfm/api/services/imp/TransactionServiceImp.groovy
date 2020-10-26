@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.services.gorm.SystemCategoryGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
+import mx.finerio.pfm.api.validation.AccountUpdateCommand
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
@@ -48,11 +49,12 @@ class TransactionServiceImp  implements TransactionService {
 
     @Override
     @Transactional
-    Transaction create(TransactionCreateCommand cmd){
+    Transaction create(TransactionCreateCommand cmd) {
         verifyBody(cmd)
+        Account transactionAccount = accountService.getAccount(cmd.accountId)
         Transaction transaction = new Transaction()
         transaction.with {
-            account =  accountService.getAccount(cmd.accountId)
+            account = transactionAccount
             date =  new Date(cmd.date)
             description = cmd.description
             charge =  cmd.charge
@@ -68,8 +70,11 @@ class TransactionServiceImp  implements TransactionService {
                     categorizerDeclarativeClient.getCategories(getAuthorizationHeader(), cmd.description).categoryId
             )
         }
-        return  transactionGormService.save(transaction)
-
+        transactionGormService.save(transaction)
+        if(transactionAccount.chargeable) {
+            accountService.updateBalanceByTransaction(transaction)
+        }
+        return transaction
     }
 
     @Override

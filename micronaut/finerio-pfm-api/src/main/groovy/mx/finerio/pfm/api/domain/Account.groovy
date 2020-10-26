@@ -22,6 +22,7 @@ class Account  implements GormEntity<Account> {
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
+    boolean chargeable
 
     Account(AccountCreateCommand accountCommand, User user, FinancialEntity financialEntity) {
         this.user = user
@@ -29,6 +30,7 @@ class Account  implements GormEntity<Account> {
         this.nature = accountCommand.nature
         this.name = accountCommand.name
         this.number = accountCommand.number
+        this.chargeable = accountCommand.chargeable
         this.balance = accountCommand.balance.setScale(
             2, BigDecimal.ROUND_HALF_UP )
     }

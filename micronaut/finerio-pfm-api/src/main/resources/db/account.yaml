@@ -63,3 +63,8 @@ databaseChangeLog:
                   type: DATETIME(6)
                   constraints:
                     nullable: true
+              - column:
+                  name: chargeable
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
