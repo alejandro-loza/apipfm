@@ -1,10 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
-import io.micronaut.context.annotation.ConfigurationProperties
-import io.micronaut.context.annotation.Requires
-import io.micronaut.http.client.exceptions.HttpClientResponseException
-import mx.finerio.pfm.api.clients.CategorizerDeclarativeClient
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
@@ -12,10 +8,7 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
-import mx.finerio.pfm.api.services.AccountService
-import mx.finerio.pfm.api.services.CategoryService
-import mx.finerio.pfm.api.services.SystemCategoryService
-import mx.finerio.pfm.api.services.TransactionService
+import mx.finerio.pfm.api.services.*
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
@@ -23,8 +16,6 @@ import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
 
-@ConfigurationProperties('categorizer')
-@Requires(property = 'categorizer')
 class TransactionServiceImp  implements TransactionService {
 
     public static final int MAX_ROWS = 100
@@ -42,11 +33,7 @@ class TransactionServiceImp  implements TransactionService {
     SystemCategoryService systemCategoryService
 
     @Inject
-    CategorizerDeclarativeClient categorizerDeclarativeClient
-
-    private String username
-
-    private String password
+    CategorizerService categorizerService
 
     @Override
     @Transactional
@@ -184,12 +171,9 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     void tryToSetSystemCategoryByCategorizer(TransactionCreateCommand cmd, Transaction transaction) {
-        try {
-            transaction.systemCategory = systemCategoryService.findByFinerioConnectId(
-                    categorizerDeclarativeClient.getCategories(getAuthorizationHeader(), cmd.description).categoryId
-            )
-        } catch (HttpClientResponseException e) {
-            //TODO LOG or improve this
+        String categoryId = categorizerService.searchCategory(cmd.description)?.categoryId
+        if(categoryId){
+            transaction.systemCategory = systemCategoryService.findByFinerioConnectId(categoryId)
         }
     }
 
@@ -203,12 +187,6 @@ class TransactionServiceImp  implements TransactionService {
             verifyParentCategory(category)
             transaction.category = category
         }
-    }
-
-    private String getAuthorizationHeader()  throws Exception {
-        def authEncoded = "${username}:${password}"
-                .bytes.encodeBase64().toString()
-         "Basic ${authEncoded}"
     }
 
 }
