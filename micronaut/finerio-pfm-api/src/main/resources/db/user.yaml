@@ -34,3 +34,15 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
+  - changeSet:
+      id: user_client_fk
+      author: alejandro.hernnadez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: client_id
+            baseTableName: user
+            constraintName: fk_user_client
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: client

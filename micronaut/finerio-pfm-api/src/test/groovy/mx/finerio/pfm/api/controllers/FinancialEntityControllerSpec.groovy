@@ -12,6 +12,7 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
@@ -19,7 +20,10 @@ import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ClientService
+import mx.finerio.pfm.api.services.UserService
+import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
+import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 import org.junit.Ignore
@@ -46,10 +50,15 @@ class FinancialEntityControllerSpec extends Specification {
 
     @Inject
     @Shared
-    ClientService registerService
+    AccountGormService accountGormService
 
     @Inject
-    AccountService accountService
+    @Shared
+    UserGormService userGormService
+
+    @Inject
+    @Shared
+    ClientService registerService
 
     @Shared
     String accessToken
@@ -573,30 +582,43 @@ class FinancialEntityControllerSpec extends Specification {
         FinancialEntity financialEntity1 = new FinancialEntity(getWakandaTestBankCommand(), loggedInClient)
         financialGormService.save(financialEntity1)
 
+        and:'a user'
+        User awesomeUser = new User('awesome user', loggedInClient)
+        userGormService.save(awesomeUser)
+
         and:
         Account account = new Account()
+        account.with {
+            financialEntity = financialEntity1
+            name = 'test name'
+            number = 'test number'
+            nature = 'test nature'
+            user = awesomeUser
+        }
+        accountGormService.save(account)
+
 
         and:'a client request'
         HttpRequest request = HttpRequest.DELETE("${FINANCIAL_ROOT}/${financialEntity1.id}").bearerAuth(accessToken)
 
         when:
-        def response = client.toBlocking().exchange(request, FinancialEntityDto)
-
-        then:
-        response.status == HttpStatus.NO_CONTENT
-
-        and:
-        HttpRequest.GET("${FINANCIAL_ROOT}/${financialEntity1.id}")
-
-        when:
         client.toBlocking().exchange(request, Argument.of(FinancialEntityDto) as Argument<FinancialEntityDto>,
-                Argument.of(ItemNotFoundException))
+                Argument.of(ErrorsDto))
 
         then:
         def  e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.NOT_FOUND
+        e.response.status == HttpStatus.BAD_REQUEST
 
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
 
+        then:
+        jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert  code == 'financialEntity.account.childExistence'
+            assert  detail == 'financialEntity.account.childExistence.detail'
+            assert  title == "There are account with this financial entity set please delete the accounts"
+        }
     }
 
     private static FinancialEntityCreateCommand getWakandaTestBankCommand() {

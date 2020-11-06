@@ -14,6 +14,7 @@ import io.reactivex.Single
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.FinancialEntityService
@@ -75,6 +76,9 @@ class FinancialEntityController {
     @Transactional
     HttpResponse delete(@NotNull Long id) {
         FinancialEntity entity = financialEntityService.getById(id)
+        if(accountService.findAllByFinancialEntity(entity)){
+            throw new BadRequestException('financialEntity.account.childExistence')
+        }
         financialEntityService.delete(entity)
         HttpResponse.noContent()
     }

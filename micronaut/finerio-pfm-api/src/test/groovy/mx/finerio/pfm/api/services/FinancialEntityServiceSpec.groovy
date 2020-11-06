@@ -4,6 +4,7 @@ import io.micronaut.context.annotation.Property
 import io.micronaut.security.utils.SecurityService
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.exceptions.BadRequestException
