@@ -14,14 +14,14 @@ interface BudgetService {
     @Log
     void verifyBody(ValidationCommand cmd)
 
-    @ Log
-    Budget create(BudgetCreateCommand cmd, Category category, User user)
+    @Log
+    Budget create(BudgetCreateCommand cmd)
 
     @Log
     Budget find(Long id)
 
     @Log
-    Budget update(BudgetUpdateCommand cmd, Budget budget, Category categoryToSet)
+    Budget update(BudgetUpdateCommand cmd, Budget budget)
 
     @Log
     void delete(Long id)

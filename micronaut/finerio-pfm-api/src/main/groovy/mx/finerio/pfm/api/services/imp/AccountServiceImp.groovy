@@ -4,6 +4,7 @@ import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.AccountDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -109,6 +110,11 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
         verifyLoggedClient(user.client)
         accountGormService.findAllByUserAndDateDeletedIsNull(
                 user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+    }
+
+    @Override
+    List<Account> findAllByFinancialEntity(FinancialEntity financialEntity) {
+        accountGormService.findAllByFinancialEntityAndDateDeletedIsNull(financialEntity)
     }
 
     private void verifyLoggedClient(Client client) {

@@ -66,6 +66,7 @@ class CategoryControllerSpec extends Specification {
     @Inject
     FinancialEntityGormService financialEntityGormService
 
+
     @Inject
     @Shared
     ClientService clientService
@@ -86,6 +87,16 @@ class CategoryControllerSpec extends Specification {
     }
 
     void cleanup(){
+        List<Budget> budgets = budgetGormService.findAll()
+        budgets.each { Budget budget ->
+            budgetGormService.delete(budget.id)
+        }
+
+        List<Transaction> transactions = transactionGormService.findAll()
+        transactions.each {
+            transactionGormService.delete(it.id)
+        }
+
         List<Category> categoriesChild = categoryGormService.findAllByParentIsNotNull()
         categoriesChild.each { Category category ->
             categoryGormService.delete(category.id)

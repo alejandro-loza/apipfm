@@ -17,6 +17,9 @@ interface CategoryService {
     Category getById(Long id)
 
     @Log
+    Category find(long id)
+
+    @Log
     Category update(CategoryUpdateCommand cmd, Long id)
 
     @Log

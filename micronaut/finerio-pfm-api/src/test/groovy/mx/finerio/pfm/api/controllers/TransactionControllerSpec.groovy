@@ -224,7 +224,7 @@ class TransactionControllerSpec extends Specification {
         assert accountGormService.getById(account1.id).balance ==400.00F
     }
 
-    def "Should create a transaction with no category"(){
+    def "Should create a transaction with no category and categorise it"(){
         given:'an saved Account '
         Account account1 = generateAccount()
 
@@ -245,6 +245,33 @@ class TransactionControllerSpec extends Specification {
 
         then:
         rsp.status == HttpStatus.OK
+    }
+
+    def "Should create a transaction with category null on categorize empty "(){
+        given:'an saved Account '
+        Account account1 = generateAccount()
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = "."
+            amount= 1234.56
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        Optional<TransactionDto> body = rsp.getBody(TransactionDto)
+
+
+        then:
+        rsp.status == HttpStatus.OK
+        assert  !body.get().categoryId
     }
 
     def "Should not create a transaction and throw bad request on category without parent"(){
