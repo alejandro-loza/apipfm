@@ -31,7 +31,8 @@ class Transaction implements GormEntity<Transaction> {
         this.date = new Date(cmd.date)
         this.charge = cmd.charge
         this.description = cmd.description
-        this.amount = cmd.amount
+        this.amount = cmd.amount.setScale(
+                2, BigDecimal.ROUND_HALF_UP )
 
     }
 

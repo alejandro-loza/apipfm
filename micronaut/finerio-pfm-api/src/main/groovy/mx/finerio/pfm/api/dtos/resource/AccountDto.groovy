@@ -11,6 +11,7 @@ class AccountDto  extends ResourceDto{
     String name
     String number
     BigDecimal balance
+    boolean chargeable
 
     AccountDto() {}
 
@@ -22,6 +23,7 @@ class AccountDto  extends ResourceDto{
         this.balance = account.balance
         this.dateCreated = account.dateCreated
         this.lastUpdated = account.lastUpdated
+        this.chargeable = account.chargeable
     }
 
 }

@@ -513,7 +513,7 @@ class TransactionControllerSpec extends Specification {
             assert date.getTime() == cmd.date
             assert charge == cmd.charge
             assert description == cmd.description
-            assert amount == cmd.amount
+            amount == cmd.amount
         }
 
     }
@@ -837,7 +837,6 @@ class TransactionControllerSpec extends Specification {
         given:'a transaction list'
         Account account1 = generateAccount()
         Account account2 = generateAccount()
-
 
         Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction1)

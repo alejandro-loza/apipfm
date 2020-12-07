@@ -375,7 +375,7 @@ class AccountControllerSpec extends Specification {
         accountGormService.save(account)
 
         and:'an account command to update data'
-        AccountCreateCommand cmd = new AccountCreateCommand()
+        AccountUpdateCommand cmd = new AccountUpdateCommand()
         cmd.with {
             userId = awesomeUser.id
             financialEntityId = entity1.id
@@ -383,6 +383,7 @@ class AccountControllerSpec extends Specification {
             name = 'no test'
             number = 1234123412341234
             balance = 1000.00
+            chargeable = false
         }
 
         and:'a client'
@@ -397,6 +398,7 @@ class AccountControllerSpec extends Specification {
             name == cmd.name
             nature == cmd.nature
             balance == cmd.balance
+            chargeable == cmd.chargeable
         }
 
     }
