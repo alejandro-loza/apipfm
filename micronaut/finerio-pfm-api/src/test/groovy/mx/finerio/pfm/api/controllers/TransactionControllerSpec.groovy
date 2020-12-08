@@ -84,6 +84,11 @@ class TransactionControllerSpec extends Specification {
             transactionGormService.delete(it.id)
         }
 
+        List<Account> account = accountGormService.findAll()
+        account.each {
+            accountGormService.delete(it.id)
+        }
+
     }
 
     def "Should get unauthorized"() {
@@ -153,10 +158,22 @@ class TransactionControllerSpec extends Specification {
         assert accountGormService.getById(account1.id).balance == 0.00F
     }
 
-    def "Should create a transaction and charge the account "(){
+    def "Should create a transaction and charge the account an decrement it's balance "(){
         given:'an saved Account '
-        Account account1 = generateAccount()
-        account1.chargeable = true
+        User user1 = generateUser()
+
+        FinancialEntity entity = generateEntity()
+
+        Account account1 = new Account()
+        account1.with {
+            user = user1
+            financialEntity = entity
+            nature = 'TEST NATURE'
+            name = 'TEST NAME'
+            number = 123412341234
+            balance = 1000.00
+            chargeable = true
+        }
         accountGormService.save(account1)
 
         def user = account1.user
@@ -172,7 +189,7 @@ class TransactionControllerSpec extends Specification {
             date = 1587567125458
             charge = true
             description = "UBER EATS"
-            amount= 1234.56
+            amount= 600.00
             categoryId = category1.id
         }
 
@@ -185,10 +202,10 @@ class TransactionControllerSpec extends Specification {
         rsp.status == HttpStatus.OK
         rsp.body.get().categoryId == category1.id
 
-        assert accountGormService.getById(account1.id).balance == 1234.56F
+        assert accountGormService.getById(account1.id).balance == 400.00F
     }
 
-    def "Should create a transaction and decrement the account balance"(){
+    def "Should create a transaction and increment the account balance on account's chargeable activated and charge false"(){
         given:'an saved Account '
         Account account1 = generateAccount()
         account1.chargeable = true
@@ -221,7 +238,7 @@ class TransactionControllerSpec extends Specification {
         rsp.status == HttpStatus.OK
         rsp.body.get().categoryId == category1.id
 
-        assert accountGormService.getById(account1.id).balance ==400.00F
+        assert accountGormService.getById(account1.id).balance ==1600.00F
     }
 
     def "Should create a transaction with no category and categorise it"(){

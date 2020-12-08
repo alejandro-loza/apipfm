@@ -71,9 +71,8 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
         Account account = transaction.account
         if(account.chargeable){
             account.balance = (float) (transaction.charge
-                    ? account.balance + transaction.amount
-                    : account.balance - transaction.amount)
-
+                    ? account.balance - transaction.amount
+                    : account.balance + transaction.amount)
         }
         accountGormService.save(account)
     }
