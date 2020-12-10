@@ -23,5 +23,5 @@ class AccountUpdateCommand extends ValidationCommand{
 
     float balance
 
-    boolean chargeable
+    Boolean chargeable
 }

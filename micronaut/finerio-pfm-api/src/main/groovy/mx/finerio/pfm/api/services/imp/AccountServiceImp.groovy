@@ -60,7 +60,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
             name = cmd.name ?: account.name
             number = cmd.number ?: account.number
             balance = cmd.balance ?: account.balance
-            chargeable = cmd.chargeable ?: account.chargeable
+            chargeable = cmd.chargeable != null  ? cmd.chargeable : account.chargeable
         }
         accountGormService.save(account)
     }

@@ -371,6 +371,7 @@ class AccountControllerSpec extends Specification {
             name = 'test'
             number = 1234123412341234
             balance = 0.0
+            chargeable = true
         }
         accountGormService.save(account)
 
@@ -398,7 +399,7 @@ class AccountControllerSpec extends Specification {
             name == cmd.name
             nature == cmd.nature
             balance == cmd.balance
-            chargeable == cmd.chargeable
+           assert chargeable == cmd.chargeable
         }
 
     }
