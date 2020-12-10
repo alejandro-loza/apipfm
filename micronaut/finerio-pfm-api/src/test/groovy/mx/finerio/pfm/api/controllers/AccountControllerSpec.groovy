@@ -168,6 +168,7 @@ class AccountControllerSpec extends Specification {
             nature ='DEBIT'
             name = 'awesome account'
             number = 1234123412341234
+            balance = 100.00
         }
 
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd).bearerAuth(accessToken)
@@ -182,7 +183,7 @@ class AccountControllerSpec extends Specification {
             nature == cmd.nature
             name == cmd.name
             number == cmd.number
-            balance == cmd.balance
+            balance == 100.00
             dateCreated
         }
         assert rsp.body().number instanceof  String

@@ -152,7 +152,7 @@ class TransactionServiceImp  implements TransactionService {
             date = transaction.date
             charge = transaction.charge
             description = transaction.description
-            amount = transaction.amount
+            amount = new BigDecimal(transaction.amount).setScale(2,BigDecimal.ROUND_HALF_UP)
             dateCreated = transaction.dateCreated
             lastUpdated = transaction.lastUpdated
             categoryId = transaction.category

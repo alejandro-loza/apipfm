@@ -595,7 +595,7 @@ class TransactionControllerSpec extends Specification {
         resp.body().with {
             assert date.toString() == transaction.date.toString()
             assert description == cmd.description
-            assert amount == cmd.amount
+            amount == cmd.amount
             assert charge == cmd.charge
         }
 
