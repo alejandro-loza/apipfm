@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.AccountDto
@@ -18,6 +19,9 @@ interface AccountService {
 
     @Log
     Account update(AccountUpdateCommand cmd, Long id)
+
+    @Log
+    void updateBalanceByTransaction(Transaction transaction)
 
     @Log
     void delete(Account account)

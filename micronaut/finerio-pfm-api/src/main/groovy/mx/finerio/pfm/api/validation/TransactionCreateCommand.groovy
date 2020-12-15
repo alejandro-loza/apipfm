@@ -21,7 +21,7 @@ class TransactionCreateCommand extends ValidationCommand{
     @NotNull(message= 'transaction.amount.null')
     @Positive
     @NotNull(message= 'transaction.amount.null')
-    float  amount
+    BigDecimal  amount
 
     Long categoryId
 

@@ -145,7 +145,6 @@ class AccountServiceSpec extends Specification {
         e.message == 'account.notFound'
     }
 
-
     def "Should get all accounts by user" () {
         given:
         Client client = generateClient()

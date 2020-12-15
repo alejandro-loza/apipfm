@@ -41,6 +41,7 @@ class TransactionServiceSpec extends Specification {
             accountId = 666
             date =  new Date().getTime()
             categoryId = category.id
+            amount = 100.50
         }
 
         when:
@@ -62,8 +63,8 @@ class TransactionServiceSpec extends Specification {
         cmd.with {
             accountId = 666
             date =  new Date().getTime()
+            amount = 100.50
         }
-
 
         CategorizerDto categorizerDto = new CategorizerDto()
         categorizerDto.with {
@@ -76,7 +77,6 @@ class TransactionServiceSpec extends Specification {
         1 * transactionService.categorizerService.searchCategory(_ ) >> categorizerDto
         1 * transactionService.systemCategoryService.findByFinerioConnectId(_ as String) >> new SystemCategory()
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
-
 
         def response = transactionService.create(cmd)
 
@@ -91,11 +91,13 @@ class TransactionServiceSpec extends Specification {
         cmd.with {
             accountId = 666
             date =  new Date().getTime()
+            amount = 100.50
         }
 
 
         when:
 
+        1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
         1 * transactionService.categorizerService.searchCategory(_ ) >> new CategorizerDto()
         0 * transactionService.categoryService.getById(_ as Long)
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
@@ -126,6 +128,7 @@ class TransactionServiceSpec extends Specification {
             accountId =  account.id
             date =  new Date().getTime()
             categoryId = category.id
+            amount = 100.50
         }
 
         when:
@@ -148,6 +151,7 @@ class TransactionServiceSpec extends Specification {
             accountId = 666
             date =  new Date().getTime()
             categoryId = 666
+            amount = 100.50
         }
         when:
         1 * transactionService.categoryService.getById(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }

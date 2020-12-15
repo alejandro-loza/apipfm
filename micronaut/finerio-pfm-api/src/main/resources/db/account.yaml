@@ -63,6 +63,11 @@ databaseChangeLog:
                   type: DATETIME(6)
                   constraints:
                     nullable: true
+              - column:
+                  name: chargeable
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
   - changeSet:
       id: account_user_fk
       author: alejandro.hernnadez

@@ -10,6 +10,7 @@ import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.*
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
+import mx.finerio.pfm.api.validation.AccountUpdateCommand
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
@@ -37,11 +38,12 @@ class TransactionServiceImp  implements TransactionService {
 
     @Override
     @Transactional
-    Transaction create(TransactionCreateCommand cmd){
+    Transaction create(TransactionCreateCommand cmd) {
         verifyBody(cmd)
+        Account transactionAccount = accountService.getAccount(cmd.accountId)
         Transaction transaction = new Transaction()
         transaction.with {
-            account =  accountService.getAccount(cmd.accountId)
+            account = transactionAccount
             date =  new Date(cmd.date)
             description = cmd.description
             charge =  cmd.charge
@@ -54,6 +56,10 @@ class TransactionServiceImp  implements TransactionService {
             tryToSetSystemCategoryByCategorizer(cmd, transaction)
         }
         transactionGormService.save(transaction)
+        if(transactionAccount.chargeable) {
+            accountService.updateBalanceByTransaction(transaction)
+        }
+        return transaction
     }
 
     @Override
@@ -146,7 +152,7 @@ class TransactionServiceImp  implements TransactionService {
             date = transaction.date
             charge = transaction.charge
             description = transaction.description
-            amount = transaction.amount
+            amount = new BigDecimal(transaction.amount).setScale(2,BigDecimal.ROUND_HALF_UP)
             dateCreated = transaction.dateCreated
             lastUpdated = transaction.lastUpdated
             categoryId = transaction.category

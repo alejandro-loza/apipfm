@@ -168,6 +168,7 @@ class AccountControllerSpec extends Specification {
             nature ='DEBIT'
             name = 'awesome account'
             number = 1234123412341234
+            balance = 100.00
         }
 
         HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd).bearerAuth(accessToken)
@@ -182,7 +183,7 @@ class AccountControllerSpec extends Specification {
             nature == cmd.nature
             name == cmd.name
             number == cmd.number
-            balance == cmd.balance
+            balance == 100.00
             dateCreated
         }
         assert rsp.body().number instanceof  String
@@ -371,11 +372,12 @@ class AccountControllerSpec extends Specification {
             name = 'test'
             number = 1234123412341234
             balance = 0.0
+            chargeable = true
         }
         accountGormService.save(account)
 
         and:'an account command to update data'
-        AccountCreateCommand cmd = new AccountCreateCommand()
+        AccountUpdateCommand cmd = new AccountUpdateCommand()
         cmd.with {
             userId = awesomeUser.id
             financialEntityId = entity1.id
@@ -383,6 +385,7 @@ class AccountControllerSpec extends Specification {
             name = 'no test'
             number = 1234123412341234
             balance = 1000.00
+            chargeable = false
         }
 
         and:'a client'
@@ -397,6 +400,7 @@ class AccountControllerSpec extends Specification {
             name == cmd.name
             nature == cmd.nature
             balance == cmd.balance
+           assert chargeable == cmd.chargeable
         }
 
     }

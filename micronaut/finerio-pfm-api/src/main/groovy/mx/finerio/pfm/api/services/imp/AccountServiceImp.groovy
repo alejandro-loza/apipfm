@@ -3,6 +3,7 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.AccountDto
@@ -59,6 +60,19 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
             name = cmd.name ?: account.name
             number = cmd.number ?: account.number
             balance = cmd.balance ?: account.balance
+            chargeable = cmd.chargeable != null  ? cmd.chargeable : account.chargeable
+        }
+        accountGormService.save(account)
+    }
+
+
+    @Override
+    void updateBalanceByTransaction(Transaction transaction) {
+        Account account = transaction.account
+        if(account.chargeable){
+            account.balance = (float) (transaction.charge
+                    ? account.balance - transaction.amount
+                    : account.balance + transaction.amount)
         }
         accountGormService.save(account)
     }

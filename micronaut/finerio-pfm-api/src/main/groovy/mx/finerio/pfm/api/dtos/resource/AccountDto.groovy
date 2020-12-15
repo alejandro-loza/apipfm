@@ -4,6 +4,8 @@ import groovy.transform.ToString
 
 import mx.finerio.pfm.api.domain.Account
 
+import java.text.DecimalFormat
+
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)
 class AccountDto  extends ResourceDto{
@@ -11,6 +13,7 @@ class AccountDto  extends ResourceDto{
     String name
     String number
     BigDecimal balance
+    boolean chargeable
 
     AccountDto() {}
 
@@ -19,9 +22,10 @@ class AccountDto  extends ResourceDto{
         this.nature = account.nature
         this.name = account.name
         this.number = account.number
-        this.balance = account.balance
         this.dateCreated = account.dateCreated
         this.lastUpdated = account.lastUpdated
+        this.chargeable = account.chargeable
+        this.balance =  new BigDecimal(account.balance).setScale(2,BigDecimal.ROUND_HALF_UP)
     }
 
 }

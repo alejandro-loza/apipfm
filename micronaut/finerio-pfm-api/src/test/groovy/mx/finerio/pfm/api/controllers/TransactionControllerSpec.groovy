@@ -27,7 +27,6 @@ import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
-import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import javax.inject.Inject
@@ -45,7 +44,7 @@ class TransactionControllerSpec extends Specification {
     RxStreamingHttpClient client
 
     @Inject
-    AccountGormService accountService
+    AccountGormService accountGormService
 
     @Inject
     UserGormService userGormService
@@ -85,6 +84,11 @@ class TransactionControllerSpec extends Specification {
             transactionGormService.delete(it.id)
         }
 
+        List<Account> account = accountGormService.findAll()
+        account.each {
+            accountGormService.delete(it.id)
+        }
+
     }
 
     def "Should get unauthorized"() {
@@ -121,7 +125,7 @@ class TransactionControllerSpec extends Specification {
         assert transactionDtos.isEmpty()
     }
 
-    def "Should create a transaction"(){
+    def "Should create a transaction and no update the balance on no chargeable account "(){
         given:'an saved Account '
         Account account1 = generateAccount()
         def user = generateUser()
@@ -150,6 +154,91 @@ class TransactionControllerSpec extends Specification {
         then:
         rsp.status == HttpStatus.OK
         rsp.body.get().categoryId == category1.id
+
+        assert accountGormService.getById(account1.id).balance == 0.00F
+    }
+
+    def "Should create a transaction and charge the account an decrement it's balance "(){
+        given:'an saved Account '
+        User user1 = generateUser()
+
+        FinancialEntity entity = generateEntity()
+
+        Account account1 = new Account()
+        account1.with {
+            user = user1
+            financialEntity = entity
+            nature = 'TEST NATURE'
+            name = 'TEST NAME'
+            number = 123412341234
+            balance = 1000.00
+            chargeable = true
+        }
+        accountGormService.save(account1)
+
+        def user = account1.user
+
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = "UBER EATS"
+            amount= 600.00
+            categoryId = category1.id
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        rsp.body.get().categoryId == category1.id
+
+        assert accountGormService.getById(account1.id).balance == 400.00F
+    }
+
+    def "Should create a transaction and increment the account balance on account's chargeable activated and charge false"(){
+        given:'an saved Account '
+        Account account1 = generateAccount()
+        account1.chargeable = true
+        account1.balance = 1000
+        accountGormService.save(account1)
+
+        def user = account1.user
+
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = false
+            description = "UBER EATS"
+            amount= 600
+            categoryId = category1.id
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        rsp.body.get().categoryId == category1.id
+
+        assert accountGormService.getById(account1.id).balance ==1600.00F
     }
 
     def "Should create a transaction with no category and categorise it"(){
@@ -441,7 +530,7 @@ class TransactionControllerSpec extends Specification {
             assert date.getTime() == cmd.date
             assert charge == cmd.charge
             assert description == cmd.description
-            assert amount == cmd.amount
+            amount == cmd.amount
         }
 
     }
@@ -506,7 +595,7 @@ class TransactionControllerSpec extends Specification {
         resp.body().with {
             assert date.toString() == transaction.date.toString()
             assert description == cmd.description
-            assert amount == cmd.amount
+            amount == cmd.amount
             assert charge == cmd.charge
         }
 
@@ -766,7 +855,6 @@ class TransactionControllerSpec extends Specification {
         Account account1 = generateAccount()
         Account account2 = generateAccount()
 
-
         Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
         transactionGormService.save(transaction1)
         Transaction transaction2 = new Transaction(generateTransactionCommand(account2), account2)
@@ -820,7 +908,7 @@ class TransactionControllerSpec extends Specification {
             number = 123412341234
             balance = 0.0
         }
-        accountService.save(account1)
+        accountGormService.save(account1)
         account1
     }
 

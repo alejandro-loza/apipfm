@@ -10,7 +10,7 @@ class TransactionDto extends ResourceDto{
     Date date
     boolean charge
     String description
-    float  amount
+    BigDecimal  amount
     Long categoryId
     TransactionDto() {}
 
@@ -19,7 +19,7 @@ class TransactionDto extends ResourceDto{
         this.date = transaction.date
         this.charge = transaction.charge
         this.description = transaction.description
-        this.amount = transaction.amount
+        this.amount =  new BigDecimal(transaction.amount).setScale(2,BigDecimal.ROUND_HALF_UP)
         this.dateCreated = transaction.dateCreated
         this.lastUpdated = transaction.lastUpdated
         this.categoryId = transaction?.category?.id
