@@ -17,7 +17,7 @@ import javax.inject.Inject
 @Controller("/resume")
 @Validated
 @Secured('isAuthenticated()')
-class ResumeController {
+class  ResumeController {
 
     @Inject
     ResumeService resumeService
