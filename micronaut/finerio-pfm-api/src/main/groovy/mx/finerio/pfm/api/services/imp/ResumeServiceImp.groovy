@@ -35,7 +35,6 @@ class ResumeServiceImp implements ResumeService{
     @Inject
     TransactionService transactionsService
 
-
     @Override
     @Transactional
     List<MovementsDto> groupTransactionsByMonth(List<Transaction> transactionList){
@@ -63,8 +62,7 @@ class ResumeServiceImp implements ResumeService{
 
         List<MovementsDto> incomesResult = groupTransactionsByMonth(
                 getAccountsTransactions(accounts, INCOME, fromDate, toDate))
-        List<MovementsDto> expensesResult = groupTransactionsByMonth(
-                getAccountsTransactions(accounts, EXPENSE, fromDate, toDate))
+        List<MovementsDto> expensesResult = getExpensesResume(accounts, fromDate, toDate)
 
         ResumeDto resumeDto = new ResumeDto()
         resumeDto.incomes = incomesResult
@@ -73,7 +71,20 @@ class ResumeServiceImp implements ResumeService{
         resumeDto
     }
 
-    private static Date validateFromDate(Long dateFrom) {
+    @Override
+    @Transactional
+    List<MovementsDto> getExpensesResume(List<Account> accounts, Date fromDate, Date toDate) {
+        groupTransactionsByMonth(
+                getAccountsTransactions(accounts, EXPENSE, fromDate, toDate))
+    }
+
+    @Override
+    Date getFromLimit(){
+        FROM_LIMIT
+    }
+
+    @Override
+    Date validateFromDate(Long dateFrom) {
         Date from = new Date(dateFrom)
         if(from.before(FROM_LIMIT)){
             throw new BadRequestException("date.range.invalid")
@@ -81,7 +92,8 @@ class ResumeServiceImp implements ResumeService{
         from
     }
 
-    private static Date validateToDate(Long dateTo, Date from) {
+    @Override
+    Date validateToDate(Long dateTo, Date from) {
         Date to =  new Date(dateTo)
         if(to.before(from)){
             throw new BadRequestException("date.range.invalid")
@@ -167,10 +179,10 @@ class ResumeServiceImp implements ResumeService{
     private MovementsDto generateMovementDto(String stringDate, List<Transaction> transactions) {
         MovementsDto movementsDto = new MovementsDto()
         movementsDto.date = generateFixedDate(stringDate).getTime()
-        movementsDto.categories = getTransactionsGroupByParentCategory(
-                transactions )
-
+        movementsDto.categories = getTransactionsGroupByParentCategory(transactions )
         movementsDto.amount = transactions*.amount.sum() as float
+        movementsDto.average = movementsDto.amount / transactions.size() as float
+        movementsDto.quantity = transactions.size()
         movementsDto
     }
 
@@ -180,6 +192,8 @@ class ResumeServiceImp implements ResumeService{
         parentCategory.subcategories = getTransactionsGroupBySubCategory(
                 transactions)
         parentCategory.amount = transactions*.amount.sum() as float
+        parentCategory.average = parentCategory.amount / transactions.size() as float
+        parentCategory.quantity = transactions.size()
         parentCategory
     }
 
@@ -189,6 +203,8 @@ class ResumeServiceImp implements ResumeService{
         subCategoryResumeDto.transactionsByDate =
                 getTransactionsGroupByDay( transactions )
         subCategoryResumeDto.amount = transactions*.amount.sum() as float
+        subCategoryResumeDto.average = subCategoryResumeDto.amount / transactions.size() as float
+        subCategoryResumeDto.quantity = transactions.size()
         subCategoryResumeDto
     }
 

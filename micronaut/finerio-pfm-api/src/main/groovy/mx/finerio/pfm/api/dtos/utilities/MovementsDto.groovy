@@ -6,5 +6,7 @@ import groovy.transform.ToString
 class MovementsDto {
     Long date
     float amount
+    float average
+    Integer quantity = 0
     List<CategoryResumeDto> categories
 }

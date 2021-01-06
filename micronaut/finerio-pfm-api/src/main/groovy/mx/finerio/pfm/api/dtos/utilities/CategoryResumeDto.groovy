@@ -6,5 +6,7 @@ import groovy.transform.ToString
 class CategoryResumeDto {
     Long categoryId
     float amount
+    float average
+    Integer quantity = 0
     List<SubCategoryResumeDto> subcategories
 }

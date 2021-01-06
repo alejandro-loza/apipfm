@@ -98,7 +98,7 @@ class UserController {
     }
 
     void deleteAllUserChildEntities(User user) {
-        accountService.findAllByUser(user).each { Account account ->
+        accountService.findAllByUserBoundedByMaxRows(user).each { Account account ->
             transactionService.deleteAllByAccount(account)
             accountService.delete(account)
         }
