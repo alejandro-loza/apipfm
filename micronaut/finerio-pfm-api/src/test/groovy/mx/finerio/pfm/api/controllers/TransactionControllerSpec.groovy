@@ -713,7 +713,7 @@ class TransactionControllerSpec extends Specification {
         }
     }
 
-    def "Should get a list of transactions by account"(){
+    def "Should get a list of transactions by account"() {
 
         given:'a transaction list'
         Account account1 = generateAccount()

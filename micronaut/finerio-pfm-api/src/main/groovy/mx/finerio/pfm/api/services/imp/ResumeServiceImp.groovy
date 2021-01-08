@@ -79,7 +79,7 @@ class ResumeServiceImp implements ResumeService{
     }
 
     @Override
-    Date getFromLimit(){
+    Date getFromLimit() {
         FROM_LIMIT
     }
 
