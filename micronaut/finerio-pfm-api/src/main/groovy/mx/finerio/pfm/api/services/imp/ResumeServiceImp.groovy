@@ -4,6 +4,7 @@ import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.utilities.BalancesDto
+import mx.finerio.pfm.api.dtos.utilities.BaseCategoryResumeDto
 import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
 import mx.finerio.pfm.api.dtos.utilities.MovementsDto
 import mx.finerio.pfm.api.dtos.utilities.ResumeDto
@@ -74,8 +75,7 @@ class ResumeServiceImp implements ResumeService{
     @Override
     @Transactional
     List<MovementsDto> getExpensesResume(List<Account> accounts, Date fromDate, Date toDate) {
-        groupTransactionsByMonth(
-                getAccountsTransactions(accounts, EXPENSE, fromDate, toDate))
+        groupTransactionsByMonth(getAccountsTransactions(accounts, EXPENSE, fromDate, toDate))
     }
 
     @Override
@@ -129,32 +129,7 @@ class ResumeServiceImp implements ResumeService{
         }
     }
 
-    private List<CategoryResumeDto> getTransactionsGroupByParentCategory(List<Transaction> transactionList){
-        List<CategoryResumeDto> categoryResumeDtos = []
-        Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
-                .collect ( Collectors.groupingBy({ Transaction transaction ->
-                    transaction.category.parent.id
-                }))
-        for ( Map.Entry<Long, List<Transaction>> entry : transactionsGrouped.entrySet() ) {
-            categoryResumeDtos.add( generateParentCategoryResume( entry.key, entry.value ) )
-        }
-        categoryResumeDtos
-    }
-
-    List<SubCategoryResumeDto> getTransactionsGroupBySubCategory(List<Transaction> transactionList){
-        List<SubCategoryResumeDto> subCategoryResumeDtos = []
-        Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
-                .collect ( Collectors.groupingBy({ Transaction transaction ->
-                    transaction.category.id
-                }))
-        for ( Map.Entry<Long, List<Transaction>> entry : transactionsGrouped.entrySet() ) {
-            subCategoryResumeDtos.add( generateSubCategoryResume( entry.key, entry.value ) )
-        }
-        subCategoryResumeDtos
-    }
-
-    private List<TransactionsByDateDto> getTransactionsGroupByDay(List<Transaction> transactionList){
-
+    private static List<TransactionsByDateDto> getTransactionsGroupByDay(List<Transaction> transactionList){
         Map<String, List<Transaction>> map = transactionList.groupBy { transaction ->
             new SimpleDateFormat("yyyy-MM-dd").format(transaction.date)
         }
@@ -165,11 +140,10 @@ class ResumeServiceImp implements ResumeService{
             list << generateTransactionByDate( entry.key, entry.value )
         }
 
-        return list
-
+        list
     }
 
-    private TransactionsByDateDto generateTransactionByDate(String stringDate, List<Transaction> transactionList){
+    private static TransactionsByDateDto generateTransactionByDate(String stringDate, List<Transaction> transactionList){
         TransactionsByDateDto transactionsByDateDto = new TransactionsByDateDto()
         transactionsByDateDto.date = generateDate(stringDate).getTime()
         transactionsByDateDto.transactions = transactionList.collect{new TransactionDto(it)}
@@ -179,33 +153,61 @@ class ResumeServiceImp implements ResumeService{
     private MovementsDto generateMovementDto(String stringDate, List<Transaction> transactions) {
         MovementsDto movementsDto = new MovementsDto()
         movementsDto.date = generateFixedDate(stringDate).getTime()
-        movementsDto.categories = getTransactionsGroupByParentCategory(transactions )
+        movementsDto.categories = getTransactionsGroupByBaseCategory(
+                transactions, generateParentCategoryResume, parentCategoryCollector()
+        )
         movementsDto.amount = transactions*.amount.sum() as float
         movementsDto.average = movementsDto.amount / transactions.size() as float
         movementsDto.quantity = transactions.size()
         movementsDto
     }
 
-    private CategoryResumeDto generateParentCategoryResume(Long parentId, List<Transaction> transactions) {
+    def generateParentCategoryResume = { Long parentId, List<Transaction> transactions ->
         CategoryResumeDto parentCategory = new CategoryResumeDto()
         parentCategory.categoryId = parentId
-        parentCategory.subcategories = getTransactionsGroupBySubCategory(
-                transactions)
+        parentCategory.subcategories = getTransactionsGroupByBaseCategory(
+                transactions, generateSubCategoryResume, subCategoryCollector()
+        ) as List<SubCategoryResumeDto>
         parentCategory.amount = transactions*.amount.sum() as float
         parentCategory.average = parentCategory.amount / transactions.size() as float
         parentCategory.quantity = transactions.size()
         parentCategory
     }
 
-    private SubCategoryResumeDto generateSubCategoryResume(Long parentId, List<Transaction> transactions) {
+    def generateSubCategoryResume =  { Long parentId, List<Transaction> transactions ->
         SubCategoryResumeDto subCategoryResumeDto = new SubCategoryResumeDto()
         subCategoryResumeDto.categoryId = parentId
-        subCategoryResumeDto.transactionsByDate =
-                getTransactionsGroupByDay( transactions )
+        subCategoryResumeDto.transactionsByDate = getTransactionsGroupByDay(transactions)
         subCategoryResumeDto.amount = transactions*.amount.sum() as float
         subCategoryResumeDto.average = subCategoryResumeDto.amount / transactions.size() as float
         subCategoryResumeDto.quantity = transactions.size()
         subCategoryResumeDto
+    }
+
+    private static List<BaseCategoryResumeDto> getTransactionsGroupByBaseCategory(
+            List<Transaction> transactionList,
+            Closure baseCategoryResumeGenerator,
+            Closure groupCollector){
+
+        List<BaseCategoryResumeDto> categoryResumeDtos = []
+        Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
+                .collect ( Collectors.groupingBy(groupCollector))
+        for ( Map.Entry<Long, List<Transaction>> entry : transactionsGrouped.entrySet() ) {
+            categoryResumeDtos.add(baseCategoryResumeGenerator( entry.key, entry.value ) as BaseCategoryResumeDto)
+        }
+        categoryResumeDtos
+    }
+
+    private static Closure<Long> parentCategoryCollector() {
+        { Transaction transaction ->
+            transaction.category?.parent?.id
+        }
+    }
+
+    private static Closure<Long> subCategoryCollector() {
+        { Transaction transaction ->
+            transaction.category?.id
+        }
     }
 
     private static Date generateFixedDate(String rawDate){

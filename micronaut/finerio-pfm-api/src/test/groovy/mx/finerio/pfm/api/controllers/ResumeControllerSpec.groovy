@@ -13,6 +13,7 @@ import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
@@ -22,6 +23,7 @@ import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
+import mx.finerio.pfm.api.services.gorm.SystemCategoryGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import spock.lang.Shared
@@ -61,6 +63,10 @@ class ResumeControllerSpec extends Specification{
     @Inject
     @Shared
     CategoryGormService categoryGormService
+
+    @Inject
+    @Shared
+    SystemCategoryGormService systemCategoryGormService
 
     @Inject
     @Shared
@@ -400,6 +406,56 @@ class ResumeControllerSpec extends Specification{
 
     }
 
+    def "Should get a list of transactions  of the account of the user on a range of dates using system categories"(){
+
+        given:'a transaction list'
+        User user1 = generateUser()
+        Account account1 = generateAccount(user1)
+        Account account2 = generateAccount(user1)
+        Category category1 = generateCategory(user1)
+        Category category2 = generateCategory(user1)
+        SystemCategory systemCategory = generateSystemCategory()
+
+        Date sevenMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
+        Date sixMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(6).plusDays(1).toInstant())
+        Date fiveMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(5).toInstant())
+        Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
+        Date thisMonth =  Date.from(ZonedDateTime.now().toInstant())
+
+        generateTransactionWhitSysCategory(account2, oneMonthAgo, systemCategory, EXPENSE)
+        generateTransactionWhitSysCategory(account1, oneMonthAgo, systemCategory, INCOME)
+        generateTransactionWhitSysCategory(account1, thisMonth, systemCategory, EXPENSE)
+        generateTransaction(account2, thisMonth, category2, INCOME)
+        generateTransaction(account2, thisMonth, category2, INCOME)
+        generateTransactionWhitSysCategory(account1, fiveMonthAgo, systemCategory, EXPENSE)
+        generateTransactionWhitSysCategory(account2, fiveMonthAgo, systemCategory, INCOME)
+
+        and:'a 6 months ago transaction'
+        generateTransaction(account1, sixMonthAgo, category2, EXPENSE)
+        generateTransactionWhitSysCategory(account1, sixMonthAgo, systemCategory, INCOME)
+
+        and:'a 7 months ago transaction'
+        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE)
+        generateTransactionWhitSysCategory(account1, sevenMonthAgo, systemCategory, INCOME)
+
+        and:'a this month deleted one transaction'
+        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME)
+        transaction8.dateDeleted = new Date()
+        transactionGormService.save(transaction8)
+
+        and:
+        HttpRequest userRequest = HttpRequest.GET("${RESUME_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
+
+        when:
+        def userResponse = client.toBlocking().exchange(userRequest, Argument.of(ResumeDto))
+
+        then:
+        userResponse.status == HttpStatus.OK
+        ResumeDto userBody = userResponse.body()
+        assert userBody
+
+    }
+
     private Account generateAccount(User user1) {
         FinancialEntity entity = generateEntity()
 
@@ -417,7 +473,7 @@ class ResumeControllerSpec extends Specification{
     }
 
     private User generateUser() {
-        userGormService.save(new User('super awesome userr', loggedInClient))
+        userGormService.save(new User('super awesome user', loggedInClient))
     }
 
     private FinancialEntity generateEntity() {
@@ -443,6 +499,19 @@ class ResumeControllerSpec extends Specification{
         transactionGormService.save(transaction)
     }
 
+    private Transaction generateTransactionWhitSysCategory(Account accountToSet, Date date1, SystemCategory category1, Boolean chargeToSet) {
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = accountToSet
+            charge = chargeToSet
+            description = 'rapi'
+            amount = 100.00
+            date = date1
+            systemCategory = category1
+        }
+        transactionGormService.save(transaction)
+    }
+
     private  Category generateCategory(User user1) {
         Category parentCat = new Category()
         parentCat.with {
@@ -464,5 +533,26 @@ class ResumeControllerSpec extends Specification{
         }
         categoryGormService.save(category)
     }
+
+    private  SystemCategory generateSystemCategory() {
+        SystemCategory parentCat = new SystemCategory()
+        parentCat.with {
+            name = 'test parent sustem category'
+            color = 'test parent  color'
+            finerioConnectId = 123
+        }
+
+        systemCategoryGormService.save(parentCat)
+
+        SystemCategory category = new SystemCategory()
+        category.with {
+            name = 'test category'
+            color = 'test color'
+            parent = parentCat
+            finerioConnectId = 456
+        }
+        systemCategoryGormService.save(category)
+    }
+
 
 }
