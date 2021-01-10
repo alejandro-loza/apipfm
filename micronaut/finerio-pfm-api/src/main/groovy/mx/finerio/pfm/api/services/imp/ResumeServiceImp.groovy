@@ -151,15 +151,36 @@ class ResumeServiceImp implements ResumeService{
     }
 
     private MovementsDto generateMovementDto(String stringDate, List<Transaction> transactions) {
+
         MovementsDto movementsDto = new MovementsDto()
         movementsDto.date = generateFixedDate(stringDate).getTime()
-        movementsDto.categories = getTransactionsGroupByBaseCategory(
-                transactions, generateParentCategoryResume, parentCategoryCollector()
-        )
+
+        movementsDto.categories.addAll( getTransactionsGroupByBaseCategory(
+                transactions.findAll {it.systemCategory != null},
+                generateSystemParentCategoryResume,
+                systemParentCategoryCollector()
+        ))
+        movementsDto.categories.addAll( getTransactionsGroupByBaseCategory(
+                transactions.findAll {it.category != null},
+                generateParentCategoryResume,
+                parentCategoryCollector()
+        ))
         movementsDto.amount = transactions*.amount.sum() as float
         movementsDto.average = movementsDto.amount / transactions.size() as float
         movementsDto.quantity = transactions.size()
         movementsDto
+    }
+
+    def generateSystemParentCategoryResume = { Long parentId, List<Transaction> transactions ->
+        CategoryResumeDto parentCategory = new CategoryResumeDto()
+        parentCategory.categoryId = parentId
+        parentCategory.subcategories = getTransactionsGroupByBaseCategory(
+                transactions, generateSubCategoryResume, systemSubCategoryCollector()
+        ) as List<SubCategoryResumeDto>
+        parentCategory.amount = transactions*.amount.sum() as float
+        parentCategory.average = parentCategory.amount / transactions.size() as float
+        parentCategory.quantity = transactions.size()
+        parentCategory
     }
 
     def generateParentCategoryResume = { Long parentId, List<Transaction> transactions ->
@@ -200,13 +221,25 @@ class ResumeServiceImp implements ResumeService{
 
     private static Closure<Long> parentCategoryCollector() {
         { Transaction transaction ->
-            transaction.category?.parent?.id
+            transaction?.category?.parent?.id
         }
     }
 
     private static Closure<Long> subCategoryCollector() {
         { Transaction transaction ->
-            transaction.category?.id
+            transaction?.category?.id
+        }
+    }
+
+    private static Closure<Long> systemParentCategoryCollector() {
+        { Transaction transaction ->
+            transaction?.systemCategory?.parent?.id
+        }
+    }
+
+    private static Closure<Long> systemSubCategoryCollector() {
+        { Transaction transaction ->
+            transaction?.systemCategory?.id
         }
     }
 

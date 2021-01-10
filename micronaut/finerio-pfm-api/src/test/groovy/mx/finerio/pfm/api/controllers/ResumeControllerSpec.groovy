@@ -17,8 +17,11 @@ import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
+import mx.finerio.pfm.api.dtos.testUtils.MovementsTestDto
+import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.dtos.utilities.ResumeDto
+import mx.finerio.pfm.api.dtos.utilities.TransactionsByDateDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
@@ -30,6 +33,9 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Inject
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 @Property(name = 'spec.name', value = 'resume controller')
@@ -148,7 +154,7 @@ class ResumeControllerSpec extends Specification{
         }
     }
 
-    def "Should get a list of transactions  of the account of the user on a range of dates"(){
+    def "Should get a list of transactions  of the account of the user on a range of dates"() {
 
         given:'a transaction list'
         User user1 = generateUser()
@@ -163,23 +169,23 @@ class ResumeControllerSpec extends Specification{
         Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
         Date thisMonth =  Date.from(ZonedDateTime.now().toInstant())
 
-        generateTransaction(account2, oneMonthAgo, category2, EXPENSE)
-        generateTransaction(account1, oneMonthAgo, category1, INCOME)
-        generateTransaction(account1, thisMonth, category2, EXPENSE)
-        generateTransaction(account2, thisMonth, category2, INCOME)
-        generateTransaction(account1, fiveMonthAgo, category2, EXPENSE)
-        generateTransaction(account2, fiveMonthAgo, category2, INCOME)
+        generateTransaction(account2, oneMonthAgo, category2, EXPENSE, 100.00)
+        generateTransaction(account1, oneMonthAgo, category1, INCOME, 100.00)
+        generateTransaction(account1, thisMonth, category2, EXPENSE, 100.00)
+        generateTransaction(account2, thisMonth, category2, INCOME, 100.00)
+        generateTransaction(account1, fiveMonthAgo, category2, EXPENSE, 100.00)
+        generateTransaction(account2, fiveMonthAgo, category2, INCOME, 100.00)
 
         and:'a 6 months ago transaction'
-        generateTransaction(account1, sixMonthAgo, category2, EXPENSE)
-        generateTransaction(account1, sixMonthAgo, category2, INCOME)
+        generateTransaction(account1, sixMonthAgo, category2, EXPENSE, 100.00)
+        generateTransaction(account1, sixMonthAgo, category2, INCOME, 100.00)
 
         and:'a 7 months ago transaction'
-        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE)
-        generateTransaction(account1, sevenMonthAgo, category1, INCOME)
+        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE, 100.00)
+        generateTransaction(account1, sevenMonthAgo, category1, INCOME, 100.00)
 
         and:'a this month deleted one transaction'
-        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME)
+        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME, 100.00)
         transaction8.dateDeleted = new Date()
         transactionGormService.save(transaction8)
 
@@ -362,22 +368,22 @@ class ResumeControllerSpec extends Specification{
         Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
         Date thisMonth =  Date.from(ZonedDateTime.now().toInstant())
 
-        generateTransaction(account2, oneMonthAgo, category2, EXPENSE)
-        generateTransaction(account1, oneMonthAgo, category1, INCOME)
-        generateTransaction(account1, thisMonth, category2, EXPENSE)
-        generateTransaction(account2, thisMonth, category2, INCOME)
-        generateTransaction(account1, fiveMonthAgo, category2, EXPENSE)
-        generateTransaction(account2, fiveMonthAgo, category2, INCOME)
-        generateTransaction(account1, sixMonthAgo, category2, EXPENSE)
-        generateTransaction(account1, sixMonthAgo, category2, INCOME)
+        generateTransaction(account2, oneMonthAgo, category2, EXPENSE, 100.00)
+        generateTransaction(account1, oneMonthAgo, category1, INCOME, 100.00)
+        generateTransaction(account1, thisMonth, category2, EXPENSE, 100.00)
+        generateTransaction(account2, thisMonth, category2, INCOME, 100.00)
+        generateTransaction(account1, fiveMonthAgo, category2, EXPENSE, 100.00)
+        generateTransaction(account2, fiveMonthAgo, category2, INCOME, 100.00)
+        generateTransaction(account1, sixMonthAgo, category2, EXPENSE, 100.00)
+        generateTransaction(account1, sixMonthAgo, category2, INCOME, 100.00)
 
         and:'a 7 months ago transaction'
-        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE)
-        generateTransaction(account1, sevenMonthAgo, category1, INCOME)
+        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE, 100.00)
+        generateTransaction(account1, sevenMonthAgo, category1, INCOME, 100.00)
 
 
         and:'a this month deleted one transaction'
-        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME)
+        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME, 100.00)
         transaction8.dateDeleted = new Date()
         transactionGormService.save(transaction8)
 
@@ -414,7 +420,7 @@ class ResumeControllerSpec extends Specification{
         Account account2 = generateAccount(user1)
         Category category1 = generateCategory(user1)
         Category category2 = generateCategory(user1)
-        SystemCategory systemCategory = generateSystemCategory()
+        SystemCategory subSystemCategory = generateSystemCategory()
 
         Date sevenMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(7).toInstant())
         Date sixMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(6).plusDays(1).toInstant())
@@ -422,24 +428,26 @@ class ResumeControllerSpec extends Specification{
         Date oneMonthAgo =  Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
         Date thisMonth =  Date.from(ZonedDateTime.now().toInstant())
 
-        generateTransactionWhitSysCategory(account2, oneMonthAgo, systemCategory, EXPENSE)
-        generateTransactionWhitSysCategory(account1, oneMonthAgo, systemCategory, INCOME)
-        generateTransactionWhitSysCategory(account1, thisMonth, systemCategory, EXPENSE)
-        generateTransaction(account2, thisMonth, category2, INCOME)
-        generateTransaction(account2, thisMonth, category2, INCOME)
-        generateTransactionWhitSysCategory(account1, fiveMonthAgo, systemCategory, EXPENSE)
-        generateTransactionWhitSysCategory(account2, fiveMonthAgo, systemCategory, INCOME)
+        def systemIncomeThisMonth1 = generateTransactionWhitSysCategory(account1, thisMonth, subSystemCategory, INCOME, 500.00)
+        def systemIncomeThisMonth2 =generateTransactionWhitSysCategory(account2, thisMonth, subSystemCategory, INCOME, 50.00)
+        generateTransaction(account2, thisMonth, category1, INCOME, 100.00)
+        generateTransaction(account2, thisMonth, category2, INCOME, 300.00)
+
+        generateTransactionWhitSysCategory(account2, oneMonthAgo, subSystemCategory, EXPENSE, 200.00)
+        generateTransactionWhitSysCategory(account1, oneMonthAgo, subSystemCategory, INCOME, 200.00)
+        generateTransactionWhitSysCategory(account1, fiveMonthAgo, subSystemCategory, EXPENSE, 200.00)
+        generateTransactionWhitSysCategory(account2, fiveMonthAgo, subSystemCategory, INCOME, 200.00)
 
         and:'a 6 months ago transaction'
-        generateTransaction(account1, sixMonthAgo, category2, EXPENSE)
-        generateTransactionWhitSysCategory(account1, sixMonthAgo, systemCategory, INCOME)
+        generateTransaction(account1, sixMonthAgo, category2, EXPENSE, 100.00)
+        generateTransactionWhitSysCategory(account1, sixMonthAgo, subSystemCategory, INCOME, 200.00)
 
         and:'a 7 months ago transaction'
-        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE)
-        generateTransactionWhitSysCategory(account1, sevenMonthAgo, systemCategory, INCOME)
+        generateTransaction(account1, sevenMonthAgo, category1, EXPENSE, 100.00)
+        generateTransactionWhitSysCategory(account1, sevenMonthAgo, subSystemCategory, INCOME, 200.00)
 
         and:'a this month deleted one transaction'
-        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME)
+        Transaction transaction8 =  generateTransaction(account2, thisMonth, category1, INCOME, 100.00)
         transaction8.dateDeleted = new Date()
         transactionGormService.save(transaction8)
 
@@ -447,12 +455,44 @@ class ResumeControllerSpec extends Specification{
         HttpRequest userRequest = HttpRequest.GET("${RESUME_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
-        def userResponse = client.toBlocking().exchange(userRequest, Argument.of(ResumeDto))
+        def resumeResponse = client.toBlocking().exchange(userRequest, Argument.of(Map))
 
         then:
-        userResponse.status == HttpStatus.OK
-        ResumeDto userBody = userResponse.body()
+        resumeResponse.status == HttpStatus.OK
+        Map userBody = resumeResponse.body()
         assert userBody
+
+        List<MovementsTestDto> incomesResponse = userBody['incomes'] as List<MovementsTestDto>
+        assert incomesResponse
+        assert incomesResponse.every {
+            it.categories
+        }
+
+        MovementsTestDto thisMonthIncomesDto =  incomesResponse.find{it.date == generateFixedDate(thisMonth)}
+        assert thisMonthIncomesDto
+        thisMonthIncomesDto.with {
+            assert amount == 950.00F
+            assert categories.size() == 3
+        }
+
+        CategoryResumeDto thisMonthIncomesSysCategoryDto = thisMonthIncomesDto.categories.find{it.categoryId == subSystemCategory.parent.id}
+        assert thisMonthIncomesSysCategoryDto
+        thisMonthIncomesSysCategoryDto.with {
+            assert amount == 550.00F
+            assert subcategories.size() == 1
+            subcategories.first().with {
+                assert amount == 550.00F
+                transactionsByDate.with { List<TransactionsByDateDto> transactionsByDateDtos ->
+                    assert size() == 1
+                    transactionsByDateDtos.first().with {
+                        assert date //TODO check for date integrity
+                        assert transactions.size() ==2
+                        assert transactions.find {it.id == systemIncomeThisMonth1.id}
+                        assert transactions.find {it.id == systemIncomeThisMonth2.id}
+                    }
+                }
+            }
+        }
 
     }
 
@@ -486,26 +526,26 @@ class ResumeControllerSpec extends Specification{
         financialEntityService.save(entity1)
     }
 
-    private Transaction generateTransaction(Account accountToSet, Date date1, Category category1, Boolean chargeToSet) {
+    private Transaction generateTransaction(Account accountToSet, Date date1, Category category1, Boolean chargeToSet, BigDecimal amountToSet) {
         Transaction transaction = new Transaction()
         transaction.with {
             account = accountToSet
             charge = chargeToSet
             description = 'rapi'
-            amount = 100.00
+            amount = amountToSet
             date = date1
             category = category1
         }
         transactionGormService.save(transaction)
     }
 
-    private Transaction generateTransactionWhitSysCategory(Account accountToSet, Date date1, SystemCategory category1, Boolean chargeToSet) {
+    private Transaction generateTransactionWhitSysCategory(Account accountToSet, Date date1, SystemCategory category1, Boolean chargeToSet, BigDecimal amountToSet) {
         Transaction transaction = new Transaction()
         transaction.with {
             account = accountToSet
             charge = chargeToSet
             description = 'rapi'
-            amount = 100.00
+            amount = amountToSet
             date = date1
             systemCategory = category1
         }
@@ -535,13 +575,12 @@ class ResumeControllerSpec extends Specification{
     }
 
     private  SystemCategory generateSystemCategory() {
-        SystemCategory parentCat = new SystemCategory()
+        SystemCategory parentCat = new SystemCategory()//todo bring it instead of create it
         parentCat.with {
             name = 'test parent sustem category'
             color = 'test parent  color'
             finerioConnectId = 123
         }
-
         systemCategoryGormService.save(parentCat)
 
         SystemCategory category = new SystemCategory()
@@ -552,7 +591,16 @@ class ResumeControllerSpec extends Specification{
             finerioConnectId = 456
         }
         systemCategoryGormService.save(category)
+
     }
 
+    private static long generateFixedDate(Date date){
+        String rawDate = new SimpleDateFormat("yyyy-MM").format(date)
+        generateDate("${rawDate}-01").getTime()
+    }
+
+    private static Date generateDate(String rawDate) {
+        Date.from(LocalDate.parse(rawDate).atStartOfDay(ZoneId.systemDefault()).toInstant())
+    }
 
 }

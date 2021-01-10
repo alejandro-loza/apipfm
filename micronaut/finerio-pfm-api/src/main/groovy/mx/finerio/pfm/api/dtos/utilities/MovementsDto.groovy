@@ -8,5 +8,5 @@ class MovementsDto {
     float amount
     float average
     Integer quantity = 0
-    List<BaseCategoryResumeDto> categories
+    List<BaseCategoryResumeDto> categories = []
 }

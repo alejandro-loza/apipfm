@@ -31,7 +31,8 @@ class MovementAnalysisController {
             @QueryValue('userId') Long userId,
             @Nullable Long dateFrom,
             @Nullable Long dateTo) {
-        movementAnalysisService.getAnalysis(userId, new MovementAnalysisFilterParamsCommand( dateFrom, dateTo))
+      def response =  movementAnalysisService.getAnalysis(userId, new MovementAnalysisFilterParamsCommand( dateFrom, dateTo))
+    response
     }
 
 }

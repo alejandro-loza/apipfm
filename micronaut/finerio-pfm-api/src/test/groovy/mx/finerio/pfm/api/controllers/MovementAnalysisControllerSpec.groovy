@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.testUtils.MovementsTestDto
 import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
 import mx.finerio.pfm.api.dtos.utilities.MovementsDto
 import mx.finerio.pfm.api.dtos.utilities.ResumeDto
@@ -144,7 +145,6 @@ class MovementAnalysisControllerSpec extends Specification {
         }
     }
 
-
     def "Should get a list of transactions  of the account of the user on a range of dates"(){
 
         given:'a transaction list'
@@ -185,13 +185,13 @@ class MovementAnalysisControllerSpec extends Specification {
         HttpRequest userRequest = HttpRequest.GET("${ANALYSIS_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
-        def userResponse = client.toBlocking().exchange(userRequest, Argument.listOf(MovementsDto))
+        def userResponse = client.toBlocking().exchange(userRequest, Argument.listOf(MovementsTestDto))
 
         then:
         userResponse.status == HttpStatus.OK
-        List<MovementsDto> movementsDtos = userResponse.body()
+        List<MovementsTestDto> movementsDtos = userResponse.body()
 
-        MovementsDto thisMonthDto =  movementsDtos.find{it.date == generateFixedDate(thisMonth)}
+        MovementsTestDto thisMonthDto =  movementsDtos.find{it.date == generateFixedDate(thisMonth)}
         assert thisMonthDto
         thisMonthDto.with {
           assert quantity == 3
@@ -200,7 +200,7 @@ class MovementAnalysisControllerSpec extends Specification {
           assert categories.size() == 2
         }
 
-        CategoryResumeDto thisMonthCategory2 =  thisMonthDto.categories.find{it.categoryId == category2.parent.id }
+        CategoryResumeDto thisMonthCategory2 =  thisMonthDto.categories.find{it.categoryId == category2.parent.id } as CategoryResumeDto
         assert  thisMonthCategory2
         thisMonthCategory2.with {
             assert average == 500
@@ -209,7 +209,7 @@ class MovementAnalysisControllerSpec extends Specification {
             assert subcategories.size() == 1
         }
 
-        CategoryResumeDto thisMonthCategory1 =  thisMonthDto.categories.find{it.categoryId == category1.parent.id }
+        CategoryResumeDto thisMonthCategory1 =  thisMonthDto.categories.find{it.categoryId == category1.parent.id } as CategoryResumeDto
         assert  thisMonthCategory1
         thisMonthCategory1.with {
             assert average == 200
