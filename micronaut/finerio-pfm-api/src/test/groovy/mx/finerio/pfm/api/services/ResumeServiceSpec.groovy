@@ -7,7 +7,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.utilities.BalancesDto
-import mx.finerio.pfm.api.dtos.utilities.MovementsDto
+import mx.finerio.pfm.api.dtos.utilities.MovementsResumeDto
 import spock.lang.Specification
 import javax.inject.Inject
 import java.text.SimpleDateFormat
@@ -82,7 +82,7 @@ class ResumeServiceSpec extends Specification {
         List<Transaction> transactions = [t1, t2, t3, t32, t4, t5]
 
         when:
-        List<MovementsDto> movementsByMonth = resumeService.groupTransactionsByMonth(transactions)
+        List<MovementsResumeDto> movementsByMonth = resumeService.resumeTransactionsGroupByMonth(transactions)
 
         then:
         assert movementsByMonth.size() == 3
@@ -116,31 +116,31 @@ class ResumeServiceSpec extends Specification {
         Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
         Date december19Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/20")
 
-        MovementsDto incomeMovements98 = new MovementsDto()
+        MovementsResumeDto incomeMovements98 = new MovementsResumeDto()
         incomeMovements98.with {
             date = december98Date.getTime()
             amount = 235.35
         }
 
-        MovementsDto incomeMovements20 = new MovementsDto()
+        MovementsResumeDto incomeMovements20 = new MovementsResumeDto()
         incomeMovements20.with {
             date = december20Date.getTime()
             amount = 300.00
         }
 
-        MovementsDto expensesMovements98 = new MovementsDto()
+        MovementsResumeDto expensesMovements98 = new MovementsResumeDto()
         expensesMovements98.with {
             date = december98Date.getTime()
             amount = 100.00
         }
 
-        MovementsDto expensesMovements20 = new MovementsDto()
+        MovementsResumeDto expensesMovements20 = new MovementsResumeDto()
         expensesMovements20.with {
             date = december20Date.getTime()
             amount = 99.99
         }
 
-        MovementsDto expensesMovements19 = new MovementsDto()
+        MovementsResumeDto expensesMovements19 = new MovementsResumeDto()
         expensesMovements19.with {
             date = december19Date.getTime()
             amount = 99.99

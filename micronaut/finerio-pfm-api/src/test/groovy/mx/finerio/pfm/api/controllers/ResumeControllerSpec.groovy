@@ -16,8 +16,7 @@ import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
-import mx.finerio.pfm.api.dtos.resource.TransactionDto
-import mx.finerio.pfm.api.dtos.testUtils.MovementsTestDto
+import mx.finerio.pfm.api.dtos.testUtils.MovementsResumeTestDto
 import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
 import mx.finerio.pfm.api.dtos.utilities.ResumeDto
@@ -462,13 +461,13 @@ class ResumeControllerSpec extends Specification{
         Map userBody = resumeResponse.body()
         assert userBody
 
-        List<MovementsTestDto> incomesResponse = userBody['incomes'] as List<MovementsTestDto>
+        List<MovementsResumeTestDto> incomesResponse = userBody['incomes'] as List<MovementsResumeTestDto>
         assert incomesResponse
         assert incomesResponse.every {
             it.categories
         }
 
-        MovementsTestDto thisMonthIncomesDto =  incomesResponse.find{it.date == generateFixedDate(thisMonth)}
+        MovementsResumeTestDto thisMonthIncomesDto =  incomesResponse.find{it.date == generateFixedDate(thisMonth)}
         assert thisMonthIncomesDto
         thisMonthIncomesDto.with {
             assert amount == 950.00F

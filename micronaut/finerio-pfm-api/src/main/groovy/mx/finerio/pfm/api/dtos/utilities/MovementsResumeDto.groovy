@@ -3,7 +3,8 @@ package mx.finerio.pfm.api.dtos.utilities
 import groovy.transform.ToString
 
 @ToString(includeNames = true, includePackage = false)
-class BaseCategoryResumeDto {
-    Long categoryId
+class MovementsResumeDto {
+    Long date
     float amount
+    List<BaseCategoryResumeDto> categories = []
 }

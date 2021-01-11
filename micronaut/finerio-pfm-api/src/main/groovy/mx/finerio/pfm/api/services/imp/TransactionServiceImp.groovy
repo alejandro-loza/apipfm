@@ -144,6 +144,14 @@ class TransactionServiceImp  implements TransactionService {
                         account, charge, from, to, [ sort: 'id', order: 'desc'])
     }
 
+    List<Transaction> getAccountsTransactions(List<Account> accounts, Boolean charge, Date dateFrom, Date dateTo) {
+        List<Transaction> transactions = []
+        for ( account in accounts ) {
+            transactions.addAll(findAllByAccountAndChargeAndDateRange(account, charge, dateFrom, dateTo))
+        }
+        transactions
+    }
+
     @Override
     TransactionDto generateTransactionDto(transaction) {
         TransactionDto transactionDto = new TransactionDto()

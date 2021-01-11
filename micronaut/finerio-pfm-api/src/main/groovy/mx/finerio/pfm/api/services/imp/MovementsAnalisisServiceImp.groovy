@@ -1,11 +1,12 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
-import mx.finerio.pfm.api.domain.Account
-import mx.finerio.pfm.api.dtos.utilities.MovementsDto
+import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.utilities.MovementsResumeDto
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.MovementsAnalisisService
 import mx.finerio.pfm.api.services.ResumeService
+import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.services.UserService
 
 import mx.finerio.pfm.api.validation.MovementAnalysisFilterParamsCommand
@@ -13,6 +14,7 @@ import mx.finerio.pfm.api.validation.MovementAnalysisFilterParamsCommand
 import javax.inject.Inject
 
 class MovementsAnalisisServiceImp implements MovementsAnalisisService {
+    public static final boolean EXPENSE = true
 
     @Inject
     UserService userService
@@ -23,14 +25,19 @@ class MovementsAnalisisServiceImp implements MovementsAnalisisService {
     @Inject
     ResumeService resumeService
 
+    @Inject
+    TransactionService transactionService
+
     @Override
     @Transactional
-    List<MovementsDto>  getAnalysis(Long userId, MovementAnalysisFilterParamsCommand cmd){
+    List<MovementsResumeDto>  getAnalysis(Long userId, MovementAnalysisFilterParamsCommand cmd){
         Date fromDate = cmd.dateFrom ? resumeService.validateFromDate(cmd.dateFrom) : resumeService.getFromLimit()
         Date toDate = cmd.dateTo ? resumeService.validateToDate(cmd.dateTo , fromDate) : new Date()
-        resumeService.getExpensesResume(
+        List<Transaction> transactions = transactionService.getAccountsTransactions(
                 accountService.findAllByUser(userService.getUser(userId)),
-                fromDate, toDate )
+                EXPENSE, fromDate, toDate)
+
+        resumeService.analysisTransactionsGroupByMonth(transactions)
     }
 
 }

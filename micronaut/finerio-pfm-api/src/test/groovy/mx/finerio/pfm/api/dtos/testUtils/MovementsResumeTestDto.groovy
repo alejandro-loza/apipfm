@@ -1,10 +1,8 @@
 package mx.finerio.pfm.api.dtos.testUtils
 
-import groovy.transform.ToString
-import mx.finerio.pfm.api.dtos.utilities.BaseCategoryResumeDto
 import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
 
-class MovementsTestDto {
+class MovementsResumeTestDto {
     Long date
     float amount
     float average
