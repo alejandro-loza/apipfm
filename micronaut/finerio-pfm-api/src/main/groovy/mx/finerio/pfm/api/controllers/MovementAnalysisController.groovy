@@ -14,7 +14,7 @@ import mx.finerio.pfm.api.validation.MovementAnalysisFilterParamsCommand
 import javax.annotation.Nullable
 import javax.inject.Inject
 
-@Controller("/movementAnalysis")
+@Controller("/analysis")
 @Validated
 @Secured('isAuthenticated()')
 class MovementAnalysisController {

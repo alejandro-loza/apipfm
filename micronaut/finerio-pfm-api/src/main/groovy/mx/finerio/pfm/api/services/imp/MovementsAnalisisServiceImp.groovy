@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.utilities.MovementsAnalysisDto
 import mx.finerio.pfm.api.dtos.utilities.MovementsResumeDto
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.MovementsAnalysisService
@@ -30,7 +31,7 @@ class MovementsAnalisisServiceImp implements MovementsAnalysisService {
 
     @Override
     @Transactional
-    List<MovementsResumeDto>  getAnalysis(Long userId, MovementAnalysisFilterParamsCommand cmd){
+    List<MovementsAnalysisDto>  getAnalysis(Long userId, MovementAnalysisFilterParamsCommand cmd){
         Date fromDate = cmd.dateFrom ? resumeService.validateFromDate(cmd.dateFrom) : resumeService.getFromLimit()
         Date toDate = cmd.dateTo ? resumeService.validateToDate(cmd.dateTo , fromDate) : new Date()
         List<Transaction> transactions = transactionService.getAccountsTransactions(

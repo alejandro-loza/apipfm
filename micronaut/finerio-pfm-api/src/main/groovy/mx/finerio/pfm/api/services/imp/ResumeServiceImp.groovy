@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.dtos.utilities.SubCategoryAnalysisDto
 import mx.finerio.pfm.api.dtos.utilities.SubCategoryResumeDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.utilities.TransactionsByDateDto
+import mx.finerio.pfm.api.dtos.utilities.TransactionsDescriptionAnalysisDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ResumeService
@@ -175,6 +176,29 @@ class ResumeServiceImp implements ResumeService{
         list
     }
 
+    private static List<TransactionsDescriptionAnalysisDto> getTransactionsGroupByDescription(List<Transaction> transactionList){
+        Map<String, List<Transaction>> map = transactionList.groupBy { transaction ->
+            transaction.description
+        }
+
+        List<TransactionsDescriptionAnalysisDto> list = []
+
+        for ( Map.Entry<String, List<Transaction>> entry : map.entrySet() ) {
+            list << generateTransactionByDescription( entry.key, entry.value )
+        }
+
+        list
+    }
+
+    private static TransactionsDescriptionAnalysisDto generateTransactionByDescription(String descriptionToSet, List<Transaction> transactionList){
+        TransactionsDescriptionAnalysisDto descriptionAnalysisDto = new TransactionsDescriptionAnalysisDto()
+        descriptionAnalysisDto.description = descriptionToSet
+        descriptionAnalysisDto.quantity = transactionList.size()
+        descriptionAnalysisDto.amount = transactionList*.amount.sum() as float
+        descriptionAnalysisDto.average = descriptionAnalysisDto.amount / descriptionAnalysisDto.quantity
+        descriptionAnalysisDto
+    }
+
     private static TransactionsByDateDto generateTransactionByDate(String stringDate, List<Transaction> transactionList){
         TransactionsByDateDto transactionsByDateDto = new TransactionsByDateDto()
         transactionsByDateDto.date = generateDate(stringDate).getTime()
@@ -270,7 +294,7 @@ class ResumeServiceImp implements ResumeService{
     def generateSubCategoryAnalysis =  { Long parentId, List<Transaction> transactions ->
         SubCategoryAnalysisDto subCategoryAnalysisDto = new SubCategoryAnalysisDto()
         subCategoryAnalysisDto.categoryId = parentId
-        subCategoryAnalysisDto.transactionsByDate = getTransactionsGroupByDay(transactions)
+        subCategoryAnalysisDto.transactions = getTransactionsGroupByDescription(transactions)
         subCategoryAnalysisDto.amount = transactions*.amount.sum() as float
         subCategoryAnalysisDto.average = subCategoryAnalysisDto.amount / transactions.size()
         subCategoryAnalysisDto.quantity = transactions.size()

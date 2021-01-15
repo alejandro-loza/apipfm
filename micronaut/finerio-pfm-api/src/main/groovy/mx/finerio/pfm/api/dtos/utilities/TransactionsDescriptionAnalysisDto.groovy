@@ -3,8 +3,9 @@ package mx.finerio.pfm.api.dtos.utilities
 import groovy.transform.ToString
 
 @ToString(includeNames = true, includePackage = false)
-class SubCategoryAnalysisDto extends BaseCategoryResumeDto {
+class TransactionsDescriptionAnalysisDto {
+    String description
     float average
-    Integer quantity = 0
-    List<TransactionsDescriptionAnalysisDto> transactions
+    int quantity
+    float amount
 }

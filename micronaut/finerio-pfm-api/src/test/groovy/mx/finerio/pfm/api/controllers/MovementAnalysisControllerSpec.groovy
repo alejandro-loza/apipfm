@@ -39,7 +39,7 @@ import java.time.ZonedDateTime
 class MovementAnalysisControllerSpec extends Specification {
 
     public static final String LOGIN_ROOT = "/login"
-    public static final String ANALYSIS_ROOT = "/movementAnalysis"
+    public static final String ANALYSIS_ROOT = "/analysis"
     public static final boolean EXPENSE = true
 
 
