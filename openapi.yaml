@@ -1252,6 +1252,62 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
+  /analysis:
+    get:
+      tags:
+      - Insights
+      summary: Fetches an analysis of the financial information of a user.
+      description: Given a valid user ID, fetches an analysis of the financial information of a user.
+      parameters:
+      - in: query
+        name: userId
+        schema:
+          type: integer
+        required: true
+        description: The ID of the user to fetch the analysis.
+        example: 123
+      - in: query
+        name: accountId
+        schema:
+          type: integer
+        required: false
+        description: The ID of the account to fetch the analysis. If it is not present, the API will use all the accounts of the user.
+        example: 123
+      - in: query
+        name: dateFrom
+        schema:
+          type: number
+        required: false
+        description: The date where the analysis starts, in UNIX format.
+        example: 1587567125458
+      - in: query
+        name: dateTo
+        schema:
+          type: number
+        required: false
+        description: The date where the analysis ends, in UNIX format.
+        example: 1587567125458
+      responses:
+        '200':
+          description: The analysis of a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Some ID you requested was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
 components:
   schemas:
     SignUpRequest:
@@ -2024,6 +2080,85 @@ components:
           example: 123.45
         expenses:
           description: The expeenses of the month.
+          type: number
+          example: 123.45
+    Analysis:
+      description: A representation of the analysis of the financial information of a user.
+      properties:
+        data:
+          description: The analysis of a user, grouped by month by default.
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisByMonth'
+    AnalysisByMonth:
+      description: Financial information grouped by month by default.
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        categories:
+          description: The financial information grouped by categories
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisByCategory'
+    AnalysisByCategory:
+      description: Financial information grouped by category
+      properties:
+        categoryId:
+          description: The system ID of the category.
+          type: integer
+          example: 123
+        amount:
+          description: The amount of the category.
+          type: number
+          example: 123.45
+        subcategories:
+          description: The financial information grouped by subcategories
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisBySubcategory'
+    AnalysisBySubcategory:
+      description: Financial information grouped by subcategory
+      properties:
+        categoryId:
+          description: The system ID of the subcategory.
+          type: integer
+          example: 123
+        average:
+          description: The average of the subcategory.
+          type: number
+          example: 123.45
+        quantity:
+          description: The quantity of the subcategory.
+          type: number
+          example: 123
+        amount:
+          description: The amount of the subcategory.
+          type: number
+          example: 123.45
+        transactions:
+          description: The transactions grouped by date
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisByTransaction'
+    AnalysisByTransaction:
+      description: The transactions grouped by description
+      properties:
+        description:
+          description: The description of the transaction
+          type: string
+          example: 'UBER EATS'
+        average:
+          description: The average of the transaction.
+          type: number
+          example: 123.45
+        quantity:
+          description: The quantity of the transaction.
+          type: number
+          example: 123
+        amount:
+          description: The amount of the transaction.
           type: number
           example: 123.45
     Errors:
