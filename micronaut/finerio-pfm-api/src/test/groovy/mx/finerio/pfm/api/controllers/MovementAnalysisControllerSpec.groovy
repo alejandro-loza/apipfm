@@ -207,6 +207,17 @@ class MovementAnalysisControllerSpec extends Specification {
         thisMonthCategory2.with {
             assert amount == 1000
             assert subcategories.size() == 1
+            subcategories.first().with {
+                assert categoryId
+                assert amount == 1000
+                assert  transactions.size() == 1
+                transactions.first().with {
+                    assert amount == 1000
+                    assert average == 500
+                    assert quantity == 2
+                    assert description == 'rapi'
+                }
+            }
         }
 
         CategoryAnalysisDto thisMonthCategory1 =  thisMonthDto.categories.find{it.categoryId == category1.parent.id } as CategoryAnalysisDto
@@ -214,6 +225,17 @@ class MovementAnalysisControllerSpec extends Specification {
         thisMonthCategory1.with {
             assert amount == 200
             assert subcategories.size() == 1
+            subcategories.first().with {
+                assert categoryId
+                assert amount
+                assert  transactions.size() == 1
+                transactions.first().with {
+                    assert amount == 200
+                    assert average == 200
+                    assert quantity == 1
+                    assert description == 'rapi'
+                }
+            }
         }
 
     }
