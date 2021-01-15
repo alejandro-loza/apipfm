@@ -1,7 +1,9 @@
 package mx.finerio.pfm.api.dtos.utilities
 
-class MovementsAnalysisDto extends MovementsResumeDto {
-    float average
-    Integer quantity = 0
+import groovy.transform.ToString
+
+@ToString(includeNames = true, includePackage = false)
+class MovementsAnalysisDto  {
+    Long date
     List<BaseCategoryResumeDto> categories = []
 }

@@ -17,6 +17,8 @@ import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.testUtils.MovementsAnalysisTestDto
 import mx.finerio.pfm.api.dtos.testUtils.MovementsResumeTestDto
 import mx.finerio.pfm.api.dtos.utilities.CategoryAnalysisDto
+import mx.finerio.pfm.api.dtos.utilities.MovementsAnalysisDto
+import mx.finerio.pfm.api.dtos.utilities.MovementsResponseDto
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.CategoryGormService
@@ -184,26 +186,26 @@ class MovementAnalysisControllerSpec extends Specification {
         HttpRequest userRequest = HttpRequest.GET("${ANALYSIS_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
 
         when:
-        def userResponse = client.toBlocking().exchange(userRequest, Argument.listOf(MovementsAnalysisTestDto))
+        def userResponse = client.toBlocking().exchange(userRequest, Argument.of(Map))
 
         then:
         userResponse.status == HttpStatus.OK
-        List<MovementsAnalysisTestDto> movementsDtos = userResponse.body()
+        Map movementsDtos = userResponse.body()
+        assert movementsDtos
 
-        MovementsAnalysisTestDto thisMonthDto =  movementsDtos.find{it.date == generateFixedDate(thisMonth)}
+        List<MovementsAnalysisDto> data = movementsDtos["data"] as  List<MovementsAnalysisDto>
+        assert data
+
+        MovementsAnalysisTestDto thisMonthDto =  data.find{it.date == generateFixedDate(thisMonth)}
         assert thisMonthDto
         thisMonthDto.with {
-          assert quantity == 3
-          assert average == 400.00F
-          assert amount == 1200.00F
+          assert date
           assert categories.size() == 2
         }
 
         CategoryAnalysisDto thisMonthCategory2 =  thisMonthDto.categories.find{it.categoryId == category2.parent.id } as CategoryAnalysisDto
         assert  thisMonthCategory2
         thisMonthCategory2.with {
-            assert average == 500
-            assert quantity == 2
             assert amount == 1000
             assert subcategories.size() == 1
         }
@@ -211,9 +213,7 @@ class MovementAnalysisControllerSpec extends Specification {
         CategoryAnalysisDto thisMonthCategory1 =  thisMonthDto.categories.find{it.categoryId == category1.parent.id } as CategoryAnalysisDto
         assert  thisMonthCategory1
         thisMonthCategory1.with {
-            assert average == 200
             assert amount == 200
-            assert quantity == 1
             assert subcategories.size() == 1
         }
 

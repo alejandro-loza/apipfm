@@ -161,12 +161,12 @@ class ResumeServiceImp implements ResumeService{
         baseCategoryResumeDtos
     }
 
-    private static List<TransactionsByDateDto> getTransactionsGroupByDay(List<Transaction> transactionList){
+    private static List<TransactionDto> getTransactionsGroupByDay(List<Transaction> transactionList){
         Map<String, List<Transaction>> map = transactionList.groupBy { transaction ->
             new SimpleDateFormat("yyyy-MM-dd").format(transaction.date)
         }
 
-        List<TransactionsByDateDto> list = []
+        List<TransactionDto> list = []
 
         for ( Map.Entry<String, List<Transaction>> entry : map.entrySet() ) {
             list << generateTransactionByDate( entry.key, entry.value )
@@ -215,9 +215,6 @@ class ResumeServiceImp implements ResumeService{
                 generateParentCategoryAnalysis,
                 parentCategoryCollector()
         ))
-        movementsAnalysisDto.amount = transactions*.amount.sum() as float
-        movementsAnalysisDto.average = movementsAnalysisDto.amount / transactions.size()
-        movementsAnalysisDto.quantity = transactions.size()
         movementsAnalysisDto
     }
 
@@ -245,7 +242,7 @@ class ResumeServiceImp implements ResumeService{
     def generateSubCategoryResume =  { Long parentId, List<Transaction> transactions ->
         SubCategoryResumeDto subCategoryResumeDto = new SubCategoryResumeDto()
         subCategoryResumeDto.categoryId = parentId
-        subCategoryResumeDto.transactionsByDate = getTransactionsGroupByDay(transactions)
+        subCategoryResumeDto.transactions = getTransactionsGroupByDay(transactions)
         subCategoryResumeDto.amount = transactions*.amount.sum() as float
         subCategoryResumeDto
     }
@@ -257,8 +254,6 @@ class ResumeServiceImp implements ResumeService{
                 transactions, generateSubCategoryAnalysis, systemSubCategoryCollector()
         ) as List<SubCategoryResumeDto>
         parentCategory.amount = transactions*.amount.sum() as float
-        parentCategory.average = parentCategory.amount / transactions.size() as float
-        parentCategory.quantity = transactions.size()
         parentCategory
     }
 
@@ -269,8 +264,6 @@ class ResumeServiceImp implements ResumeService{
                 transactions, generateSubCategoryAnalysis, subCategoryCollector()
         ) as List<SubCategoryResumeDto>
         parentCategory.amount = transactions*.amount.sum() as float
-        parentCategory.average = parentCategory.amount / transactions.size() as float
-        parentCategory.quantity = transactions.size()
         parentCategory
     }
 

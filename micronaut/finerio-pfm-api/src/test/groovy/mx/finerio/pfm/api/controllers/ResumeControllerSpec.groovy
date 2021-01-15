@@ -481,7 +481,7 @@ class ResumeControllerSpec extends Specification{
             assert subcategories.size() == 1
             subcategories.first().with {
                 assert amount == 550.00F
-                transactionsByDate.with { List<TransactionsByDateDto> transactionsByDateDtos ->
+                transactions.with { List<TransactionsByDateDto> transactionsByDateDtos ->
                     assert size() == 1
                     transactionsByDateDtos.first().with {
                         assert date //TODO check for date integrity
