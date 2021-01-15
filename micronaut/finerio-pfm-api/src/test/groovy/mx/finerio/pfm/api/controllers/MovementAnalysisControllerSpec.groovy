@@ -42,7 +42,6 @@ class MovementAnalysisControllerSpec extends Specification {
     public static final String ANALYSIS_ROOT = "/analysis"
     public static final boolean EXPENSE = true
 
-
     @Shared
     @Inject
     @Client("/")
