@@ -101,15 +101,22 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Override
     List<Account> findAllByUserId(Long userId) {
         User user = userService.getUser(userId)
-        findAllByUser(user)
+        findAllByUserBoundedByMaxRows(user)
+    }
+
+    @Override
+    @Transactional
+    List<Account> findAllByUserBoundedByMaxRows(User user) {
+        verifyLoggedClient(user.client)
+        accountGormService.findAllByUserAndDateDeletedIsNull(
+                user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
     }
 
     @Override
     @Transactional
     List<Account> findAllByUser(User user) {
         verifyLoggedClient(user.client)
-        accountGormService.findAllByUserAndDateDeletedIsNull(
-                user, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+        accountGormService.findAllByUserAndDateDeletedIsNull(user, [ sort: 'id', order: 'desc'])
     }
 
     @Override

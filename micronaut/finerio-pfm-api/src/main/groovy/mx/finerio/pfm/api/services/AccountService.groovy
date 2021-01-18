@@ -36,6 +36,9 @@ interface AccountService {
     List<Account> findAllByUserId(Long userId)
 
     @Log
+    List<Account> findAllByUserBoundedByMaxRows(User user)
+
+    @Log
     List<Account> findAllByUser(User user)
 
     @Log

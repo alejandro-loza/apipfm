@@ -41,6 +41,9 @@ interface TransactionService {
     List < Transaction > findAllByAccountAndChargeAndDateRange(Account account, Boolean charge, Date from, Date to)
 
     @Log
+    List<Transaction> getAccountsTransactions(List<Account> accounts, Boolean charge, Date dateFrom, Date dateTo)
+
+    @Log
     void deleteAllByAccount(Account account)
 
     @Log
