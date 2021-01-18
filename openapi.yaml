@@ -706,6 +706,55 @@ paths:
           required: true
           description: The ID of the account where the list starts.
         - in: query
+          name: categoryId
+          schema:
+            type: integer
+            example: 123
+          required: false
+          description: The ID of the category.
+        - in: query
+          name: description
+          schema:
+            type: string
+            example: "UBER"
+          required: false
+          description: The description of the transaction. It can be partial.
+        - in: query
+          name: charge
+          schema:
+            type: boolean
+            example: true
+          required: false
+          description: The type of the transaction (*true* = *charge*, *false* = *deposit*)
+        - in: query
+          name: minAmount
+          schema:
+            type: number
+            example: 123.45
+          required: false
+          description: The minimum amount of the transaction.
+        - in: query
+          name: maxAmount
+          schema:
+            type: number
+            example: 123.45
+          required: false
+          description: The maximum amount of the transaction.
+        - in: query
+          name: dateFrom
+          schema:
+            type: number
+          required: false
+          description: The minimum date of the transaction, in UNIX format.
+          example: 1587567125458
+        - in: query
+          name: dateTo
+          schema:
+            type: number
+          required: false
+          description: The maxumum date of the transaction, in UNIX format.
+          example: 1587567125458
+        - in: query
           name: cursor
           schema:
             type: integer
