@@ -1981,6 +1981,10 @@ components:
           type: number
           description: The amount of the budget.
           example: 1234.56
+        warningPercentage:
+          description: The percentage where the budget status changes from *stable* to *warning*. By default is *0.7*.
+          type: number
+          example: 0.7
     UpdateBudget:
       description: A representation of the data neccesary for updating a budget.
       properties:
@@ -1998,6 +2002,10 @@ components:
           type: number
           description: The amount of the budget.
           example: 1234.56
+        warningPercentage:
+          description: The percentage where the budget status changes from *stable* to *warning*.
+          type: number
+          example: 0.7
     Budget:
       description: A representation of a budget.
       properties:
@@ -2019,6 +2027,20 @@ components:
           type: number
           description: The amount of the budget.
           example: 1234.56
+        warningPercentage:
+          description: The percentage where the budget status changes from *stable* to *warning*. By default is *0.7*.
+          type: number
+          example: 0.7
+        spent:
+          description: The amount of money spent for the category.
+          type: number
+          example: 123.45
+        leftToSpend:
+          description: The amount of money remaining for the budget.
+          type: number
+          example: 123.45
+        status:
+          $ref: '#/components/schemas/BudgetStatus'
         dateCreated:
           type: number
           description: The date when the budget was created.
@@ -2038,6 +2060,13 @@ components:
           type: integer
           description: The ID to be used in the next request in the 'cursor' query parameter.
           example: 123
+    BudgetStatus:
+      description: The status of the budget.
+      type: string
+      enum:
+        - ok
+        - warning
+        - danger
     Resume:
       description: A representation of the resume of the financial information of a user.
       properties:
