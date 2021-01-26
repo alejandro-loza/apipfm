@@ -6,6 +6,7 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 
 interface TransactionService {
@@ -29,10 +30,10 @@ interface TransactionService {
     List<TransactionDto> findAllByCursor(Long cursor)
 
     @Log
-    List<TransactionDto> findAllByAccountAndCursor(Account account, Long cursor)
+    List<TransactionDto> findAllByAccountAndCursor(Account account, TransactionFiltersCommand cmd)
 
     @Log
-    List<TransactionDto> findAllByAccount(Account account)
+    List<TransactionDto> findAllByAccount(Account account, TransactionFiltersCommand cmd)
 
     @Log
     List<TransactionDto> findAllByCategory(Category category)

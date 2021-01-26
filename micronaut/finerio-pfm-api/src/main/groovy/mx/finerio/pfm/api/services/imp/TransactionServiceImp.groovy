@@ -1,6 +1,7 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
+import groovy.transform.CompileStatic
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
@@ -10,12 +11,14 @@ import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.*
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
-import mx.finerio.pfm.api.validation.AccountUpdateCommand
+import java.util.stream.Collectors
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
+import java.util.function.Predicate
 
 class TransactionServiceImp  implements TransactionService {
 
@@ -38,6 +41,7 @@ class TransactionServiceImp  implements TransactionService {
 
     @Override
     @Transactional
+    @CompileStatic
     Transaction create(TransactionCreateCommand cmd) {
         verifyBody(cmd)
         Account transactionAccount = accountService.getAccount(cmd.accountId)
@@ -47,7 +51,7 @@ class TransactionServiceImp  implements TransactionService {
             date =  new Date(cmd.date)
             description = cmd.description
             charge =  cmd.charge
-            amount = cmd.amount
+            amount = cmd.amount as Float
         }
         if(cmd.categoryId){
             setSystemCategoryOrCategory(cmd, transaction)
@@ -112,15 +116,17 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     @Override
-    List<TransactionDto> findAllByAccountAndCursor(Account account, Long cursor) {
-        transactionGormService
+    List<TransactionDto> findAllByAccountAndCursor(Account account, TransactionFiltersCommand cmd) {
+        List<TransactionDto> transactions = transactionGormService
                 .findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(
-                        account, cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                        account, cmd.cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{generateTransactionDto(it)}
+
+        transactions
     }
 
     @Override
-    List<TransactionDto> findAllByAccount(Account account) {
+    List<TransactionDto> findAllByAccount(Account account, TransactionFiltersCommand cmd) {
         transactionGormService
                 .findAllByAccountAndDateDeletedIsNull(account, [max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{generateTransactionDto(it)}

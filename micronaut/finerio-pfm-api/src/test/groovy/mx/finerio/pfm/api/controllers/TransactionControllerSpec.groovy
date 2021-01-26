@@ -776,6 +776,38 @@ class TransactionControllerSpec extends Specification {
         Account account1 = generateAccount()
         Account account2 = generateAccount()
 
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
+        transactionGormService.save(transaction1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
+        transaction2.dateDeleted = new Date()
+        transactionGormService.save(transaction2)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction3)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction4)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?accountId=${account1.id}&cursor=${transaction3.id}")
+                .bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
+        assert !(transaction1.id in transactionDtos.id)
+        assert !(transaction2.id in transactionDtos.id)
+        assert !(transaction4.id in transactionDtos.id)
+        transactionDtos.size() == 1
+    }
+
+    def "Should get a list of transactions of an account on a filter"(){
+
+        given:'a transaction list'
+        Account account1 = generateAccount()
+        Account account2 = generateAccount()
 
         Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
         transactionGormService.save(transaction1)
@@ -803,6 +835,7 @@ class TransactionControllerSpec extends Specification {
         assert !(transaction4.id in transactionDtos.id)
         transactionDtos.size() == 1
     }
+
 
     def "Should throw not found exception on delete no found transaction"(){
         given:

@@ -69,7 +69,6 @@ class BudgetsController {
     Single<BudgetDto> edit(@Body @Valid BudgetUpdateCommand cmd, @NotNull Long id ) {
         budgetService.verifyBody(cmd)
         Budget budget = budgetService.find(id)
-      //  Category categoryToSet = cmd.categoryId ? findCategoryToSet(cmd.categoryId, budget.user) : budget.category
         Single.just(new BudgetDto(budgetService.update(cmd, budget)))
     }
 

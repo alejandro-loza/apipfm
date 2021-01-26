@@ -15,6 +15,7 @@ import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 
 import javax.annotation.Nullable
@@ -50,13 +51,29 @@ class TransactionController {
     }
 
     @Log
-    @Get("{?cursor}")
+    @Get("{?cursor,categoryId,charge,beginAmount,finalAmount,fromDate,toDate}")
     @Transactional
-    Single<ResourcesDto> showAll(@Nullable Long cursor, @QueryValue('accountId') Long accountId) {
+    Single<ResourcesDto> showAll(
+            @Nullable Long cursor,
+            @Nullable Long categoryId,
+            @Nullable Boolean charge,
+            @Nullable BigDecimal beginAmount,
+            @Nullable BigDecimal finalAmount,
+            @Nullable Long fromDate,
+            @Nullable Long toDate,
+            @QueryValue('accountId') Long accountId) {
+        TransactionFiltersCommand cmd = new TransactionFiltersCommand()
+         cmd.cursor = cursor
+         cmd.categoryId = categoryId
+         cmd.charge = charge
+         cmd.beginAmount = beginAmount
+         cmd.finalAmount = finalAmount
+         cmd.fromDate = fromDate
+         cmd.toDate = toDate
         Account account = accountService.getAccount(accountId)
         nextCursorService.generateResourcesDto( cursor ?
-                transactionsService.findAllByAccountAndCursor(account, cursor)
-                : transactionsService.findAllByAccount(account)
+                transactionsService.findAllByAccountAndCursor(account, cmd)
+                : transactionsService.findAllByAccount(account,cmd)
         )
     }
 
