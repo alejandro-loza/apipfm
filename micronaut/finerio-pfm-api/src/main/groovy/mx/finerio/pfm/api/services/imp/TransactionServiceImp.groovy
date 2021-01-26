@@ -11,14 +11,11 @@ import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.*
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
-import java.util.stream.Collectors
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
-
 import javax.inject.Inject
-import java.util.function.Predicate
 
 class TransactionServiceImp  implements TransactionService {
 
@@ -38,6 +35,9 @@ class TransactionServiceImp  implements TransactionService {
 
     @Inject
     CategorizerService categorizerService
+
+    @Inject
+    TransactionFilterService transactionFilterService
 
     @Override
     @Transactional
@@ -126,10 +126,20 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     @Override
-    List<TransactionDto> findAllByAccount(Account account, TransactionFiltersCommand cmd) {
+    List<TransactionDto> findAllByAccountAndFilters(Account account, TransactionFiltersCommand cmd) {
+        List<TransactionDto> transactionDtos = findAllByAccount(account)
+
+        if(isTransactionFiltersCommandNonEmpty(cmd) && transactionDtos){
+            return transactionFilterService.filterTransactions(transactionDtos, cmd)
+        }
+        transactionDtos
+    }
+
+    @Override
+    List<TransactionDto> findAllByAccount(Account account) {
         transactionGormService
-                .findAllByAccountAndDateDeletedIsNull(account, [max: MAX_ROWS, sort: 'id', order: 'desc'])
-                .collect{generateTransactionDto(it)}
+                .findAllByAccountAndDateDeletedIsNull(account, [max: MAX_ROWS, sort: 'id', order: 'desc'])//todo verify max rows
+                .collect { generateTransactionDto(it) }
     }
 
     @Override
@@ -207,6 +217,10 @@ class TransactionServiceImp  implements TransactionService {
             verifyParentCategory(category)
             transaction.category = category
         }
+    }
+
+    private boolean isTransactionFiltersCommandNonEmpty(TransactionFiltersCommand cmd) {
+        !transactionFilterService.generateProperties(cmd).isEmpty()
     }
 
 }

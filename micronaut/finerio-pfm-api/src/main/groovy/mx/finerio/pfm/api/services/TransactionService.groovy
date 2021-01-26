@@ -33,7 +33,10 @@ interface TransactionService {
     List<TransactionDto> findAllByAccountAndCursor(Account account, TransactionFiltersCommand cmd)
 
     @Log
-    List<TransactionDto> findAllByAccount(Account account, TransactionFiltersCommand cmd)
+    List<TransactionDto> findAllByAccountAndFilters(Account account, TransactionFiltersCommand cmd)
+
+    @Log
+    List<TransactionDto> findAllByAccount(Account account)
 
     @Log
     List<TransactionDto> findAllByCategory(Category category)

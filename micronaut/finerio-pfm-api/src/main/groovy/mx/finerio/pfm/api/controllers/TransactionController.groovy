@@ -7,7 +7,6 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
-import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.logging.Log
@@ -73,7 +72,7 @@ class TransactionController {
         Account account = accountService.getAccount(accountId)
         nextCursorService.generateResourcesDto( cursor ?
                 transactionsService.findAllByAccountAndCursor(account, cmd)
-                : transactionsService.findAllByAccount(account,cmd)
+                : transactionsService.findAllByAccountAndFilters(account,cmd)
         )
     }
 

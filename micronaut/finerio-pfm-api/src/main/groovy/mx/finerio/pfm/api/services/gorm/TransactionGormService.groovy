@@ -22,7 +22,7 @@ interface TransactionGormService {
 
     void delete(Serializable id)
     @Query("from ${Transaction a} where $a.id = $id and a.dateDeleted is Null")
-    Transaction findByIdAndDateDeletedIsNull(Long id, Map arg)
+    Transaction findByIdAndDateDeletedIsNull(Long id)
 
     @Query("update ${Transaction t} set t.dateDeleted = ${new Date()} where $t.account = $account")
     void deleteAllByAccount(Account account)

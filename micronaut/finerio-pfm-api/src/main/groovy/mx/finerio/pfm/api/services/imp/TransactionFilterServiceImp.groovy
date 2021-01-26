@@ -8,10 +8,25 @@ class TransactionFilterServiceImp implements TransactionFilterService {
 
     @Override
     List<TransactionDto> filterTransactions(List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd) {
+        def filterMap =    ["categoryId" : categoryIdFilter,
+                         "charge" : chargeFilter,
+                         "beginAmount": beginAmountFilter,
+                         "finalAmount": finalAmountFilter,
+                         "fromDate": fromDateFilter,
+                         "toDate":toDateFilter]
         List<List<TransactionDto>> filterLists = generateProperties(cmd).collect {
-            filterFunctionsMap()[it.key as String](transactionDtos, cmd)
+            filterMap[it.key as String](transactionDtos, cmd)
         }
         filterLists ? intersectResultList(filterLists): []
+    }
+
+    @Override
+    Map<Object, Object> generateProperties(TransactionFiltersCommand cmd) {
+        cmd.properties.findAll {
+            if (it.getValue() != null && it.getKey() != 'class' && it.getKey() != 'cursor') {
+                return it
+            }
+        }
     }
 
     private static List<TransactionDto> intersectResultList(List<List<TransactionDto>> filterLists) {
@@ -20,23 +35,6 @@ class TransactionFilterServiceImp implements TransactionFilterService {
             resultSet = resultSet.intersect(it)
         }
         resultSet
-    }
-
-    private Object filterFunctionsMap() {
-        ["categoryId" : categoryIdFilter,
-            "charge" : chargeFilter,
-            "beginAmount": beginAmountFilter,
-            "finalAmount": finalAmountFilter,
-            "fromDate": fromDateFilter,
-            "toDate":toDateFilter]
-    }
-
-    private static Map<Object, Object> generateProperties(TransactionFiltersCommand cmd) {
-        cmd.properties.findAll {
-            if (it.getValue() != null && it.getKey() != 'class' && it.getKey() != 'cursor') {
-                return it
-            }
-        }
     }
 
     def categoryIdFilter = { List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
