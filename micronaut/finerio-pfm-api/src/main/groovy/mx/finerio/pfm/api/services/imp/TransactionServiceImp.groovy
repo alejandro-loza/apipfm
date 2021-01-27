@@ -122,6 +122,10 @@ class TransactionServiceImp  implements TransactionService {
                         account, cmd.cursor, [max: MAX_ROWS, sort: 'id', order: 'desc'])
                 .collect{generateTransactionDto(it)}
 
+        if(isTransactionFiltersCommandNonEmpty(cmd) && transactions){
+            return transactionFilterService.filterTransactions(transactions, cmd)
+        }
+
         transactions
     }
 
