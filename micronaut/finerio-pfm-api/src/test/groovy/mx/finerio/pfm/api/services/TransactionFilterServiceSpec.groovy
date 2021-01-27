@@ -313,6 +313,7 @@ class TransactionFilterServiceSpec extends Specification {
            charge = true
            amount = 100.00
            categoryId = 1
+           description = "RAPPI"
        }
 
        TransactionDto transactionDto2 = new TransactionDto()
@@ -321,6 +322,7 @@ class TransactionFilterServiceSpec extends Specification {
            charge = true
            amount = 200.00
            categoryId = 1
+           description = "RAPPI"
        }
 
        TransactionDto transactionDto3 = new TransactionDto()
@@ -329,6 +331,7 @@ class TransactionFilterServiceSpec extends Specification {
            charge = false
            amount = 300.00
            categoryId = 1
+           description = "RAPPI"
        }
 
        TransactionDto transactionDto4 = new TransactionDto()
@@ -337,6 +340,7 @@ class TransactionFilterServiceSpec extends Specification {
            charge = true
            amount = 400.00
            categoryId = 1
+           description = "RAPPI"
        }
 
        TransactionDto transactionDto5 = new TransactionDto()
@@ -345,6 +349,7 @@ class TransactionFilterServiceSpec extends Specification {
            charge = false
            amount = 600.00
            categoryId = 1
+           description = "RAPPI"
        }
 
        TransactionDto transactionDto6 = new TransactionDto()
@@ -353,6 +358,7 @@ class TransactionFilterServiceSpec extends Specification {
            charge = false
            amount = 500.00
            categoryId = 1
+           description = "RAPPI"
        }
 
        TransactionDto transactionDto7 = new TransactionDto()
@@ -361,8 +367,17 @@ class TransactionFilterServiceSpec extends Specification {
            charge = true
            amount = 400.00
            categoryId = 2
+           description = "UBER"
        }
 
+       TransactionDto transactionDto8 = new TransactionDto()
+       transactionDto8.with {
+           date = fourMonths
+           charge = true
+           amount = 400.00
+           categoryId = 2
+           description = "RAPPI"
+       }
 
        List<TransactionDto> dtos =[transactionDto1,
                                    transactionDto2,
@@ -370,7 +385,8 @@ class TransactionFilterServiceSpec extends Specification {
                                    transactionDto4,
                                    transactionDto5,
                                    transactionDto6,
-                                   transactionDto7]
+                                   transactionDto7,
+                                   transactionDto8]
 
         and:'a command to filter'
         TransactionFiltersCommand cmd = new TransactionFiltersCommand()
@@ -381,6 +397,7 @@ class TransactionFilterServiceSpec extends Specification {
             maxAmount = 500.00
             charge = true
             categoryId = 2
+            description = "RAPPI"
         }
 
         when:
@@ -393,7 +410,8 @@ class TransactionFilterServiceSpec extends Specification {
         assert !response.contains(transactionDto3)
         assert !response.contains(transactionDto4)
         assert !response.contains(transactionDto5)
-        assert response.contains(transactionDto7)
+        assert !response.contains(transactionDto7)
+        assert response.contains(transactionDto8)
 
     }
 

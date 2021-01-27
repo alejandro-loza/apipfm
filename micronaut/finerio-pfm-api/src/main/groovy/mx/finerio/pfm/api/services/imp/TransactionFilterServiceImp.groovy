@@ -13,7 +13,8 @@ class TransactionFilterServiceImp implements TransactionFilterService {
                          "minAmount": minAmountFilter,
                          "maxAmount": maxAmountFilter,
                          "dateFrom": fromDateFilter,
-                         "dateTo":toDateFilter]
+                         "dateTo":toDateFilter,
+                         "description": descriptionFilter]
         List<List<TransactionDto>> filterLists = generateProperties(cmd).collect {
             filterMap[it.key as String](transactionDtos, cmd)
         }
@@ -59,6 +60,10 @@ class TransactionFilterServiceImp implements TransactionFilterService {
 
     def toDateFilter = {List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
         transactionDtos.findAll {it.date <=  new Date(cmd.dateTo)}
+    }
+
+    def descriptionFilter = {List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
+        transactionDtos.findAll {it.description ==  cmd.description}
     }
 
 }

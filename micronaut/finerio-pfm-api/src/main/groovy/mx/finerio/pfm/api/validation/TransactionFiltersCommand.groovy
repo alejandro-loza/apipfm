@@ -10,4 +10,5 @@ class TransactionFiltersCommand {
     @Nullable BigDecimal maxAmount
     @Nullable Long dateTo
     @Nullable Long dateFrom
+    @Nullable String description
 }

@@ -50,7 +50,7 @@ class TransactionController {
     }
 
     @Log
-    @Get("{?cursor,categoryId,charge,minAmount,maxAmount,dateFrom,dateTo}")
+    @Get("{?cursor,categoryId,charge,minAmount,maxAmount,dateFrom,dateTo,description}")
     @Transactional
     Single<ResourcesDto> showAll(
             @Nullable Long cursor,
@@ -60,7 +60,9 @@ class TransactionController {
             @Nullable BigDecimal maxAmount,
             @Nullable Long dateFrom,
             @Nullable Long dateTo,
+            @Nullable String description,
             @QueryValue('accountId') Long accountId) {
+
         TransactionFiltersCommand cmd = new TransactionFiltersCommand()
          cmd.cursor = cursor
          cmd.categoryId = categoryId
@@ -69,7 +71,10 @@ class TransactionController {
          cmd.maxAmount = maxAmount
          cmd.dateFrom = dateFrom
          cmd.dateTo = dateTo
+         cmd.description = description
+
         Account account = accountService.getAccount(accountId)
+
         nextCursorService.generateResourcesDto( cursor ?
                 transactionsService.findAllByAccountAndCursor(account, cmd)
                 : transactionsService.findAllByAccountAndFilters(account,cmd)
