@@ -12,7 +12,7 @@ import spock.lang.Unroll
 
 import java.time.ZonedDateTime
 
-@Property(name = 'spec.name', value = 'transaction service')
+@Property(name = 'spec.name', value = 'transaction filter service')
 @MicronautTest(application = Application.class)
 class TransactionFilterServiceSpec extends Specification {
     TransactionFilterService transactionFilterService = new TransactionFilterServiceImp()
@@ -135,7 +135,7 @@ class TransactionFilterServiceSpec extends Specification {
         and:'a command to filter by category id'
         TransactionFiltersCommand cmd = new TransactionFiltersCommand()
         cmd.with {
-            fromDate = fourMonths.getTime()
+            dateFrom = fourMonths.getTime()
         }
 
         when:
@@ -187,7 +187,7 @@ class TransactionFilterServiceSpec extends Specification {
         and:'a command to filter by category id'
         TransactionFiltersCommand cmd = new TransactionFiltersCommand()
         cmd.with {
-            toDate = fourMonths.getTime()
+            dateTo = fourMonths.getTime()
         }
 
         when:
@@ -236,7 +236,7 @@ class TransactionFilterServiceSpec extends Specification {
         and:'a command to filter by category id'
         TransactionFiltersCommand cmd = new TransactionFiltersCommand()
         cmd.with {
-            beginAmount = 500.00
+            minAmount = 500.00
         }
 
         when:
@@ -285,7 +285,7 @@ class TransactionFilterServiceSpec extends Specification {
         and:'a command to filter by category id'
         TransactionFiltersCommand cmd = new TransactionFiltersCommand()
         cmd.with {
-            finalAmount = 500.00
+            maxAmount = 500.00
         }
 
         when:
@@ -375,10 +375,10 @@ class TransactionFilterServiceSpec extends Specification {
         and:'a command to filter'
         TransactionFiltersCommand cmd = new TransactionFiltersCommand()
         cmd.with {
-            fromDate = fourMonths.getTime()
-            toDate  = twoMonths.getTime()
-            beginAmount = 250.00
-            finalAmount = 500.00
+            dateFrom = fourMonths.getTime()
+            dateTo  = twoMonths.getTime()
+            minAmount = 250.00
+            maxAmount = 500.00
             charge = true
             categoryId = 2
         }

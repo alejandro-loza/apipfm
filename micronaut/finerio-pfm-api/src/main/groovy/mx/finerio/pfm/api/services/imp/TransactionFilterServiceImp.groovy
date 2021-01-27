@@ -10,10 +10,10 @@ class TransactionFilterServiceImp implements TransactionFilterService {
     List<TransactionDto> filterTransactions(List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd) {
         def filterMap =    ["categoryId" : categoryIdFilter,
                          "charge" : chargeFilter,
-                         "beginAmount": beginAmountFilter,
-                         "finalAmount": finalAmountFilter,
-                         "fromDate": fromDateFilter,
-                         "toDate":toDateFilter]
+                         "minAmount": minAmountFilter,
+                         "maxAmount": maxAmountFilter,
+                         "dateFrom": fromDateFilter,
+                         "dateTo":toDateFilter]
         List<List<TransactionDto>> filterLists = generateProperties(cmd).collect {
             filterMap[it.key as String](transactionDtos, cmd)
         }
@@ -45,20 +45,20 @@ class TransactionFilterServiceImp implements TransactionFilterService {
         transactionDtos.findAll {it.charge == cmd.charge}
     }
 
-    def beginAmountFilter = {List<TransactionDto> transactionDtos,TransactionFiltersCommand cmd ->
-        transactionDtos.findAll {it.amount >= cmd.beginAmount}
+    def minAmountFilter = { List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
+        transactionDtos.findAll {it.amount >= cmd.minAmount}
     }
 
-    def finalAmountFilter = {List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
-        transactionDtos.findAll {it.amount <= cmd.finalAmount}
+    def maxAmountFilter = { List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
+        transactionDtos.findAll {it.amount <= cmd.maxAmount}
     }
 
     def fromDateFilter = {List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
-        transactionDtos.findAll {it.date >= new Date(cmd.fromDate)}
+        transactionDtos.findAll {it.date >= new Date(cmd.dateFrom)}
     }
 
     def toDateFilter = {List<TransactionDto> transactionDtos, TransactionFiltersCommand cmd ->
-        transactionDtos.findAll {it.date <=  new Date(cmd.toDate)}
+        transactionDtos.findAll {it.date <=  new Date(cmd.dateTo)}
     }
 
 }

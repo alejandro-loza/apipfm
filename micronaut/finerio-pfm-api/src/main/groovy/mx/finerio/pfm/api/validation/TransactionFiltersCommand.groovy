@@ -6,8 +6,8 @@ class TransactionFiltersCommand {
     @Nullable Long cursor
     @Nullable Long categoryId
     @Nullable Boolean charge
-    @Nullable BigDecimal beginAmount
-    @Nullable BigDecimal finalAmount
-    @Nullable Long toDate
-    @Nullable Long fromDate
+    @Nullable BigDecimal minAmount
+    @Nullable BigDecimal maxAmount
+    @Nullable Long dateTo
+    @Nullable Long dateFrom
 }

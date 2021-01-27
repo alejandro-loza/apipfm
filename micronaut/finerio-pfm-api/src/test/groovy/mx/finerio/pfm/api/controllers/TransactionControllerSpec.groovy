@@ -836,7 +836,6 @@ class TransactionControllerSpec extends Specification {
             description = "UBER EATS"
             amount= 1234.56
         }
-
         transactionGormService.save(transaction3)
 
         Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
@@ -845,8 +844,8 @@ class TransactionControllerSpec extends Specification {
         and:
         HttpRequest getReq = HttpRequest.GET(
                 "${TRANSACTION_ROOT}?accountId=${account1.id}" +
-                "&fromDate=${fiveMonths.getTime()}" +
-                "&toDate=${oneMonths.getTime()}"
+                "&dateFrom=${fiveMonths.getTime()}" +
+                "&dateTo=${oneMonths.getTime()}"
         ).bearerAuth(accessToken)
 
         when:
@@ -861,7 +860,6 @@ class TransactionControllerSpec extends Specification {
         assert transactionDtos.size() == 2
 
     }
-
 
     def "Should throw not found exception on delete no found transaction"(){
         given:
