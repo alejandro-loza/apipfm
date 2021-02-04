@@ -3,7 +3,6 @@ package mx.finerio.pfm.api.services
 import io.micronaut.context.annotation.Property
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.clients.CategorizerDeclarativeClient
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
@@ -12,7 +11,6 @@ import mx.finerio.pfm.api.dtos.resource.CategorizerDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
-import mx.finerio.pfm.api.services.gorm.SystemCategoryGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.imp.TransactionServiceImp
 import mx.finerio.pfm.api.validation.TransactionCreateCommand

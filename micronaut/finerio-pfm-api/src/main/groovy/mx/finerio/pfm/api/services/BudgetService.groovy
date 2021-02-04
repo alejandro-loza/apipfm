@@ -15,13 +15,16 @@ interface BudgetService {
     void verifyBody(ValidationCommand cmd)
 
     @Log
-    Budget create(BudgetCreateCommand cmd)
+    BudgetDto create(BudgetCreateCommand cmd)
 
     @Log
     Budget find(Long id)
 
     @Log
-    Budget update(BudgetUpdateCommand cmd, Budget budget)
+    BudgetDto get(Long id)
+
+    @Log
+    BudgetDto update(BudgetUpdateCommand cmd, Budget budget)
 
     @Log
     void delete(Long id)

@@ -6,20 +6,14 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
-import mx.finerio.pfm.api.domain.Budget
-import mx.finerio.pfm.api.domain.Category
-import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
-import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.CategoryService
 import mx.finerio.pfm.api.services.NextCursorService
-import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
-
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.validation.Valid
@@ -43,14 +37,14 @@ class BudgetsController {
     @Post("/")
     Single<BudgetDto> save(@Body @Valid BudgetCreateCommand cmd){
         budgetService.verifyBody(cmd)
-        Single.just(new BudgetDto(budgetService.create(cmd)))
+        Single.just(budgetService.create(cmd))
     }
 
     @Log
     @Get("/{id}")
     @Transactional
     Single<BudgetDto> show(@NotNull Long id) {
-        Single.just(new BudgetDto(budgetService.find(id)))
+        Single.just(budgetService.get(id))
     }
 
     @Log
@@ -68,9 +62,7 @@ class BudgetsController {
     @Transactional
     Single<BudgetDto> edit(@Body @Valid BudgetUpdateCommand cmd, @NotNull Long id ) {
         budgetService.verifyBody(cmd)
-        Budget budget = budgetService.find(id)
-      //  Category categoryToSet = cmd.categoryId ? findCategoryToSet(cmd.categoryId, budget.user) : budget.category
-        Single.just(new BudgetDto(budgetService.update(cmd, budget)))
+        Single.just(budgetService.update(cmd,  budgetService.find(id)))
     }
 
     @Log
@@ -79,15 +71,6 @@ class BudgetsController {
     HttpResponse delete(@NotNull Long id) {
         budgetService.delete(id)
         HttpResponse.noContent()
-    }
-
-    private Category findCategoryToSet(Long categoryId, User user) {
-        Category categoryToSet = categoryService.getById(categoryId)
-        if (categoryToSet
-                && budgetService.findByUserAndCategory(user, categoryToSet)) {
-            throw new BadRequestException('budget.category.nonUnique')
-        }
-        categoryToSet
     }
 
 }

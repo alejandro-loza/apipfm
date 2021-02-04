@@ -10,7 +10,6 @@ import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.*
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
-import mx.finerio.pfm.api.validation.AccountUpdateCommand
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
@@ -133,6 +132,20 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     @Override
+    List<Transaction> findAllByCategoryChargeAndDateFrom(Category category, Date dateFrom, Boolean charge) {
+        transactionGormService
+                .findAllByCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(category, dateFrom, charge)
+    }
+
+    @Override
+    List<Transaction> findAllByAccountSystemCategoryChargeAndDateFrom(
+            Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge) {
+        transactionGormService
+                .findAllByAccountAndSystemCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(
+                        account, systemCategory, dateFrom, charge)
+    }
+
+    @Override
     void deleteAllByAccount(Account account) {
         transactionGormService.deleteAllByAccount(account)
     }
@@ -144,12 +157,14 @@ class TransactionServiceImp  implements TransactionService {
                         account, charge, from, to, [ sort: 'id', order: 'desc'])
     }
 
+    @Override
     List<Transaction> getAccountsTransactions(List<Account> accounts, Boolean charge, Date dateFrom, Date dateTo) {
         List<Transaction> transactions = []
         for ( account in accounts ) {
             transactions.addAll(findAllByAccountAndChargeAndDateRange(account, charge, dateFrom, dateTo))
         }
         transactions
+
     }
 
     @Override
@@ -169,7 +184,6 @@ class TransactionServiceImp  implements TransactionService {
         }
         transactionDto
     }
-
 
     private static void verifyBody(ValidationCommand cmd) {
         if (!cmd) {

@@ -52,6 +52,11 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
+              - column:
+                  name: warning_percentage
+                  type: DECIMAL(18,12)
+                  constraints:
+                    nullable: false
   - changeSet:
       id: budget_category_fk
       author: alejandro.hernandez

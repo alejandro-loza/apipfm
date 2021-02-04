@@ -147,7 +147,7 @@ class CategoryControllerSpec extends Specification {
         assert body.get("nextCursor") == null
 
         List<CategoryDto> categoryDtos= body.get("data") as List<CategoryDto>
-        assert categoryDtos.size() > 90
+        assert categoryDtos.size() >= 90
     }
 
     def "Should create a category"() {
@@ -768,6 +768,7 @@ class CategoryControllerSpec extends Specification {
             name = 'test budget name'
             user = user1
             category = parentCategory
+            warningPercentage = 0.7
         }
         budgetGormService.save(budget)
 
