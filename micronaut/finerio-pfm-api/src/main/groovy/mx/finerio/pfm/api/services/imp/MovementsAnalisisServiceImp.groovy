@@ -3,13 +3,7 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.utilities.MovementsAnalysisDto
-import mx.finerio.pfm.api.dtos.utilities.MovementsResumeDto
-import mx.finerio.pfm.api.services.AccountService
-import mx.finerio.pfm.api.services.MovementsAnalysisService
-import mx.finerio.pfm.api.services.ResumeService
-import mx.finerio.pfm.api.services.TransactionService
-import mx.finerio.pfm.api.services.UserService
-
+import mx.finerio.pfm.api.services.*
 import mx.finerio.pfm.api.validation.MovementAnalysisFilterParamsCommand
 
 import javax.inject.Inject

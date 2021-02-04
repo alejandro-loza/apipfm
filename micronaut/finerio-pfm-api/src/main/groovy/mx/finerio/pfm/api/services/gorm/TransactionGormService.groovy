@@ -3,9 +3,9 @@ package mx.finerio.pfm.api.services.gorm
 import grails.gorm.services.Query
 import grails.gorm.services.Service
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.domain.Category
 
 @Service(Transaction)
 interface TransactionGormService {

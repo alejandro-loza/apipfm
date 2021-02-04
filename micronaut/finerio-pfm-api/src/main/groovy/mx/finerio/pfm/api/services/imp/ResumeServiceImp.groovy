@@ -3,22 +3,12 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.dtos.utilities.BalancesDto
-import mx.finerio.pfm.api.dtos.utilities.BaseCategoryResumeDto
-import mx.finerio.pfm.api.dtos.utilities.CategoryAnalysisDto
-import mx.finerio.pfm.api.dtos.utilities.CategoryResumeDto
-import mx.finerio.pfm.api.dtos.utilities.MovementsAnalysisDto
-import mx.finerio.pfm.api.dtos.utilities.MovementsResumeDto
-import mx.finerio.pfm.api.dtos.utilities.ResumeDto
-import mx.finerio.pfm.api.dtos.utilities.SubCategoryAnalysisDto
-import mx.finerio.pfm.api.dtos.utilities.SubCategoryResumeDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
-import mx.finerio.pfm.api.dtos.utilities.TransactionsByDateDto
-import mx.finerio.pfm.api.dtos.utilities.TransactionsDescriptionAnalysisDto
+import mx.finerio.pfm.api.dtos.utilities.*
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ResumeService
-import  mx.finerio.pfm.api.services.TransactionService
+import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.ResumeFilterParamsCommand
 
 import javax.inject.Inject

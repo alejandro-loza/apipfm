@@ -2,7 +2,6 @@ package mx.finerio.pfm.api.services.gorm
 
 import grails.gorm.services.Query
 import grails.gorm.services.Service
-import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
 
 @Service(SystemCategory)

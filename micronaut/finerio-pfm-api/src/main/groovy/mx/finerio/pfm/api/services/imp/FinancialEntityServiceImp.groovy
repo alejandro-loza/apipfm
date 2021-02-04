@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
+import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
@@ -12,7 +13,6 @@ import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
-import grails.gorm.transactions.Transactional
 
 class FinancialEntityServiceImp extends ServiceTemplate implements FinancialEntityService {
 

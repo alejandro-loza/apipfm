@@ -1,7 +1,6 @@
 package mx.finerio.pfm.api.dtos.resource
 
 import com.fasterxml.jackson.annotation.JsonInclude
-
 import groovy.transform.ToString
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
