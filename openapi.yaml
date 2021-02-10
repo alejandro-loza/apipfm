@@ -57,6 +57,11 @@ tags:
     description: A budget is the representation of your users' budget plan.
   - name: Insights
     description: Insights and datapoints about user financial information.
+  - name: Webhooks
+    description: A webhook is the URL of your server where we send you several information about your users.
+  - name: Webhooks bodies
+    description: These are the structures of the data you receive in each webhook you
+      register in the API.
 security:
   - bearerAuth: []
 paths:
@@ -1357,6 +1362,169 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
+  /webhooks:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+      - Webhooks
+      summary: Creates a webhook.
+      description: Creates a webhook.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhook'
+      responses:
+        '201':
+          description: A webhook created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+      - Webhooks
+      summary: Fetches a list of webhooks.
+      description: Fetches a list of webhooks.
+      responses:
+        '200':
+          description: An array of webhooks.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Webhooks'
+        '500':
+          description: Something in the server was wrong.
+  /webhooks/{webhookId}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+      - Webhooks
+      summary: Fetches a webhook.
+      description: Fetches the information of a webhook.
+      parameters:
+        - in: path
+          name: webhookId
+          description: The ID of the webhook.
+          required: true
+          schema:
+            $ref: '#/components/schemas/WebhookId'
+      responses:
+        '200':
+          description: The information of the webhook requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '404':
+          description: Some ID in the request was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+      - Webhooks
+      summary: Updates a webhook.
+      description: Updates a webhook.
+      parameters:
+        - in: path
+          name: webhookId
+          description: The ID of the webhook.
+          required: true
+          schema:
+            $ref: '#/components/schemas/WebhookId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWebhook'
+      responses:
+        '200':
+          description: A webhook updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Some ID in the request was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+      - Webhooks
+      summary: Deletes a webhook.
+      description: Deletes a webhook.
+      parameters:
+        - in: path
+          name: webhookId
+          description: The ID of the webhook.
+          required: true
+          schema:
+            $ref: '#/components/schemas/WebhookId'
+      responses:
+        '204':
+          description: The webhook has been deleted successfully.
+        '400':
+          description: Something in the request was wrong.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Some ID in the request was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Something in the server was wrong.
+  /your/BUDGET_STATUS/webhook:
+    post:
+      security: []
+      tags:
+        - Webhooks bodies
+      summary: BUDGET_STATUS webhook body.
+      description: This is an example of the body sent to your BUDGET_STATUS webhook.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetStatusWebhook'
+      responses:
+        '200':
+          description: It is recommended that you send a 200 OK from your server.
 components:
   schemas:
     SignUpRequest:
@@ -2239,6 +2407,60 @@ components:
           description: The amount of the transaction.
           type: number
           example: 123.45
+    CreateWebhook:
+      description: A representation of the data neccesary for creating an webhook.
+      required:
+        - url
+        - nature
+      properties:
+        url:
+          type: string
+          example: 'https://webhook.site/880e2a19-c3ef-42fc-846d-c67b5379423e'
+        nature:
+          $ref: '#/components/schemas/WebhookNature'
+    UpdateWebhook:
+      description: A representation of the data neccesary for updating a webhook.
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          example: 'https://webhook.site/880e2a19-c3ef-42fc-846d-c67b5379423e'
+    Webhook:
+      description: A representation of a webhook.
+      properties:
+        id:
+          $ref: '#/components/schemas/WebhookId'
+        url:
+          description: The URL of the webhook.
+          type: string
+          example: 'https://webhook.site/880e2a19-c3ef-42fc-846d-c67b5379423e'
+        nature:
+          $ref: '#/components/schemas/WebhookNature'
+    WebhookId:
+      description: The ID of the webhook
+      type: string
+      example: '3a91d07f-bf32-4492-b240-73f88b9cd289'
+    Webhooks:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
+        nextId:
+          type: string
+          example: '3a91d07f-bf32-4492-b240-73f88b9cd289'
+    WebhookNature:
+      description: The nature of the webhook.
+      type: string
+      enum:
+        - budget_status
+    BudgetStatusWebhook:
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        budget:
+          $ref: '#/components/schemas/Budget'
     Errors:
       description: A list of errors
       type: array
