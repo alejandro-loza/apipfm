@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: budget
+      author: alejandro.hernandez
+      changes:
+      - addColumn:
+            tableName: budget
+            columns:
+              - column:
+                  name: warning_percentage
+                  type: DECIMAL(18,12)
+                  constraints:
+                    nullable: false
