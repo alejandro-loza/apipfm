@@ -3,8 +3,8 @@ package mx.finerio.pfm.api.services.gorm
 import grails.gorm.services.Query
 import grails.gorm.services.Service
 import mx.finerio.pfm.api.domain.Budget
-import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.User
 
 @Service(Budget)
 interface BudgetGormService {

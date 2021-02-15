@@ -1,7 +1,6 @@
 package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
-
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.dtos.resource.ResourceDto
 

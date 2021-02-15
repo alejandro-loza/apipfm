@@ -9,6 +9,7 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.utilities.BalancesDto
 import mx.finerio.pfm.api.dtos.utilities.MovementsResumeDto
 import spock.lang.Specification
+
 import javax.inject.Inject
 import java.text.SimpleDateFormat
 

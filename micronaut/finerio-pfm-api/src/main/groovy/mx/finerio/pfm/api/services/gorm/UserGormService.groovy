@@ -1,9 +1,9 @@
 package mx.finerio.pfm.api.services.gorm
 
 import grails.gorm.services.Query
+import grails.gorm.services.Service
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
-import grails.gorm.services.Service
 
 @Service(User)
 interface UserGormService {

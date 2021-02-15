@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.logging.Log
@@ -40,6 +41,13 @@ interface TransactionService {
 
     @Log
     List<TransactionDto> findAllByCategory(Category category)
+
+    @Log
+    List<Transaction> findAllByCategoryChargeAndDateFrom(Category category, Date dateFrom, Boolean charge)
+
+    @Log
+    List<Transaction> findAllByAccountSystemCategoryChargeAndDateFrom(
+            Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge)
 
     @ Log
     List < Transaction > findAllByAccountAndChargeAndDateRange(Account account, Boolean charge, Date from, Date to)

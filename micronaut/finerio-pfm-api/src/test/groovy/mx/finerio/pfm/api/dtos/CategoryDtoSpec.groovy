@@ -2,12 +2,12 @@ package mx.finerio.pfm.api.dtos
 
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
+import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
 import spock.lang.Specification
-import mx.finerio.pfm.api.domain.Category
 
 @MicronautTest(application = Application.class)
 class CategoryDtoSpec extends Specification{

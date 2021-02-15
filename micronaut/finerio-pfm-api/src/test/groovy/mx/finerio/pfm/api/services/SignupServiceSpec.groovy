@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.security.authentication.providers.PasswordEncoder
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.ClientProfile
 import mx.finerio.pfm.api.domain.ClientRole
@@ -12,7 +13,6 @@ import mx.finerio.pfm.api.services.gorm.ClientRoleGormService
 import mx.finerio.pfm.api.services.gorm.RoleGormService
 import mx.finerio.pfm.api.services.imp.SignupServiceImpl
 import mx.finerio.pfm.api.validation.SignupCommand
-import io.micronaut.security.authentication.providers.PasswordEncoder
 import spock.lang.Specification
 
 class SignupServiceSpec extends Specification {
