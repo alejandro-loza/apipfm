@@ -72,6 +72,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
             user = userToSet
             name = cmd.name ?: budget.name
             amount = cmd.amount ?: budget.amount
+            warningPercentage = cmd.warningPercentage ?: budget.warningPercentage
         }
         setCategoryOrSystemCategory(cmd, budget, userToSet)
         crateBudgetDtoWithAnalysis(budgetGormService.save(budget))

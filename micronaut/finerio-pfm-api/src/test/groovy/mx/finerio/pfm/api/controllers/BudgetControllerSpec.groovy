@@ -381,6 +381,7 @@ class BudgetControllerSpec extends Specification {
             categoryId = category2.id
             name = 'changed name'
             amount = 100
+            warningPercentage = 0.5
         }
 
         and: 'a client'
@@ -393,6 +394,7 @@ class BudgetControllerSpec extends Specification {
         resp.status == HttpStatus.OK
         resp.body().with {
            cmd
+            assert warningPercentage == cmd.warningPercentage as float
         }
 
     }
