@@ -61,7 +61,6 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
         accountGormService.save(account)
     }
 
-
     @Override
     void updateBalanceByTransaction(Transaction transaction) {
         Account account = transaction.account

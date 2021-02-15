@@ -716,7 +716,6 @@ class AccountControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-
     }
 
     def "Should not delete an account and throw exception on account who has transactions set"() {

@@ -23,8 +23,9 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Inject
+import java.time.ZonedDateTime
 
-@Property(name = 'spec.name', value = 'account controller')
+@Property(name = 'spec.name', value = 'transaction controller')
 @MicronautTest(application = Application.class)
 class TransactionControllerSpec extends Specification {
 
@@ -769,7 +770,6 @@ class TransactionControllerSpec extends Specification {
         Account account1 = generateAccount()
         Account account2 = generateAccount()
 
-
         Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
         transactionGormService.save(transaction1)
         Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
@@ -795,6 +795,63 @@ class TransactionControllerSpec extends Specification {
         assert !(transaction2.id in transactionDtos.id)
         assert !(transaction4.id in transactionDtos.id)
         transactionDtos.size() == 1
+    }
+
+    def "Should get a list of transactions of an account on a filter"(){
+
+        given:'a transaction list'
+        Account account1 = generateAccount()
+
+        Date fiveMonths = Date.from(ZonedDateTime.now().minusMonths(5).toInstant())
+        Date fourMonths = Date.from(ZonedDateTime.now().minusMonths(4).toInstant())
+        Date twoMonths = Date.from(ZonedDateTime.now().minusMonths(2).toInstant())
+        Date oneMonths = Date.from(ZonedDateTime.now().minusMonths(1).toInstant())
+
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+
+        Transaction transaction2 = new Transaction()
+        transaction2.with {
+            account = account1
+            date = twoMonths
+            charge = true
+            description = "UBER EATS"
+            amount= 1234.56
+        }
+        transactionGormService.save(transaction2)
+
+        Transaction transaction3 = new Transaction()
+        transaction3.with {
+            account = account1
+            date = fourMonths
+            charge = true
+            description = "UBER EATS"
+            amount= 1234.56
+        }
+        transactionGormService.save(transaction3)
+
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction4)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET(
+                "${TRANSACTION_ROOT}?accountId=${account1.id}" +
+                "&dateFrom=${fiveMonths.getTime()}" +
+                "&dateTo=${oneMonths.getTime()}"
+        ).bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
+        assert  transactionDtos.find {it.id == transaction2.id}
+        assert  transactionDtos.find {it.id == transaction3.id}
+        assert transactionDtos.size() == 2
+
     }
 
     def "Should throw not found exception on delete no found transaction"(){
