@@ -1,6 +1,9 @@
 package mx.finerio.pfm.api.services
 
+import io.micronaut.context.annotation.Property
 import io.micronaut.security.utils.SecurityService
+import io.micronaut.test.annotation.MicronautTest
+import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -14,6 +17,9 @@ import java.security.Principal
 
 import static java.util.Optional.of
 
+
+@Property(name = 'spec.name', value = 'budget service')
+@MicronautTest(application = Application.class)
 class BudgetServiceSpec extends Specification {
 
     BudgetService budgetService = new BudgetServiceImp()
