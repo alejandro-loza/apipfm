@@ -1,5 +1,6 @@
 package mx.finerio.pfm.api.services.imp
 
+import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
@@ -38,6 +39,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     AccountService accountService
 
     @Override
+    @Transactional
     BudgetDto create(BudgetCreateCommand cmd){
         Budget budget = new Budget()
         User userToSet = userService.getUser(cmd.userId)

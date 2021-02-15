@@ -29,9 +29,6 @@ class BudgetsController {
     BudgetService budgetService
 
     @Inject
-    CategoryService categoryService
-
-    @Inject
     NextCursorService nextCursorService
 
     @Log
