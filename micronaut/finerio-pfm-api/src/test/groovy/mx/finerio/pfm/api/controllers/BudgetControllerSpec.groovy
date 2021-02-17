@@ -10,26 +10,18 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.domain.Budget
-import mx.finerio.pfm.api.domain.Category
-import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
-import mx.finerio.pfm.api.dtos.resource.ResourcesDto
-import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
-import mx.finerio.pfm.api.services.gorm.BudgetGormService
-import mx.finerio.pfm.api.services.gorm.CategoryGormService
-import mx.finerio.pfm.api.services.gorm.TransactionGormService
-import mx.finerio.pfm.api.services.gorm.UserGormService
+import mx.finerio.pfm.api.services.gorm.*
 import mx.finerio.pfm.api.validation.BudgetCreateCommand
 import mx.finerio.pfm.api.validation.BudgetUpdateCommand
 import mx.finerio.pfm.api.validation.CategoryCreateCommand
-import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -65,6 +57,14 @@ class BudgetControllerSpec extends Specification {
     @Inject
     @Shared
     ClientService clientService
+
+    @Inject
+    @Shared
+    AccountGormService accountGormService
+
+    @Inject
+    @Shared
+    FinancialEntityGormService financialEntityGormService
 
     @Shared
     String accessToken
@@ -114,15 +114,14 @@ class BudgetControllerSpec extends Specification {
 
         Category category1 = generateCategory(user1)
         10.times {
-            budgets.add(generateSavedBudget(user1, category1))
+            budgets.add(generateSavedCategoryBudget(user1, category1))
         }
         50.times {
-            generateSavedBudget(user2, category1)
+            generateSavedCategoryBudget(user2, category1)
         }
         98.times {
-            budgets.add(generateSavedBudget(user1, category1))
+            budgets.add(generateSavedCategoryBudget(user1, category1))
         }
-
 
         and:
         HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budgets.last().id}&userId=${user1.id}").bearerAuth(accessToken)
@@ -134,7 +133,6 @@ class BudgetControllerSpec extends Specification {
         rspGET.status == HttpStatus.OK
         Map body = rspGET.getBody(Map).get()
         List<BudgetDto> budgetDtos= body.get("data") as List<BudgetDto>
-
 
         assert budgetDtos.first().id == budgets.last().id
         assert budgetDtos.last().id == budgets[8].id
@@ -197,6 +195,7 @@ class BudgetControllerSpec extends Specification {
             assert id
             assert dateCreated
             assert lastUpdated
+            assert warningPercentage == 0.7F
         }
 
     }
@@ -227,7 +226,8 @@ class BudgetControllerSpec extends Specification {
             user = user1
             category = category1
             name = 'test budget'
-            amount = 0
+            amount = 100.00
+            warningPercentage = 0.7
         }
         budgetGormService.save(budget)
 
@@ -300,6 +300,7 @@ class BudgetControllerSpec extends Specification {
             user = user1
             category = category1
             name = 'test budget'
+            warningPercentage = 0.7
         }
         budgetGormService.save(budget)
 
@@ -371,7 +372,7 @@ class BudgetControllerSpec extends Specification {
         categoryGormService.save(category2)
 
         and:'a saved budget'
-        Budget budget = generateSavedBudget(user1, category1)
+        Budget budget = generateSavedCategoryBudget(user1, category1)
 
         and:'a update command'
         BudgetCreateCommand cmd = new BudgetCreateCommand()
@@ -380,6 +381,7 @@ class BudgetControllerSpec extends Specification {
             categoryId = category2.id
             name = 'changed name'
             amount = 100
+            warningPercentage = 0.5
         }
 
         and: 'a client'
@@ -392,6 +394,7 @@ class BudgetControllerSpec extends Specification {
         resp.status == HttpStatus.OK
         resp.body().with {
            cmd
+            assert warningPercentage == cmd.warningPercentage as float
         }
 
     }
@@ -411,7 +414,7 @@ class BudgetControllerSpec extends Specification {
         categoryGormService.save(category1)
 
         and:'a saved budget'
-        Budget budget = generateSavedBudget(user1, category1)
+        Budget budget = generateSavedCategoryBudget(user1, category1)
 
         and:'a update command'
         BudgetCreateCommand cmd = new BudgetCreateCommand()
@@ -459,7 +462,7 @@ class BudgetControllerSpec extends Specification {
         categoryGormService.save(category1)
 
         and:'a saved budget'
-        Budget budget = generateSavedBudget(user1, category1)
+        Budget budget = generateSavedCategoryBudget(user1, category1)
 
         and:'a update command'
         BudgetUpdateCommand cmd = new BudgetUpdateCommand()
@@ -492,7 +495,7 @@ class BudgetControllerSpec extends Specification {
         Category category1 = generateCategory(user1)
 
         and:'a saved budget'
-        Budget budget = generateSavedBudget(user1, category1)
+        Budget budget = generateSavedCategoryBudget(user1, category1)
 
         HttpRequest request = HttpRequest.PUT("${BUDGETS_ROOT}/${budget.id}", []).bearerAuth(accessToken)
 
@@ -534,13 +537,13 @@ class BudgetControllerSpec extends Specification {
 
         Category category1 = generateCategory(user1)
 
-        Budget budget1 = generateSavedBudget(user1, category1)
+        Budget budget1 = generateSavedCategoryBudget(user1, category1)
         budget1.dateDeleted = new Date()
         budgetGormService.save(budget1)
 
-        Budget budget2 =   generateSavedBudget(user1, category1)
-        Budget budget3 =   generateSavedBudget(user2, category1)
-        Budget budget4 =   generateSavedBudget(user1, category1)
+        Budget budget2 =   generateSavedCategoryBudget(user1, category1)
+        Budget budget3 =   generateSavedCategoryBudget(user2, category1)
+        Budget budget4 =   generateSavedCategoryBudget(user1, category1)
 
 
         and:
@@ -567,13 +570,13 @@ class BudgetControllerSpec extends Specification {
         User user2 = generateUser()
         Category category1 = generateCategory(user1)
 
-        Budget budget1 = generateSavedBudget(user1, category1)
+        Budget budget1 = generateSavedCategoryBudget(user1, category1)
         budget1.dateDeleted = new Date()
         budgetGormService.save(budget1)
-        Budget budget2 = generateSavedBudget(user1, category1)
-        Budget budget3 = generateSavedBudget(user2, category1)
-        Budget budget4 = generateSavedBudget(user1, category1)
-        Budget budget5 = generateSavedBudget(user1, category1)
+        Budget budget2 = generateSavedCategoryBudget(user1, category1)
+        Budget budget3 = generateSavedCategoryBudget(user2, category1)
+        Budget budget4 = generateSavedCategoryBudget(user1, category1)
+        Budget budget5 = generateSavedCategoryBudget(user1, category1)
 
         and:
         HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?cursor=${budget4.id}&userId=${user1.id}").bearerAuth(accessToken)
@@ -619,7 +622,7 @@ class BudgetControllerSpec extends Specification {
         Category category = generateCategory(user1)
 
         and:' a saved budget'
-        Budget budget = generateSavedBudget(user1,category)
+        Budget budget = generateSavedCategoryBudget(user1,category)
 
         and: 'a client request'
         HttpRequest request = HttpRequest.DELETE("${BUDGETS_ROOT}/${budget.id}").bearerAuth(accessToken)
@@ -641,6 +644,76 @@ class BudgetControllerSpec extends Specification {
         def e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
+    }
+
+    def "Should get a budget with transaction analysis"() {
+
+        given:
+        User user1 = generateUser()
+
+        Category category1 = generateCategory(user1)
+
+        Budget budget1 = new Budget()
+        budget1.with {
+            user = user1
+            category = category1
+            name = 'test budget'
+            warningPercentage = 0.7
+            amount = 250.00
+        }
+        budgetGormService.save(budget1)
+
+        and:'a already saved entity with same code'
+        FinancialEntity entity = new FinancialEntity()
+        entity.with {
+            name = 'a saved bank'
+            code = 123
+            entity.client = loggedInClient
+        }
+        financialEntityGormService.save(entity)
+
+        and:'a saved account'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            number = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account)
+
+        and:
+        Transaction transaction = new Transaction()
+        transaction.with {
+            transaction.account = account
+            date = new Date()
+            charge = true
+            description = "UBER EATS"
+            amount= 200
+            category = category1
+        }
+        transactionGormService.save(transaction)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("$BUDGETS_ROOT?userId=${user1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        assert body.get("nextCursor") == null
+        List<BudgetDto> budgetDtos = body.data as List<BudgetDto>
+
+        assert budgetDtos
+        budgetDtos.first().with {
+            assert spent == 200
+            assert status == 'warning'
+            assert leftToSpend == 50
+        }
     }
 
     private User generateUser() {
@@ -669,12 +742,14 @@ class BudgetControllerSpec extends Specification {
         cmd
     }
 
-    private Budget generateSavedBudget(User user1, Category category1) {
+    private Budget generateSavedCategoryBudget(User user1, Category category1) {
         Budget budget1 = new Budget()
         budget1.with {
             user = user1
             category = category1
             name = 'test budget'
+            warningPercentage = 0.7
+            amount = 100.00
         }
         budgetGormService.save(budget1)
 

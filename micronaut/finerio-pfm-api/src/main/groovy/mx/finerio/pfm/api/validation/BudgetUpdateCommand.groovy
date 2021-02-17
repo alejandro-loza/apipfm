@@ -9,4 +9,5 @@ class BudgetUpdateCommand extends ValidationCommand{
     Long  categoryId
     String name
     BigDecimal amount
+    BigDecimal warningPercentage
 }

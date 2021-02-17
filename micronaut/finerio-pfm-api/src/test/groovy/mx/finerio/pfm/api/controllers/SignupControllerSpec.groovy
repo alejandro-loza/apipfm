@@ -8,14 +8,11 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.ClientProfile
-import mx.finerio.pfm.api.domain.ClientRole
-import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.ClientGormService
 import mx.finerio.pfm.api.services.gorm.ClientProfileGormService
 import mx.finerio.pfm.api.services.gorm.ClientRoleGormService
 import mx.finerio.pfm.api.services.gorm.RoleGormService
 import mx.finerio.pfm.api.validation.SignupCommand
-import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 

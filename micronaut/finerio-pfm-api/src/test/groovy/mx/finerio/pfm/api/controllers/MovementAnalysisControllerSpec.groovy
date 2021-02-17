@@ -9,22 +9,12 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
-import mx.finerio.pfm.api.domain.Account
-import mx.finerio.pfm.api.domain.Category
-import mx.finerio.pfm.api.domain.FinancialEntity
-import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.testUtils.MovementsAnalysisTestDto
-import mx.finerio.pfm.api.dtos.testUtils.MovementsResumeTestDto
 import mx.finerio.pfm.api.dtos.utilities.CategoryAnalysisDto
 import mx.finerio.pfm.api.dtos.utilities.MovementsAnalysisDto
-import mx.finerio.pfm.api.dtos.utilities.MovementsResponseDto
 import mx.finerio.pfm.api.services.ClientService
-import mx.finerio.pfm.api.services.gorm.AccountGormService
-import mx.finerio.pfm.api.services.gorm.CategoryGormService
-import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
-import mx.finerio.pfm.api.services.gorm.TransactionGormService
-import mx.finerio.pfm.api.services.gorm.UserGormService
+import mx.finerio.pfm.api.services.gorm.*
 import spock.lang.Shared
 import spock.lang.Specification
 

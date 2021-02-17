@@ -3,7 +3,6 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
 import mx.finerio.pfm.api.domain.Client
-import mx.finerio.pfm.api.domain.ClientRole
 import mx.finerio.pfm.api.domain.Role
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.ClientGormService

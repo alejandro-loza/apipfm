@@ -1,11 +1,7 @@
 package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
-
 import groovy.transform.ToString
-
-import mx.finerio.pfm.api.validation.BudgetCreateCommand
-
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
@@ -22,6 +18,7 @@ class Budget implements GormEntity<Budget> {
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
+    BigDecimal warningPercentage
 
     Budget(){}
 
@@ -31,6 +28,7 @@ class Budget implements GormEntity<Budget> {
         dateDeleted nullable:true
         systemCategory nullable:true
         category nullable:true
+        warningPercentage nullable: false
     }
 
     static mapping = {

@@ -22,6 +22,8 @@ databaseChangeLog:
   - include:
       file: db/budget.yaml
   - include:
+      file: db/budget_settings.yaml
+  - include:
       file: db/transaction.yaml
   - include:
       file: db/role_data.yaml

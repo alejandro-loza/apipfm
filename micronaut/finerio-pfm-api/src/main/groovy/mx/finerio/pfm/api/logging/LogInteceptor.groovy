@@ -3,13 +3,11 @@ package mx.finerio.pfm.api.logging
 import io.micronaut.aop.MethodInterceptor
 import io.micronaut.aop.MethodInvocationContext
 import io.micronaut.core.type.MutableArgumentValue
-
-import java.lang.reflect.Method
-
-import javax.inject.Singleton
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import javax.inject.Singleton
+import java.lang.reflect.Method
 
 @Singleton
 class LogInterceptor implements MethodInterceptor<Object, Object> {

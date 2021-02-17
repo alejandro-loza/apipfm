@@ -2,6 +2,8 @@ package mx.finerio.pfm.api.validation
 
 import groovy.transform.ToString
 
+import javax.annotation.Nullable
+import javax.validation.constraints.DecimalMin
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
@@ -20,5 +22,10 @@ class BudgetCreateCommand extends ValidationCommand{
 
     @NotNull(message= 'budget.amount.null')
     BigDecimal amount
+
+    @Nullable
+    @DecimalMin(value = "0.1")
+    @DecimalMin(value = "1.0")
+    BigDecimal warningPercentage
 
 }

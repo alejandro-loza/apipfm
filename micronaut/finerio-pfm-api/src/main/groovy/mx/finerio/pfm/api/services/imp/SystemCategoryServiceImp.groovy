@@ -2,10 +2,9 @@ package mx.finerio.pfm.api.services.imp
 
 import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
-import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.SystemCategoryService
 import mx.finerio.pfm.api.services.gorm.SystemCategoryGormService
-import mx.finerio.pfm.api.domain.Category
+
 import javax.inject.Inject
 
 class SystemCategoryServiceImp extends ServiceTemplate implements SystemCategoryService {

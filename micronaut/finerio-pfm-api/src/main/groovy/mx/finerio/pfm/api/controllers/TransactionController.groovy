@@ -7,7 +7,6 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
-import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.logging.Log
@@ -15,6 +14,7 @@ import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.TransactionService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
+import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 
 import javax.annotation.Nullable
@@ -50,13 +50,34 @@ class TransactionController {
     }
 
     @Log
-    @Get("{?cursor}")
+    @Get("{?cursor,categoryId,charge,minAmount,maxAmount,dateFrom,dateTo,description}")
     @Transactional
-    Single<ResourcesDto> showAll(@Nullable Long cursor, @QueryValue('accountId') Long accountId) {
+    Single<ResourcesDto> showAll(
+            @Nullable Long cursor,
+            @Nullable Long categoryId,
+            @Nullable Boolean charge,
+            @Nullable BigDecimal minAmount,
+            @Nullable BigDecimal maxAmount,
+            @Nullable Long dateFrom,
+            @Nullable Long dateTo,
+            @Nullable String description,
+            @QueryValue('accountId') Long accountId) {
+
+        TransactionFiltersCommand cmd = new TransactionFiltersCommand()
+         cmd.cursor = cursor
+         cmd.categoryId = categoryId
+         cmd.charge = charge
+         cmd.minAmount = minAmount
+         cmd.maxAmount = maxAmount
+         cmd.dateFrom = dateFrom
+         cmd.dateTo = dateTo
+         cmd.description = description
+
         Account account = accountService.getAccount(accountId)
+
         nextCursorService.generateResourcesDto( cursor ?
-                transactionsService.findAllByAccountAndCursor(account, cursor)
-                : transactionsService.findAllByAccount(account)
+                transactionsService.findAllByAccountAndCursor(account, cmd)
+                : transactionsService.findAllByAccountAndFilters(account,cmd)
         )
     }
 

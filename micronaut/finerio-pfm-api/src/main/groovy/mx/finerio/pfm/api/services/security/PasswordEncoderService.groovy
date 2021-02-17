@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services.security
 
 import io.micronaut.security.authentication.providers.PasswordEncoder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+
 import javax.inject.Singleton
 
 @Singleton

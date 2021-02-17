@@ -59,6 +59,9 @@ tags:
     description: Insights and datapoints about user financial information.
   - name: Webhooks
     description: A webhook is the URL of your server where we send you several information about your users.
+  - name: Webhooks bodies
+    description: These are the structures of the data you receive in each webhook you
+      register in the API.
 security:
   - bearerAuth: []
 paths:
@@ -1506,6 +1509,22 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '500':
           description: Something in the server was wrong.
+  /your/BUDGET_STATUS/webhook:
+    post:
+      security: []
+      tags:
+        - Webhooks bodies
+      summary: BUDGET_STATUS webhook body.
+      description: This is an example of the body sent to your BUDGET_STATUS webhook.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetStatusWebhook'
+      responses:
+        '200':
+          description: It is recommended that you send a 200 OK from your server.
 components:
   schemas:
     SignUpRequest:
@@ -2436,6 +2455,12 @@ components:
       type: string
       enum:
         - budget_status
+    BudgetStatusWebhook:
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        budget:
+          $ref: '#/components/schemas/Budget'
     Errors:
       description: A list of errors
       type: array

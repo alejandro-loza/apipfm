@@ -13,20 +13,16 @@ import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
-import mx.finerio.pfm.api.dtos.resource.FinancialEntityDto
-
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
-import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.ClientService
-import mx.finerio.pfm.api.services.UserService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.FinancialEntityCreateCommand
 import mx.finerio.pfm.api.validation.FinancialEntityUpdateCommand
-import org.junit.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 

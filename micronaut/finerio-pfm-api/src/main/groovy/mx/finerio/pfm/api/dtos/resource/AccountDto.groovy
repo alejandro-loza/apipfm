@@ -1,10 +1,7 @@
 package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
-
 import mx.finerio.pfm.api.domain.Account
-
-import java.text.DecimalFormat
 
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)
