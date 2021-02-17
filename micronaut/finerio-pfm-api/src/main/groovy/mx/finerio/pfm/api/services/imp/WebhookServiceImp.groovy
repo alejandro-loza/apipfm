@@ -27,7 +27,7 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
     @Override
     Webhook create(WebHookCreateCommand cmd) {
         verifyBody(cmd)
-        return webhookGormService.save(new Webhook(cmd))
+        return webhookGormService.save(new Webhook(cmd, getCurrentLoggedClient()))
     }
 
     @Override

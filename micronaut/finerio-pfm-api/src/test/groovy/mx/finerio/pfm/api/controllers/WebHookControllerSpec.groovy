@@ -147,6 +147,7 @@ class WebHookControllerSpec extends Specification {
         webhook.with {
             url = "www.google.com"
             nature = 'test nature'
+            webhook.client = loggedInClient
         }
         webhookGormService.save(webhook)
         webhook

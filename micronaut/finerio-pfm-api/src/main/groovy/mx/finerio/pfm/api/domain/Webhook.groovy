@@ -16,6 +16,7 @@ class Webhook  implements GormEntity<Webhook> {
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
+    Client client
 
     static constraints = {
         url nullable:false
@@ -29,9 +30,10 @@ class Webhook  implements GormEntity<Webhook> {
 
     Webhook(){}
 
-    Webhook(WebHookCreateCommand cmd){
+    Webhook(WebHookCreateCommand cmd, Client client){
         this.url = cmd.url
         this.nature = cmd.nature
+        this.client = client
     }
 
 }

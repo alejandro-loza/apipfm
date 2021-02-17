@@ -37,3 +37,20 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
+              - column:
+                  name: client_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: webhook_client_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: client_id
+            baseTableName: webhook
+            constraintName: fk_webhook_client
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: client
