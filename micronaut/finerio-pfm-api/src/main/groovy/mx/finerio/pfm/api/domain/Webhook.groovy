@@ -22,6 +22,7 @@ class Webhook  implements GormEntity<Webhook> {
         url nullable:false
         nature nullable:false
         dateDeleted nullable:true
+        nature unique: true
     }
 
     static mapping = {
