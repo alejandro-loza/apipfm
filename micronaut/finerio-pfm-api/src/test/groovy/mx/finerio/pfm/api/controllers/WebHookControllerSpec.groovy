@@ -16,6 +16,7 @@ import mx.finerio.pfm.api.domain.Webhook
 import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.dtos.resource.WebhookDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.WebhookGormService
 import mx.finerio.pfm.api.validation.UserCommand
@@ -61,12 +62,18 @@ class WebHookControllerSpec extends Specification {
         accessToken = rsp.body.get().accessToken
     }
 
+    void cleanup(){
+        webhookGormService.findAll().each {
+            webhookGormService.delete(it.id)
+        }
+    }
+
     def "Should create and get a webhook"(){
         given:'an webhook'
         WebHookCreateCommand cmd = new WebHookCreateCommand()
         cmd.with {
             url = "www.test.com"
-            nature = "test nature"
+            nature = BudgetStatusEnum.ok
         }
 
         HttpRequest request = HttpRequest.POST(WEBHOOK_ROOT, cmd).bearerAuth(accessToken)
@@ -77,7 +84,7 @@ class WebHookControllerSpec extends Specification {
         then:
         rsp.status == HttpStatus.OK
         assert  rsp.body().url == cmd.url
-        assert rsp.body().nature == cmd.nature
+        assert rsp.body().nature == cmd.nature.toString()
         assert rsp.body().id
     }
 
@@ -95,7 +102,7 @@ class WebHookControllerSpec extends Specification {
         then:
         assert rspGET.status == HttpStatus.OK
         assert rspGET.body().url == webhook.url
-        assert rspGET.body().nature == webhook.nature
+        assert rspGET.body().nature == webhook.nature.toString()
         assert rspGET.body().id == webhook.id
 
     }
@@ -119,7 +126,7 @@ class WebHookControllerSpec extends Specification {
         then:
         assert response.status == HttpStatus.OK
         assert response.body().url == cmd.url
-        assert response.body().nature == webhook.nature
+        assert response.body().nature == webhook.nature.toString()
         assert response.body().id == webhook.id
 
     }
@@ -146,7 +153,7 @@ class WebHookControllerSpec extends Specification {
         Webhook webhook = new Webhook()
         webhook.with {
             url = "www.google.com"
-            nature = 'test nature'
+            nature = BudgetStatusEnum.ok
             webhook.client = loggedInClient
         }
         webhookGormService.save(webhook)

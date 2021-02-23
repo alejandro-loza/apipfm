@@ -2,13 +2,10 @@ package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
 import mx.finerio.pfm.api.domain.Budget
-import mx.finerio.pfm.api.dtos.resource.ResourceDto
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 
 @ToString(includeNames = true, includePackage = false)
 class BudgetDto extends ResourceDto{
-    enum StatusEnum {
-        ok, warning, danger
-    }
 
     Long categoryId
     String name
@@ -16,7 +13,7 @@ class BudgetDto extends ResourceDto{
     float warningPercentage
     BigDecimal spent
     BigDecimal leftToSpend
-    StatusEnum status
+    BudgetStatusEnum status
 
     BudgetDto(){}
 

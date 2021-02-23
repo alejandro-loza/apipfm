@@ -2,17 +2,17 @@ package mx.finerio.pfm.api.domain
 
 import grails.gorm.annotation.Entity
 import groovy.transform.ToString
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.validation.WebHookCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
-@ToString(includeNames = true, includePackage = false,
-        includes = 'id, url, nature')
+@ToString(includeNames = true, includePackage = false, includes = 'id, url, nature')
 class Webhook  implements GormEntity<Webhook> {
 
     Long id
     String url
-    String nature
+    BudgetStatusEnum nature
     Date dateCreated
     Date lastUpdated
     Date dateDeleted

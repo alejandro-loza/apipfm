@@ -2,6 +2,8 @@ package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.SystemCategory
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.logging.Log
@@ -45,6 +47,12 @@ interface BudgetService {
     Budget findByUserAndCategory(User user, Category category)
 
     @Log
+    Budget findByUserAndSystemCategory(User user, SystemCategory systemCategory)
+
+    @Log
     Budget findByCategory(Category category)
+
+    @Log
+    BudgetDto findTransactionBudget(Transaction transaction)
 
 }

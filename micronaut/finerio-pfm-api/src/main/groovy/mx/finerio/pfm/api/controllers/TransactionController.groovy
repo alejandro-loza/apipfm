@@ -7,12 +7,17 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.logging.Log
 import mx.finerio.pfm.api.services.AccountService
+import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.NextCursorService
 import mx.finerio.pfm.api.services.TransactionService
+import mx.finerio.pfm.api.services.WebhookService
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
@@ -36,10 +41,16 @@ class TransactionController {
     @Inject
     NextCursorService nextCursorService
 
+    @Inject
+    WebhookService webhookService
+
     @Log
     @Post("/")
+    @Transactional
     Single<TransactionDto> save(@Body @Valid TransactionCreateCommand cmd){
-        Single.just(transactionsService.generateTransactionDto(transactionsService.create(cmd)))
+        Transaction transaction = transactionsService.create(cmd)
+        webhookService.verifyAndAlertTransactionBudgetAmount(transaction)
+        Single.just(transactionsService.generateTransactionDto(transaction))
     }
 
     @Log

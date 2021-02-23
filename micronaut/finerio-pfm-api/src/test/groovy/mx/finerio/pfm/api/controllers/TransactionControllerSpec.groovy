@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.*
@@ -58,6 +59,14 @@ class TransactionControllerSpec extends Specification {
     @Shared
     ClientService clientService
 
+    @Inject
+    @Shared
+    BudgetGormService budgetGormService
+
+    @Inject
+    @Shared
+    WebhookGormService webhookGormService
+
     @Shared
     mx.finerio.pfm.api.domain.Client loggedInClient
 
@@ -81,6 +90,16 @@ class TransactionControllerSpec extends Specification {
         List<Account> account = accountGormService.findAll()
         account.each {
             accountGormService.delete(it.id)
+        }
+
+        List<Budget> budgets = budgetGormService.findAll()
+        budgets.each {
+            budgetGormService.delete(it.id)
+        }
+
+        List<Category> categories = categoryGormService.findAll()
+        categories.each {
+            categoryGormService.delete(it.id)
         }
 
     }
@@ -929,6 +948,72 @@ class TransactionControllerSpec extends Specification {
 
     }
 
+    def "Should create a transaction and warning with budget warning percentage exceeded"(){
+        given:'an saved Account '
+        User user1 = generateUser()
+
+        FinancialEntity entity = generateEntity()
+
+        Account account1 = new Account()
+        account1.with {
+            user = user1
+            financialEntity = entity
+            nature = 'TEST NATURE'
+            name = 'TEST NAME'
+            number = 123412341234
+            balance = 1000.00
+            chargeable = true
+        }
+        accountGormService.save(account1)
+
+        def user = account1.user
+
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
+        and:'a saved budget'
+        Budget budget1 = new Budget()
+        budget1.with {
+            budget1.user = user
+            category = category1
+            name = 'test budget'
+            warningPercentage = 0.7
+            amount = 100.00
+        }
+        budgetGormService.save(budget1)
+
+        and:'a saved webhook'
+        Webhook webhook = new Webhook()
+        webhook.with {
+            url = "https://webhook.site/d2a8d7bc-b292-4a74-94e8-1185858da15a"
+            nature = BudgetStatusEnum.warning
+            webhook.client = loggedInClient
+        }
+        webhookGormService.save(webhook)
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = "UBER EATS"
+            amount= 80.00
+            categoryId = category1.id
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        rsp.body.get().categoryId == category1.id
+
+        assert accountGormService.getById(account1.id).balance == 920.00F
+    }
 
     private static TransactionCreateCommand generateTransactionCommand(Account account1) {
         def date1 = new Date()

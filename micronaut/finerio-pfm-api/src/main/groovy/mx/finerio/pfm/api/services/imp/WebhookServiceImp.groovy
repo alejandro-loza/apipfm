@@ -1,9 +1,15 @@
 package mx.finerio.pfm.api.services.imp
 
 import grails.gorm.transactions.Transactional
+import mx.finerio.pfm.api.clients.CallbackRestService
+import mx.finerio.pfm.api.domain.Client
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.Webhook
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.WebhookDto
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
+import mx.finerio.pfm.api.services.BudgetService
 import mx.finerio.pfm.api.services.WebhookService
 import mx.finerio.pfm.api.services.gorm.WebhookGormService
 import mx.finerio.pfm.api.validation.WebHookCreateCommand
@@ -17,6 +23,12 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
 
     @Inject
     WebhookGormService webhookGormService
+
+    @Inject
+    CallbackRestService callbackRestService
+
+    @Inject
+    BudgetService budgetService
 
     @Override
     Webhook find(long id) {
@@ -53,6 +65,22 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
     void delete(Webhook webhook){
         webhook.dateDeleted = new Date()
         webhookGormService.save(webhook)
+    }
+
+    @Override
+    void alertUserClientWebHook(Client client, BudgetStatusEnum nature ) {
+        Webhook webhook =  webhookGormService.findByClientAndNatureAndDateDeletedIsNull(client, nature)
+        if (webhook){
+            callbackRestService.post(webhook.url,["test":"test"])//todo change with correct payload
+        }
+    }
+
+    @Override
+    void verifyAndAlertTransactionBudgetAmount(Transaction transaction){
+        BudgetDto budgetDto = budgetService.findTransactionBudget(transaction)
+        if(budgetDto && budgetDto.status != BudgetStatusEnum.ok){
+            alertUserClientWebHook(transaction.account.user.client, budgetDto.status)
+        }
     }
 
 }

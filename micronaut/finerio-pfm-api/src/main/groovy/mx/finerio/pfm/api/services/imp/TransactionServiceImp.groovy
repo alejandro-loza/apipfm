@@ -3,10 +3,13 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
 import mx.finerio.pfm.api.domain.Account
+import mx.finerio.pfm.api.domain.Budget
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.*
@@ -60,9 +63,11 @@ class TransactionServiceImp  implements TransactionService {
             tryToSetSystemCategoryByCategorizer(cmd, transaction)
         }
         transactionGormService.save(transaction)
+
         if(transactionAccount.chargeable) {
             accountService.updateBalanceByTransaction(transaction)
         }
+
         return transaction
     }
 

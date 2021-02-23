@@ -3,6 +3,7 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.BudgetDto
+import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.*
@@ -123,8 +124,25 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     }
 
     @Override
+    Budget findByUserAndSystemCategory(User user, SystemCategory systemCategory){
+        budgetGormService.findByUserAndSystemCategoryAndDateDeletedIsNull(user, systemCategory)
+    }
+
+    @Override
     Budget findByCategory(Category category) {
         budgetGormService.findByCategoryAndDateDeletedIsNull(category)
+    }
+
+    @Override
+    @Transactional
+    BudgetDto findTransactionBudget(Transaction transaction){
+        Budget budget = transaction.systemCategory ?
+                findByUserAndSystemCategory(transaction.account.user, transaction.systemCategory)
+                : findByUserAndCategory(transaction.account.user, transaction.category)
+        if(budget){
+           return crateBudgetDtoWithAnalysis( budget)
+        }
+        null
     }
 
     private List<BudgetDto> generateBudgetsDtos(User user, List<Budget> budgets) {
@@ -158,16 +176,16 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         categoryToSet
     }
 
-    private static BudgetDto.StatusEnum calculateStatus(Budget budget, float spend) {
+    private static BudgetStatusEnum calculateStatus(Budget budget, float spend) {
         def limit = budget.amount * budget.warningPercentage
         if(spend < limit ){
-            return BudgetDto.StatusEnum.ok
+            return BudgetStatusEnum.ok
         }
         if(spend >= limit && spend < budget.amount){
-            return BudgetDto.StatusEnum.warning
+            return BudgetStatusEnum.warning
         }
         else{
-            return BudgetDto.StatusEnum.danger
+            return BudgetStatusEnum.danger
         }
     }
 
@@ -229,7 +247,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     }
 
     private BudgetDto crateBudgetDtoWithAnalysis(Budget budget) {
-        List<Transaction> thisMonthTransactions = budget.systemCategory ?
+        List<Transaction> thisMonthTransactions = budget?.systemCategory != null ?
                 getThisMonthUserAccountsSystemCategoryExpenses(budget)
                 : transactionService
                 .findAllByCategoryChargeAndDateFrom(budget.category, THIS_MONTH_FIRST_DAY, EXPENSE)
