@@ -16,7 +16,7 @@ interface WebhookGormService {
 
     List<Webhook> findAll()
 
-    Webhook findByClientAndNatureAndDateDeletedIsNull(Client client, BudgetStatusEnum nature)
+    Webhook findByClientAndNatureAndDateDeletedIsNull(Client client, String nature)
 
     void delete(Serializable id)
 }

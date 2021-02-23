@@ -69,7 +69,7 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
 
     @Override
     void alertUserClientWebHook(Client client, BudgetStatusEnum nature ) {
-        Webhook webhook =  webhookGormService.findByClientAndNatureAndDateDeletedIsNull(client, nature)
+        Webhook webhook =  webhookGormService.findByClientAndNatureAndDateDeletedIsNull(client, nature.toString())
         if (webhook){
             callbackRestService.post(webhook.url,["test":"test"])//todo change with correct payload
         }
