@@ -33,6 +33,7 @@ dependencies {
     implementation "io.micronaut:micronaut-http-client"
     implementation 'io.micronaut.configuration:micronaut-liquibase'
     implementation 'org.liquibase:liquibase-groovy-dsl:2.0.3'
+    compile group: 'com.oracle.ojdbc', name: 'ojdbc8', version: '19.3.0.0'
 
     annotationProcessor "io.micronaut:micronaut-security-annotations:2.0.0.BUILD-SNAPSHOT"
     implementation "io.micronaut:micronaut-security-jwt"
