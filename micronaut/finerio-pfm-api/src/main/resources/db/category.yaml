@@ -9,9 +9,7 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: true
                   constraints:
-                    primaryKey: true
                     nullable: false
               - column:
                   name: version
@@ -54,39 +52,3 @@ databaseChangeLog:
                   type: DATETIME(6)
                   constraints:
                     nullable: true
-  - changeSet:
-      id: category_client_fk
-      author: alejandro.hernandez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: client_id
-            baseTableName: category
-            constraintName: fk_category_client
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: client
-  - changeSet:
-      id: category_parent_fk
-      author: alejandro.hernandez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: parent_id
-            baseTableName: category
-            constraintName: fk_category_parent
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: category
-  - changeSet:
-      id: category_user_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: user_id
-            baseTableName: category
-            constraintName: fk_category_user
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: user
