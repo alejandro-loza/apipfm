@@ -1,62 +1,66 @@
 databaseChangeLog:
-    - changeSet:
-          id: category_id_pk
-          author: alejandro.hernandez
-          changes:
-              - addPrimaryKey:
-                    clustered: true
-                    columnNames: id
-                    constraintName: pk_category
-                    schemaName: pfm_api
-                    tableName: category
-                    tablespace: A String
-                    validate: true
-    - changeSet:
-          id: category_auto_increment
-          author: alejandro.garcia
-          changes:
-              - addAutoIncrement:
-                    columnName: id
-                    columnDataType: BIGINT
-                    defaultOnNull: false
-                    generationType: ALWAYS
-                    incrementBy: 1
-                    startWith: 91
-                    tableName: category
+  - changeSet:
+      id: category_id_pk
+      author: alejandro.hernandez
+      preConditions:
+        - or:
+          - dbms:
+             type: mysql
+      changes:
+        - addPrimaryKey:
+            clustered: true
+            columnNames: id
+            constraintName: pk_category
+            schemaName: pfm_api
+            tableName: category
+            tablespace: A String
+            validate: true
+  - changeSet:
+      id: category_auto_increment
+      author: alejandro.garcia
+      changes:
+        - addAutoIncrement:
+            columnName: id
+            columnDataType: BIGINT
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
+            startWith: 91
+            tableName: category
 
-    - changeSet:
-            id: category_client_fk
-            author: alejandro.hernandez
-            changes:
-                  - addForeignKeyConstraint:
-                          baseColumnNames: client_id
-                          baseTableName: category
-                          constraintName: fk_category_client
-                          deferrable: false
-                          initiallyDeferred: false
-                          referencedColumnNames: id
-                          referencedTableName: client
-    - changeSet:
-            id: category_parent_fk
-            author: alejandro.hernandez
-            changes:
-                  - addForeignKeyConstraint:
-                          baseColumnNames: parent_id
-                          baseTableName: category
-                          constraintName: fk_category_parent
-                          deferrable: false
-                          initiallyDeferred: false
-                          referencedColumnNames: id
-                          referencedTableName: category
-    - changeSet:
-            id: category_user_fk
-            author: alejandro.hernnadez
-            changes:
-                  - addForeignKeyConstraint:
-                          baseColumnNames: user_id
-                          baseTableName: category
-                          constraintName: fk_category_user
-                          deferrable: false
-                          initiallyDeferred: false
-                          referencedColumnNames: id
-                          referencedTableName: user
+  - changeSet:
+      id: category_client_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: client_id
+            baseTableName: category
+            constraintName: fk_category_client
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: client
+  - changeSet:
+      id: category_parent_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: parent_id
+            baseTableName: category
+            constraintName: fk_category_parent
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: category
+  - changeSet:
+      id: category_user_fk
+      author: alejandro.hernnadez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: category
+            constraintName: fk_category_user
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: user
