@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: category_auto_increment
+      author: alejandro.garcia
+      - preConditions:
+        - or:
+            - dbms:
+              type: mysql
+      changes:
+        - addAutoIncrement:
+            columnName: id
+            columnDataType: BIGINT
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
+            startWith: 91
+            tableName: category
