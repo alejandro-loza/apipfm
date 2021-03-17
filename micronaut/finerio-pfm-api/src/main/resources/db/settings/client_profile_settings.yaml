@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: client_profile_id_pk
+      author: alejandro.hernandez
+      preConditions:
+        - or:
+            - dbms:
+                type: mysql
+      changes:
+        - addPrimaryKey:
+            clustered: true
+            columnNames: id
+            constraintName: pk_client_profile
+            tableName: client_profile
+            validate: true
+        - addAutoIncrement:
+            columnName: id
+            columnDataType: BIGINT
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
+            startWith: 1
+            tableName: client_profile
+  - changeSet:
+        id: client_profile_client_fk
+        author: alejandro.hernandez
+        changes:
+            - addForeignKeyConstraint:
+                  baseColumnNames: client_id
+                  baseTableName: client_profile
+                  constraintName: fk_client_profile_client
+                  deferrable: false
+                  initiallyDeferred: false
+                  referencedColumnNames: id
+                  referencedTableName: client

@@ -10,15 +10,27 @@ databaseChangeLog:
   - include:
       file: db/role.yaml
   - include:
+      file: db/settings/role_settings.yaml
+  - include:
       file: db/client_profile.yaml
+  - include:
+      file: db/settings/client_profile_settings.yaml
   - include:
       file: db/client_role.yaml
   - include:
+      file: db/settings/client_role_settings.yaml
+  - include:
       file: db/user.yaml
+  - include:
+      file: db/settings/user_settings.yaml
   - include:
       file: db/account.yaml
   - include:
+      file: db/settings/account_settings.yaml
+  - include:
       file: db/system_category.yaml
+  - include:
+      file: db/settings/system_category_settings.yaml
   - include:
       file: db/system_category_data.yaml
   - include:
@@ -28,8 +40,10 @@ databaseChangeLog:
   - include:
       file: db/budget.yaml
   - include:
-      file: db/budget_settings.yaml
+      file: db/settings/budget_settings.yaml
   - include:
       file: db/transaction.yaml
+  - include:
+      file: db/settings/transaction_settings.yaml
   - include:
       file: db/role_data.yaml

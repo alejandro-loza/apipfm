@@ -11,7 +11,6 @@ databaseChangeLog:
             clustered: true
             columnNames: id
             constraintName: pk_category
-            schemaName: pfm_api
             tableName: category
             validate: true
   - changeSet:

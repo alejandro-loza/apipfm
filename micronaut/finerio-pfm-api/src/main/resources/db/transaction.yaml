@@ -9,9 +9,7 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: true
                   constraints:
-                    primaryKey: true
                     nullable: false
               - column:
                   name: version
@@ -62,39 +60,3 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
-  - changeSet:
-      id: transaction_account_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: account_id
-            baseTableName: transaction
-            constraintName: fk_transaction_account
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: account
-  - changeSet:
-      id: transaction_system_category_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: system_category_id
-            baseTableName: transaction
-            constraintName: fk_transaction_system_category
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: system_category
-  - changeSet:
-      id: transaction_category_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: category_id
-            baseTableName: transaction
-            constraintName: fk_transaction_category
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: category

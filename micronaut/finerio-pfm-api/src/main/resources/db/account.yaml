@@ -9,9 +9,7 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: true
                   constraints:
-                    primaryKey: true
                     nullable: false
               - column:
                   name: version
@@ -68,27 +66,3 @@ databaseChangeLog:
                   type: BOOLEAN
                   constraints:
                     nullable: false
-  - changeSet:
-      id: account_user_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: user_id
-            baseTableName: account
-            constraintName: fk_account_user
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: user
-  - changeSet:
-      id: account_financial_entity_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: financial_entity_id
-            baseTableName: account
-            constraintName: fk_account_financial_entity
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: financial_entity

@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: system_category_id_pk
+      author: alejandro.hernandez
+      preConditions:
+        - or:
+            - dbms:
+                type: mysql
+      changes:
+        - addPrimaryKey:
+            clustered: true
+            columnNames: id
+            constraintName: pk_system_category
+            tableName: system_category
+            validate: true
+        - addAutoIncrement:
+            columnName: id
+            columnDataType: BIGINT
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
+            startWith: 1
+            tableName: system_category
+
+  - changeSet:
+        id: system_category_parent_fk
+        author: alejandro.hernandez
+        changes:
+            - addForeignKeyConstraint:
+                  baseColumnNames: parent_id
+                  baseTableName: system_category
+                  constraintName: fk_system_category_parent
+                  deferrable: false
+                  initiallyDeferred: false
+                  referencedColumnNames: id
+                  referencedTableName: system_category

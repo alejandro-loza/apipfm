@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: budget_id_pk
+      author: alejandro.hernandez
+      preConditions:
+        - or:
+            - dbms:
+                type: mysql
+      changes:
+        - addPrimaryKey:
+            clustered: true
+            columnNames: id
+            constraintName: pk_budget
+            tableName: budget
+            validate: true
+        - addAutoIncrement:
+            columnName: id
+            columnDataType: BIGINT
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
+            startWith: 1
+            tableName: budget
+
+  - changeSet:
+      id: budget_category_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: category_id
+            baseTableName: budget
+            constraintName: fk_budget_category
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: category
+        - changeSet:
+            id: budget_system_category_fk
+            author: alejandro.hernandez
+            changes:
+              - addForeignKeyConstraint:
+                  baseColumnNames: system_category_id
+                  baseTableName: budget
+                  constraintName: fk_budget_system_category
+                  deferrable: false
+                  initiallyDeferred: false
+                  referencedColumnNames: id
+                  referencedTableName: system_category
+        - changeSet:
+            id: budget_user_fk
+            author: alejandro.hernandez
+            changes:
+              - addForeignKeyConstraint:
+                  baseColumnNames: user_id
+                  baseTableName: budget
+                  constraintName: fk_budget_user
+                  deferrable: false
+                  initiallyDeferred: false
+                  referencedColumnNames: id
+                  referencedTableName: user
+
+  - changeSet:
+      id: budget
+      author: alejandro.hernandez
+      changes:
+      - addColumn:
+            tableName: budget
+            columns:
+              - column:
+                  name: warning_percentage
+                  type: DECIMAL(18,12)
+                  constraints:
+                    nullable: false

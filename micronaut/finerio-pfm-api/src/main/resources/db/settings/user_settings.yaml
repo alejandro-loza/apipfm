@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: client_id_pk
+      id: user_id_pk
       author: alejandro.hernandez
       preConditions:
         - or:
@@ -10,8 +10,8 @@ databaseChangeLog:
         - addPrimaryKey:
             clustered: true
             columnNames: id
-            constraintName: pk_client
-            tableName: client
+            constraintName: pk_user
+            tableName: user
             validate: true
         - addAutoIncrement:
             columnName: id
@@ -20,4 +20,4 @@ databaseChangeLog:
             generationType: ALWAYS
             incrementBy: 1
             startWith: 1
-            tableName: client
+            tableName: user

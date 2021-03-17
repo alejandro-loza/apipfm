@@ -9,9 +9,7 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: true
                   constraints:
-                    primaryKey: true
                     nullable: false
               - column:
                   name: version
@@ -52,39 +50,3 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
-  - changeSet:
-      id: budget_category_fk
-      author: alejandro.hernandez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: category_id
-            baseTableName: budget
-            constraintName: fk_budget_category
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: category
-  - changeSet:
-      id: budget_system_category_fk
-      author: alejandro.hernandez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: system_category_id
-            baseTableName: budget
-            constraintName: fk_budget_system_category
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: system_category
-  - changeSet:
-      id: budget_user_fk
-      author: alejandro.hernandez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: user_id
-            baseTableName: budget
-            constraintName: fk_budget_user
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: user
