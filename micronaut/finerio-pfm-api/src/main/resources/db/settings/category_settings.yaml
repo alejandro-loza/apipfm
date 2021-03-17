@@ -5,7 +5,7 @@ databaseChangeLog:
       preConditions:
         - or:
           - dbms:
-             type: mysql
+             type:  mysql,h2
       changes:
         - addPrimaryKey:
             clustered: true
