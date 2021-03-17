@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: client_id_pk
+      author: alejandro.hernandez
+      preConditions:
+        - or:
+            - dbms:
+                type: mysql
+      changes:
+        - addPrimaryKey:
+            clustered: true
+            columnNames: id
+            constraintName: pk_client
+            schemaName: pfm_api
+            tableName: client
+            validate: true
+        - addAutoIncrement:
+            columnName: id
+            columnDataType: BIGINT
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
+            startWith: 1
+            tableName: client

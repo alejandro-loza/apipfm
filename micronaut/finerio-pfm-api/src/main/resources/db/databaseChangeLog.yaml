@@ -2,7 +2,11 @@ databaseChangeLog:
   - include:
       file: db/client.yaml
   - include:
+      file: db/settings/client_settings.yaml
+  - include:
       file: db/financial_entity.yaml
+  - include:
+      file: db/settings/financial_entity_settings.yaml
   - include:
       file: db/role.yaml
   - include:
@@ -20,7 +24,7 @@ databaseChangeLog:
   - include:
       file: db/category.yaml
   - include:
-      file: db/category_settings.yaml
+      file: db/settings/category_settings.yaml
   - include:
       file: db/budget.yaml
   - include:

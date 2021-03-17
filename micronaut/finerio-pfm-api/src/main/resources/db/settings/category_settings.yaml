@@ -13,7 +13,6 @@ databaseChangeLog:
             constraintName: pk_category
             schemaName: pfm_api
             tableName: category
-            tablespace: A String
             validate: true
   - changeSet:
       id: category_auto_increment
