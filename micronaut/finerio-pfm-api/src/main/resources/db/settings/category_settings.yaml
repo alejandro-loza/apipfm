@@ -1,21 +1,8 @@
 databaseChangeLog:
   - changeSet:
-      id: category_id_pk
-      author: alejandro.hernandez
-      preConditions:
-        - or:
-          - dbms:
-             type:  mysql,h2
-      changes:
-        - addPrimaryKey:
-            clustered: true
-            columnNames: id
-            constraintName: pk_category
-            tableName: category
-            validate: true
-  - changeSet:
       id: category_auto_increment
       author: alejandro.garcia
+      dbms: mysql,h2
       changes:
         - addAutoIncrement:
             columnName: id

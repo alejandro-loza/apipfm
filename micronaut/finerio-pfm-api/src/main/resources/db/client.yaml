@@ -10,6 +10,7 @@ databaseChangeLog:
                   name: id
                   type: BIGINT
                   constraints:
+                    primaryKey: true
                     nullable: false
               - column:
                   name: version

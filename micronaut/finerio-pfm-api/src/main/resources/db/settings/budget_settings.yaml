@@ -2,17 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: budget_id_pk
       author: alejandro.hernandez
+      dbms: mysql,h2
       preConditions:
         - or:
             - dbms:
                 type:  mysql,h2
       changes:
-        - addPrimaryKey:
-            clustered: true
-            columnNames: id
-            constraintName: pk_budget
-            tableName: budget
-            validate: true
         - addAutoIncrement:
             columnName: id
             columnDataType: BIGINT

@@ -2,17 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: client_id_pk
       author: alejandro.hernandez
+      dbms: mysql,h2
       preConditions:
         - or:
             - dbms:
                 type:  mysql,h2
       changes:
-        - addPrimaryKey:
-            clustered: true
-            columnNames: id
-            constraintName: pk_client
-            tableName: client
-            validate: true
         - addAutoIncrement:
             columnName: id
             columnDataType: BIGINT
