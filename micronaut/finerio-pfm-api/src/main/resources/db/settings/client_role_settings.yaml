@@ -16,3 +16,17 @@ databaseChangeLog:
             incrementBy: 1
             startWith: 1
             tableName: client_role
+  - changeSet:
+        id: client_role_sequence_pk
+        author: alejandro.hernandez
+        dbms: oracle
+        changes:
+            - createSequence:
+                  cacheSize: 371717
+                  cycle: true
+                  dataType: int
+                  maxValue: 10000000
+                  incrementBy: 1
+                  ordered: true
+                  sequenceName: client_role_seq_id
+                  startValue: 1

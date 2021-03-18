@@ -17,6 +17,20 @@ databaseChangeLog:
             startWith: 1
             tableName: transaction
   - changeSet:
+      id: transaction_sequence_pk
+      author: alejandro.hernandez
+      dbms: oracle
+      changes:
+        - createSequence:
+            cacheSize: 371717
+            cycle: true
+            dataType: int
+            maxValue: 10000000
+            incrementBy: 1
+            ordered: true
+            sequenceName: transaction_seq_id
+            startValue: 1
+  - changeSet:
         id: transaction_account_fk
         author: alejandro.hernnadez
         changes:

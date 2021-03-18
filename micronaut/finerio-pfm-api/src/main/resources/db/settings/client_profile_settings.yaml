@@ -17,6 +17,21 @@ databaseChangeLog:
             startWith: 1
             tableName: client_profile
   - changeSet:
+      id: client_profile_sequence_pk
+      author: alejandro.hernandez
+      dbms: oracle
+      changes:
+        - createSequence:
+            cacheSize: 371717
+            catalogName: client_profile
+            cycle: true
+            dataType: int
+            maxValue: 10000000
+            incrementBy: 1
+            ordered: true
+            sequenceName: client_profile_seq_id
+            startValue: 1
+  - changeSet:
         id: client_profile_client_fk
         author: alejandro.hernandez
         changes:
