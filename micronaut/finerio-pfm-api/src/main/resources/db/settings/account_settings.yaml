@@ -8,29 +8,49 @@ databaseChangeLog:
                     - dbms:
                           type: mysql,h2
           changes:
-              - addAutoIncrement:
-                    columnName: id
-                    columnDataType: BIGINT
-                    defaultOnNull: false
-                    generationType: ALWAYS
-                    incrementBy: 1
-                    startWith: 1
-                    tableName: account
+            - addColumn:
+                tableName: account
+                columns:
+                  - column:
+                      name: id
+                      type: BIGINT
+                      autoIncrement: true
+                      constraints:
+                        nullable: false
+                        primaryKey: true
     - changeSet:
             id: account_sequence_pk
             author: alejandro.hernandez
             dbms: oracle
             changes:
-                  - createSequence:
-                          cacheSize: 371717
-                          catalogName: account
-                          cycle: true
-                          dataType: int
-                          maxValue: 10000000
-                          incrementBy: 1
-                          ordered: true
-                          sequenceName: account_seq_id
-                          startValue: 1
+              - createSequence:
+                  cacheSize: 371717
+                  cycle: true
+                  dataType: int
+                  maxValue: 10000000
+                  incrementBy: 1
+                  ordered: true
+                  sequenceName: account_seq
+                  startValue: 1
+    - changeSet:
+        id: account_oracle_id_pk
+        author: alejandro.hernandez
+        dbms: oracle
+        preConditions:
+          - or:
+              - dbms:
+                  type: oracle
+        changes:
+          - addColumn:
+              tableName: account
+              columns:
+                - column:
+                    name: id
+                    type: SERIAL
+                    valueComputed: account_seq.NEXTVAL
+                    constraints:
+                      nullable: false
+                      primaryKey: true
     - changeSet:
           id: account_user_fk
           author: alejandro.hernnadez

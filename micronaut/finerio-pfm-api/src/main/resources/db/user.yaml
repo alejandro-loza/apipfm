@@ -1,17 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: user
+      id: users
       author: alejandro.hernandez
       changes:
         - createTable:
             tableName: user
             columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  constraints:
-                    primaryKey: true
-                    nullable: false
               - column:
                   name: version
                   type: BIGINT
@@ -33,15 +27,3 @@ databaseChangeLog:
               - column:
                   name: date_deleted
                   type: DATETIME(6)
-  - changeSet:
-      id: user_client_fk
-      author: alejandro.hernnadez
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: client_id
-            baseTableName: user
-            constraintName: fk_user_client
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: client

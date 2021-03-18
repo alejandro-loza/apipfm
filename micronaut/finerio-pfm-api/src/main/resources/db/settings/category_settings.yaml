@@ -4,6 +4,15 @@ databaseChangeLog:
       author: alejandro.garcia
       dbms: mysql,h2
       changes:
+        - addColumn:
+            tableName: category
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    primaryKey: true
         - addAutoIncrement:
             columnName: id
             columnDataType: BIGINT
@@ -17,17 +26,34 @@ databaseChangeLog:
         author: alejandro.hernandez
         dbms: oracle
         changes:
-            - createSequence:
-                  cacheSize: 371717
-                  catalogName: category
-                  cycle: true
-                  dataType: int
-                  maxValue: 10000000
-                  incrementBy: 1
-                  ordered: true
-                  sequenceName: category_seq_id
-                  startValue: 1
-
+          - createSequence:
+              cacheSize: 371717
+              cycle: true
+              dataType: int
+              maxValue: 10000000
+              incrementBy: 1
+              ordered: true
+              sequenceName: category_seq
+              startValue: 91
+  - changeSet:
+      id: category_oracle_id_pk
+      author: alejandro.hernandez
+      dbms: oracle
+      preConditions:
+        - or:
+            - dbms:
+                type: oracle
+      changes:
+        - addColumn:
+            tableName: category
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  valueComputed: category_seq.NEXTVAL
+                  constraints:
+                    nullable: false
+                    primaryKey: true
   - changeSet:
       id: category_client_fk
       author: alejandro.hernandez
