@@ -44,6 +44,10 @@ databaseChangeLog:
   - include:
       file: db/settings/transaction_settings.yaml
   - include:
-      file: db/role_data.yaml
+      file: db/data/role_data.yaml
   - include:
-      file: db/system_category_data.yaml
+      file: db/data/role_oracle_data.yaml
+  - include:
+      file: db/data/system_category_data.yaml
+  - include:
+      file: db/data/system_category_oracle_data.yaml

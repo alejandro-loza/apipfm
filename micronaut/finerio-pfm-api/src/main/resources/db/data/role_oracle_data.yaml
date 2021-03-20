@@ -1,11 +1,15 @@
 databaseChangeLog:
   - changeSet:
       id: role_data
-      author: alejandro.garcia
+      author: alejandro.hernandez
+      dbms: oracle
       changes:
         - insert:
             tableName: role
             columns:
+              - column:
+                  name: id
+                  valueComputed: role_seq.NEXTVAL
               - column:
                   name: version
                   value: 0

@@ -7,12 +7,6 @@ databaseChangeLog:
             tableName: transaction
             columns:
               - column:
-                  name: id
-                  type: BIGINT
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
                   name: version
                   type: BIGINT
                   constraints:

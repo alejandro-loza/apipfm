@@ -7,12 +7,6 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
-                  name: id
-                  type: BIGINT
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
                   name: version
                   type: BIGINT
                   constraints:

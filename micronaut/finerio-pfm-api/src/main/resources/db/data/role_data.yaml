@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: role_data
+      author: alejandro.garcia
+      dbms: mysql,h2
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: authority
+                  value: 'ROLE_CLIENT'

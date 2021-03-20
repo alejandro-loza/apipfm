@@ -2,10 +2,17 @@ databaseChangeLog:
   - changeSet:
       id: system_category_data
       author: alejandro.hernandez
+      dbms: oracle
       changes:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -22,6 +29,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -36,6 +46,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -52,6 +65,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -66,6 +82,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -82,6 +101,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -96,6 +118,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -112,6 +137,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -126,6 +154,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -142,6 +173,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -156,6 +190,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -172,6 +209,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -186,6 +226,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -205,6 +248,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -222,6 +268,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -241,6 +290,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -258,6 +310,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -277,6 +332,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -294,6 +352,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -313,6 +374,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -330,6 +394,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -349,6 +416,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -366,6 +436,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -385,6 +458,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -402,6 +478,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -421,6 +500,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -438,6 +520,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -457,6 +542,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -474,6 +562,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -493,6 +584,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -510,6 +604,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -529,6 +626,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -546,6 +646,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -565,6 +668,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -582,6 +688,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -601,6 +710,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -618,6 +730,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -637,6 +752,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -654,6 +772,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -673,6 +794,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -690,6 +814,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -709,6 +836,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -726,6 +856,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -745,6 +878,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -762,6 +898,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -781,6 +920,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -798,6 +940,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -817,6 +962,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -834,6 +982,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -853,6 +1004,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -870,6 +1024,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -889,6 +1046,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -906,6 +1066,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -925,6 +1088,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -942,6 +1108,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -961,6 +1130,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -978,6 +1150,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -997,6 +1172,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1014,6 +1192,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1033,6 +1214,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1050,6 +1234,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1069,6 +1256,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1086,6 +1276,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1105,6 +1298,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1122,6 +1318,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1141,6 +1340,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1158,6 +1360,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1177,6 +1382,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1194,6 +1402,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1213,6 +1424,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1230,6 +1444,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1249,6 +1466,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1266,6 +1486,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1285,6 +1508,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1302,6 +1528,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1321,6 +1550,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1338,6 +1570,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1357,6 +1592,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1374,6 +1612,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1393,6 +1634,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1410,6 +1654,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1429,6 +1676,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1446,6 +1696,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1465,6 +1718,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1482,6 +1738,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1501,6 +1760,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1518,6 +1780,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0
@@ -1537,6 +1802,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1555,6 +1823,9 @@ databaseChangeLog:
             tableName: system_category
             columns:
               - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
                   name: version
                   value: 0
               - column:
@@ -1572,6 +1843,9 @@ databaseChangeLog:
         - insert:
             tableName: system_category
             columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
               - column:
                   name: version
                   value: 0

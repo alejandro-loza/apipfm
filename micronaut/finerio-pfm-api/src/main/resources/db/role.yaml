@@ -10,10 +10,10 @@ databaseChangeLog:
                   name: version
                   type: BIGINT
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: authority
                   type: java.sql.Types.VARCHAR(255)
                   constraints:
-                    nullable: false
+                    nullable: true
                     unique: true
