@@ -26,6 +26,7 @@ class FinancialEntity implements GormEntity<FinancialEntity> {
     }
 
     static constraints = {
+		id generator: 'native', params:[sequence:'FINANCIAL_ENTITY_SEQ']
         name nullable: false, blank:false
         code nullable: false, blank:false
         dateDeleted nullable:true
