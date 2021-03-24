@@ -54,7 +54,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
                     : account.financialEntity
             nature = cmd.nature ?: account.nature
             name = cmd.name ?: account.name
-            number = cmd.number ?: account.number
+            cardNumber = cmd.number ?: account.cardNumber
             balance = cmd.balance ?: account.balance
             chargeable = cmd.chargeable != null  ? cmd.chargeable : account.chargeable
         }

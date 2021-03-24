@@ -271,7 +271,7 @@ class BudgetServiceSpec extends Specification {
 
         Transaction transaction1 = new Transaction()
         transaction1.with {
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'system category transaction'
             amount = 50
@@ -281,7 +281,7 @@ class BudgetServiceSpec extends Specification {
 
         Transaction transaction2 = new Transaction()
         transaction2.with {
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'system category transaction'
             amount = 20
@@ -331,7 +331,7 @@ class BudgetServiceSpec extends Specification {
 
         Transaction transaction1 = new Transaction()
         transaction1.with {
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'system category transaction'
             amount = 50
@@ -341,7 +341,7 @@ class BudgetServiceSpec extends Specification {
 
         Transaction transaction2 = new Transaction()
         transaction2.with {
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'system category transaction'
             amount = 10
@@ -391,7 +391,7 @@ class BudgetServiceSpec extends Specification {
 
         Transaction transaction1 = new Transaction()
         transaction1.with {
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'system category transaction'
             amount = 50
@@ -401,7 +401,7 @@ class BudgetServiceSpec extends Specification {
 
         Transaction transaction2 = new Transaction()
         transaction2.with {
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'system category transaction'
             amount = 150

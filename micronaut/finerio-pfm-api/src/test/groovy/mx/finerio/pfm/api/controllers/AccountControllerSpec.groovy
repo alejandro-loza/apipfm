@@ -369,7 +369,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity1
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
             chargeable = true
         }
@@ -421,7 +421,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity1
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account)
@@ -444,7 +444,7 @@ class AccountControllerSpec extends Specification {
         resp.body().with {
             nature == account.nature
             name == account.name
-            number == account.number
+            number == account.cardNumber
             balance == account.balance
         }
 
@@ -516,7 +516,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         account.dateDeleted = new Date()
@@ -528,7 +528,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account2)
@@ -561,7 +561,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account)
@@ -572,7 +572,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account2)
@@ -583,7 +583,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account3)
@@ -692,7 +692,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account)
@@ -732,7 +732,7 @@ class AccountControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account)
@@ -740,7 +740,7 @@ class AccountControllerSpec extends Specification {
         and: 'a saved transaction how has set the account'
         Transaction transaction = new Transaction()
         transaction.with {
-            date = new Date()
+            executionDate = new Date()
             description = 'test description'
             amount = 1000.00
             transaction.account = account

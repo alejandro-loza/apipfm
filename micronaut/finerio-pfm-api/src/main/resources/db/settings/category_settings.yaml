@@ -89,4 +89,4 @@ databaseChangeLog:
             deferrable: false
             initiallyDeferred: false
             referencedColumnNames: id
-            referencedTableName: user
+            referencedTableName: users

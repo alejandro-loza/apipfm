@@ -2,7 +2,6 @@ package mx.finerio.pfm.api.dtos.resource
 
 import groovy.transform.ToString
 import mx.finerio.pfm.api.domain.Transaction
-import mx.finerio.pfm.api.dtos.resource.ResourceDto
 
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)
@@ -16,7 +15,7 @@ class TransactionDto extends ResourceDto{
 
     TransactionDto(Transaction transaction) {
         this.id = transaction.id
-        this.date = transaction.date
+        this.date = transaction.executionDate
         this.charge = transaction.charge
         this.description = transaction.description
         this.amount =  new BigDecimal(transaction.amount).setScale(2,BigDecimal.ROUND_HALF_UP)

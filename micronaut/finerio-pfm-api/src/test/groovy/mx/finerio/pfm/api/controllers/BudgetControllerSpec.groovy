@@ -679,7 +679,7 @@ class BudgetControllerSpec extends Specification {
             financialEntity = entity
             nature = 'test'
             name = 'test'
-            number = 1234123412341234
+            cardNumber = 1234123412341234
             balance = 0.0
         }
         accountGormService.save(account)
@@ -688,7 +688,7 @@ class BudgetControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             transaction.account = account
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = "UBER EATS"
             amount= 200

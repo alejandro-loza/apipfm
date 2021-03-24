@@ -32,7 +32,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: number
+                  name: card_number
                   type: java.sql.Types.VARCHAR(100)
                   constraints:
                     nullable: false

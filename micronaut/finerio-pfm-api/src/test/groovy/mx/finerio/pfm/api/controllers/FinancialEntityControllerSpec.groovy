@@ -587,7 +587,7 @@ class FinancialEntityControllerSpec extends Specification {
         account.with {
             financialEntity = financialEntity1
             name = 'test name'
-            number = 'test number'
+            cardNumber = 'test number'
             nature = 'test nature'
             user = awesomeUser
         }

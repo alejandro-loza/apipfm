@@ -15,13 +15,13 @@ interface TransactionGormService {
     List<Transaction> findAllByDateDeletedIsNull(Map args)
     List<Transaction> findAllByDateDeletedIsNullAndIdLessThanEquals(Long id, Map args)
     List<Transaction> findAllByAccountAndIdLessThanEqualsAndDateDeletedIsNull(Account account, Long id, Map args)
-    List<Transaction> findAllByAccountAndChargeAndDateDeletedIsNullAndDateBetween(
+    List<Transaction> findAllByAccountAndChargeAndDateDeletedIsNullAndExecutionDateBetween(
             Account account, Boolean charge, Date from, Date to, Map args)
     List<Transaction> findAllByAccountAndDateDeletedIsNull(Account account, Map args)
     List<Transaction> findAllByAccount(Account account)
     List<Transaction> findAllByCategory(Category category)
-    List<Transaction> findAllByCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(Category category, Date dateFrom, Boolean charge)
-    List<Transaction> findAllByAccountAndSystemCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge)
+    List<Transaction> findAllByCategoryAndExecutionDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(Category category, Date dateFrom, Boolean charge)
+    List<Transaction> findAllByAccountAndSystemCategoryAndExecutionDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge)
 
     void delete(Serializable id)
     @Query("from ${Transaction a} where $a.id = $id and a.dateDeleted is Null")

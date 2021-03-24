@@ -7,11 +7,11 @@ import org.grails.datastore.gorm.GormEntity
 
 @Entity
 @ToString(includeNames = true, includePackage = false,
-    includes = 'id, date, charge, description, amount')
+    includes = 'id, executionDate, charge, description, amount')
 class Transaction implements GormEntity<Transaction> {
     Long id
     Account account
-    Date date
+    Date executionDate
     boolean charge
     String description
     float  amount
@@ -25,7 +25,7 @@ class Transaction implements GormEntity<Transaction> {
 
     Transaction(TransactionCreateCommand cmd, Account account){
         this.account = account
-        this.date = new Date(cmd.date)
+        this.executionDate = new Date(cmd.date)
         this.charge = cmd.charge
         this.description = cmd.description
         this.amount = cmd.amount.setScale(
@@ -35,7 +35,7 @@ class Transaction implements GormEntity<Transaction> {
 
     static constraints = {
         id generator: 'native', params:[sequence:'TRANSACTION_SEQ']
-        date nullable: false, blank:false
+        executionDate nullable: false, blank:false
         description  nullable: false, blank:false
         amount nullable: false
         dateDeleted nullable:true

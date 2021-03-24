@@ -9,7 +9,7 @@ databaseChangeLog:
                 type:  mysql,h2
       changes:
         - addColumn:
-            tableName: user
+            tableName: users
             columns:
               - column:
                   name: id
@@ -42,7 +42,7 @@ databaseChangeLog:
                 type: oracle
       changes:
         - addColumn:
-            tableName: user
+            tableName: users
             columns:
               - column:
                   name: id
@@ -58,7 +58,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: client_id
-            baseTableName: user
+            baseTableName: users
             constraintName: fk_user_client
             deferrable: false
             initiallyDeferred: false

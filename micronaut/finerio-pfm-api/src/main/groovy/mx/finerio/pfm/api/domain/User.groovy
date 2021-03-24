@@ -30,6 +30,7 @@ class User  implements GormEntity<User> {
     }
 
     static mapping = {
+        table 'users'
         autoTimestamp true
     }
 }

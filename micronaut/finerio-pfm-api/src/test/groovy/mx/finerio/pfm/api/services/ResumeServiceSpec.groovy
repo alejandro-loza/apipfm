@@ -190,7 +190,7 @@ class ResumeServiceSpec extends Specification {
             charge = true
             description = 'rapi'
             amount = 100.00
-            date = date1
+            executionDate = date1
             category = category1
         }
         transaction

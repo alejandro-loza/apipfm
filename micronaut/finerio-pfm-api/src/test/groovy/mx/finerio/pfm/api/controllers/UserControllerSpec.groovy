@@ -532,7 +532,7 @@ class UserControllerSpec extends Specification {
             user = user1
             balance = 0.0
             name = 'test'
-            number = 'asd'
+            cardNumber = 'asd'
             nature = 'test'
             financialEntity = generateEntity()
         }
@@ -543,7 +543,7 @@ class UserControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             account = account1
-            date = new Date()
+            executionDate = new Date()
             description = 'test description'
         }
         transactionGormService.save(transaction)

@@ -18,7 +18,7 @@ class AccountDto  extends ResourceDto{
         this.id = account.id
         this.nature = account.nature
         this.name = account.name
-        this.number = account.number
+        this.number = account.cardNumber
         this.dateCreated = account.dateCreated
         this.lastUpdated = account.lastUpdated
         this.chargeable = account.chargeable

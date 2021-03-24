@@ -494,7 +494,7 @@ class ResumeControllerSpec extends Specification{
             financialEntity = entity
             nature = 'TEST NATURE'
             name = 'TEST NAME'
-            number = 123412341234
+            cardNumber = 123412341234
             balance = 0.0
         }
         accountGormService.save(account1)
@@ -522,7 +522,7 @@ class ResumeControllerSpec extends Specification{
             charge = chargeToSet
             description = 'rapi'
             amount = amountToSet
-            date = date1
+            executionDate = date1
             category = category1
         }
         transactionGormService.save(transaction)
@@ -535,7 +535,7 @@ class ResumeControllerSpec extends Specification{
             charge = chargeToSet
             description = 'rapi'
             amount = amountToSet
-            date = date1
+            executionDate = date1
             systemCategory = category1
         }
         transactionGormService.save(transaction)

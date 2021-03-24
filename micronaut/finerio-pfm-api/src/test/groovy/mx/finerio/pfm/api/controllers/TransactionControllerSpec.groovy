@@ -164,7 +164,7 @@ class TransactionControllerSpec extends Specification {
             financialEntity = entity
             nature = 'TEST NATURE'
             name = 'TEST NAME'
-            number = 123412341234
+            cardNumber = 123412341234
             balance = 1000.00
             chargeable = true
         }
@@ -430,7 +430,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             account = account1
-            date = new Date()
+            executionDate = new Date()
             charge = false
             description = 'RAPI'
         }
@@ -502,7 +502,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             account = account1
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'rapi'
             amount = 100.00
@@ -537,7 +537,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             account = account1
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'rapi'
             amount = 100.00
@@ -563,7 +563,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             account = account1
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'rapi'
             amount = 100.00
@@ -587,7 +587,7 @@ class TransactionControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            assert date.toString() == transaction.date.toString()
+            assert date.toString() == transaction.executionDate.toString()
             assert description == cmd.description
             amount == cmd.amount
             assert charge == cmd.charge
@@ -624,7 +624,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             account = account1
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'rapi'
             amount = 100.00
@@ -679,7 +679,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction = new Transaction()
         transaction.with {
             account = account1
-            date = new Date()
+            executionDate = new Date()
             charge = true
             description = 'rapi'
             amount = 100.00
@@ -814,7 +814,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction2 = new Transaction()
         transaction2.with {
             account = account1
-            date = twoMonths
+            executionDate = twoMonths
             charge = true
             description = "UBER EATS"
             amount= 1234.56
@@ -824,7 +824,7 @@ class TransactionControllerSpec extends Specification {
         Transaction transaction3 = new Transaction()
         transaction3.with {
             account = account1
-            date = fourMonths
+            executionDate = fourMonths
             charge = true
             description = "UBER EATS"
             amount= 1234.56
@@ -955,7 +955,7 @@ class TransactionControllerSpec extends Specification {
             financialEntity = entity
             nature = 'TEST NATURE'
             name = 'TEST NAME'
-            number = 123412341234
+            cardNumber = 123412341234
             balance = 0.0
         }
         accountGormService.save(account1)

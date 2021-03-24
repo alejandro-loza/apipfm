@@ -14,7 +14,7 @@ class Account  implements GormEntity<Account> {
     FinancialEntity financialEntity
     String nature
     String name
-    String number
+    String cardNumber
     float balance
     Date dateCreated
     Date lastUpdated
@@ -26,7 +26,7 @@ class Account  implements GormEntity<Account> {
         this.financialEntity = financialEntity
         this.nature = accountCommand.nature
         this.name = accountCommand.name
-        this.number = accountCommand.number
+        this.cardNumber = accountCommand.number
         this.chargeable = accountCommand.chargeable
         this.balance = accountCommand.balance.setScale(
             2, BigDecimal.ROUND_HALF_UP )
@@ -39,7 +39,7 @@ class Account  implements GormEntity<Account> {
         name nullable: false, blank:false
         financialEntity nullable: false
         nature  nullable: false, blank:false
-        number nullable: false, blank:false
+        cardNumber nullable: false, blank:false
         balance nullable: false
         dateDeleted nullable:true
     }

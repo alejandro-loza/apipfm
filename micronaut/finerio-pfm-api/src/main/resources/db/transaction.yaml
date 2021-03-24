@@ -27,7 +27,7 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
-                  name: date
+                  name: execution_date
                   type: DATETIME(6)
                   constraints:
                     nullable: false

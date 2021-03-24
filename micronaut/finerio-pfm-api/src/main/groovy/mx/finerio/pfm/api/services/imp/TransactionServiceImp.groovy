@@ -48,7 +48,7 @@ class TransactionServiceImp  implements TransactionService {
         Transaction transaction = new Transaction()
         transaction.with {
             account = transactionAccount
-            date =  new Date(cmd.date)
+            executionDate =  new Date(cmd.date)
             description = cmd.description
             charge =  cmd.charge
             amount = cmd.amount as Float
@@ -80,7 +80,7 @@ class TransactionServiceImp  implements TransactionService {
         Transaction transaction = find(id)
         transaction.with {
             account = cmd.accountId ? accountService.getAccount(cmd.accountId) : transaction.account
-            date = cmd.date ? new Date(cmd.date) : new Date()
+            executionDate = cmd.date ? new Date(cmd.date) : new Date()
             description = cmd.description ?: transaction.description
             charge = cmd.charge != null? cmd.charge: transaction.charge
             amount = cmd.amount ?: transaction.amount
@@ -155,14 +155,14 @@ class TransactionServiceImp  implements TransactionService {
     @Override
     List<Transaction> findAllByCategoryChargeAndDateFrom(Category category, Date dateFrom, Boolean charge) {
         transactionGormService
-                .findAllByCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(category, dateFrom, charge)
+                .findAllByCategoryAndExecutionDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(category, dateFrom, charge)
     }
 
     @Override
     List<Transaction> findAllByAccountSystemCategoryChargeAndDateFrom(
             Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge) {
         transactionGormService
-                .findAllByAccountAndSystemCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(
+                .findAllByAccountAndSystemCategoryAndExecutionDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(
                         account, systemCategory, dateFrom, charge)
     }
 
@@ -174,7 +174,7 @@ class TransactionServiceImp  implements TransactionService {
     @Override
     List<Transaction> findAllByAccountAndChargeAndDateRange(Account account, Boolean charge, Date from, Date to) {
         transactionGormService
-                .findAllByAccountAndChargeAndDateDeletedIsNullAndDateBetween(
+                .findAllByAccountAndChargeAndDateDeletedIsNullAndExecutionDateBetween(
                         account, charge, from, to, [ sort: 'id', order: 'desc'])
     }
 
@@ -193,7 +193,7 @@ class TransactionServiceImp  implements TransactionService {
         TransactionDto transactionDto = new TransactionDto()
         transactionDto.with {
             id = transaction.id
-            date = transaction.date
+            date = transaction.executionDate
             charge = transaction.charge
             description = transaction.description
             amount = new BigDecimal(transaction.amount).setScale(2,BigDecimal.ROUND_HALF_UP)

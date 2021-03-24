@@ -805,7 +805,7 @@ class CategoryControllerSpec extends Specification {
         account1.with {
             name = 'test name'
             nature = 'test nature'
-            number = 'CREDIT CARD NUMBER'
+            cardNumber = 'CREDIT CARD NUMBER'
             user = user1
             financialEntity = entity
             balance = 100.50
@@ -816,7 +816,7 @@ class CategoryControllerSpec extends Specification {
         and: 'a saved transaction'
         Transaction transaction = new Transaction()
         transaction.with {
-            date = new Date()
+            executionDate = new Date()
             description = 'test description'
             amount = 100.50
             category = parentCategory
