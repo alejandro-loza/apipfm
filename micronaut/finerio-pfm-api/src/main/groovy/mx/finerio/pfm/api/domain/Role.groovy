@@ -11,6 +11,7 @@ class Role implements GormEntity<Role> {
     String authority
 
     static constraints = {
+        id generator: 'native', params:[sequence:'ROLE_SEQ']
         authority nullable: false, unique: true
     }
 

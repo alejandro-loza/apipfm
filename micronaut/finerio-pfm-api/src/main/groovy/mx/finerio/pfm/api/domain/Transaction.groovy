@@ -34,6 +34,7 @@ class Transaction implements GormEntity<Transaction> {
     }
 
     static constraints = {
+        id generator: 'native', params:[sequence:'TRANSACTION_SEQ']
         date nullable: false, blank:false
         description  nullable: false, blank:false
         amount nullable: false

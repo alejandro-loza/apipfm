@@ -23,6 +23,7 @@ class User  implements GormEntity<User> {
     User() {}
 
     static constraints = {
+        id generator: 'native', params:[sequence:'USER_SEQ']
         name nullable: false, blank:false
         dateDeleted nullable:true
         client nullable: false

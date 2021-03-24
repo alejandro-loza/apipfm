@@ -23,6 +23,7 @@ class Budget implements GormEntity<Budget> {
     Budget(){}
 
     static constraints = {
+        id generator: 'native', params:[sequence:'BUDGET_SEQ']
         name nullable: false, blank:false
         user nullable: false
         dateDeleted nullable:true

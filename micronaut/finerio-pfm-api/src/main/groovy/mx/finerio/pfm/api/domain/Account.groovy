@@ -35,6 +35,7 @@ class Account  implements GormEntity<Account> {
     Account(){}
 
     static constraints = {
+        id generator: 'native', params:[sequence:'ACCOUNT_SEQ']
         name nullable: false, blank:false
         financialEntity nullable: false
         nature  nullable: false, blank:false

@@ -22,6 +22,7 @@ class SystemCategory implements GormEntity<SystemCategory> {
     }
 
     static mapping = {
+        id generator: 'native', params:[sequence:'SYSTEM_CATEGORY_SEQ']
         autoTimestamp true
     }
 }

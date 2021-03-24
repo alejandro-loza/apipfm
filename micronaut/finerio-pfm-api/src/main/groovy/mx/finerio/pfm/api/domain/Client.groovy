@@ -26,6 +26,7 @@ class Client implements GormEntity<Client>, UserState {
 	}
 
     static constraints = {
+        id generator: 'native', params:[sequence:'CLIENT_SEQ']
         username nullable: false, blank: false, unique: true
         passwordd nullable: false, blank: false, password: true
         dateDeleted nullable:true

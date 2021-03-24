@@ -20,6 +20,7 @@ class ClientProfile implements GormEntity<ClientProfile> {
     Date dateDeleted
 
     static constraints = {
+        id generator: 'native', params:[sequence:'CLIENT_PROFILE_SEQ']
         name nullable: false, blank: false, size: 1..50
         firstLastName nullable: false, blank: false, size: 1..20
         secondLastName nullable: false, blank: false, size: 1..20

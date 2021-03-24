@@ -12,6 +12,7 @@ class ClientRole implements GormEntity<ClientRole> {
     Role role
 
     static constraints = {
+        id generator: 'native', params:[sequence:'CLIENT_ROLE_SEQ']
         client nullable: false
         role nullable: false
     }

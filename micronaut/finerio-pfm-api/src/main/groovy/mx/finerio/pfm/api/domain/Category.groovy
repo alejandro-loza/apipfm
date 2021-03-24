@@ -26,6 +26,7 @@ class Category implements GormEntity<Category> {
     Category(){}
 
     static constraints = {
+        id generator: 'native', params:[sequence:'CATEGORY_SEQ']
         user nullable: true
         dateDeleted  nullable: true
         parent  nullable: true
