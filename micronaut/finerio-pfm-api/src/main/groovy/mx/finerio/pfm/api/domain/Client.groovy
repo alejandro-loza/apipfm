@@ -12,7 +12,7 @@ class Client implements GormEntity<Client>, UserState {
 
     Long id
     String username
-    String password
+    String passwordd
     boolean enabled = true
     boolean accountExpired = false
     boolean accountLocked = false
@@ -20,10 +20,14 @@ class Client implements GormEntity<Client>, UserState {
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
+	
+	String getPassword() {
+		passwordd
+	}
 
     static constraints = {
         username nullable: false, blank: false, unique: true
-        password nullable: false, blank: false, password: true
+        passwordd nullable: false, blank: false, password: true
         dateDeleted nullable:true
     }
 

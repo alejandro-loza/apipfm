@@ -6,7 +6,7 @@ import mx.finerio.pfm.api.domain.Client
 @Service(Client)
 interface ClientGormService {
 
-    Client save(String username, String password )
+    Client save(String username, String passwordd )
 
     Client findByUsername( String username )
 

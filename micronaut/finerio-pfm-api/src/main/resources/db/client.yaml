@@ -18,7 +18,7 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
-                  name: password
+                  name: passwordd
                   type: java.sql.Types.VARCHAR(255)
                   constraints:
                     nullable: false
