@@ -349,7 +349,6 @@ class AccountServiceSpec extends Specification {
         client.with {
             id = 666
             username = 'awesome client'
-            password = 'awesome password'
         }
         client
     }

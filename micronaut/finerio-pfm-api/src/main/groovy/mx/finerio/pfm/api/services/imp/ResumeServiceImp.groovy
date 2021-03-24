@@ -58,7 +58,7 @@ class ResumeServiceImp implements ResumeService{
         List<MovementsResumeDto> movementsDtoList= []
         Map<String, List<Transaction>> list =  transactionList.stream()
                 .collect( Collectors.groupingBy({ Transaction transaction ->
-                    new SimpleDateFormat("yyyy-MM").format(transaction.date)
+                    new SimpleDateFormat("yyyy-MM").format(transaction.executionDate)
                 }))
         for ( Map.Entry<String, List<Transaction>> entry : list.entrySet() ) {
             movementsDtoList.add( generateResumeMovementDto( entry.key, entry.value ) )
@@ -154,7 +154,7 @@ class ResumeServiceImp implements ResumeService{
 
     private static List<TransactionDto> getTransactionsGroupByDay(List<Transaction> transactionList){
         Map<String, List<Transaction>> map = transactionList.groupBy { transaction ->
-            new SimpleDateFormat("yyyy-MM-dd").format(transaction.date)
+            new SimpleDateFormat("yyyy-MM-dd").format(transaction.executionDate)
         }
 
         List<TransactionDto> list = []

@@ -64,7 +64,6 @@ class SignupControllerSpec  extends Specification {
             companyName = "ACME inc"
             username = "SignupControllerSpec"
             password = "qwerty"
-
         }
 
         and:
