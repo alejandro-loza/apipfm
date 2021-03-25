@@ -162,7 +162,7 @@ class TransactionServiceImp  implements TransactionService {
     List<Transaction> findAllByAccountSystemCategoryChargeAndDateFrom(
             Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge) {
         transactionGormService
-                .findAllByAccountAndSystemCategoryAndExecutionDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(
+                .getAllByAccountSystemCategoryExecutionDateGreaterCharge(
                         account, systemCategory, dateFrom, charge)
     }
 

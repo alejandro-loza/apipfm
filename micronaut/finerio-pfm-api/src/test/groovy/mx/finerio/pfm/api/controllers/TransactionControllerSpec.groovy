@@ -587,7 +587,6 @@ class TransactionControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            assert date.toString() == transaction.executionDate.toString()
             assert description == cmd.description
             amount == cmd.amount
             assert charge == cmd.charge

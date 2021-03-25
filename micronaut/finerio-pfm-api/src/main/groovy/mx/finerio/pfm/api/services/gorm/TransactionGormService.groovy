@@ -21,7 +21,9 @@ interface TransactionGormService {
     List<Transaction> findAllByAccount(Account account)
     List<Transaction> findAllByCategory(Category category)
     List<Transaction> findAllByCategoryAndExecutionDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(Category category, Date dateFrom, Boolean charge)
-    List<Transaction> findAllByAccountAndSystemCategoryAndExecutionDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge)
+
+    @Query("from ${Transaction t} where $t.account = $account and $t.systemCategory = $systemCategory and $t.charge = $charge and $t.dateDeleted is Null and $t.executionDate greater than $dateFrom")
+    List<Transaction> getAllByAccountSystemCategoryExecutionDateGreaterCharge(Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge)
 
     void delete(Serializable id)
     @Query("from ${Transaction a} where $a.id = $id and a.dateDeleted is Null")
