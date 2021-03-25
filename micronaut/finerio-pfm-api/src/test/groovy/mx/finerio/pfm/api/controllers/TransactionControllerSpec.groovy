@@ -986,20 +986,36 @@ class TransactionControllerSpec extends Specification {
         and:'a saved webhook'
         Webhook webhook = new Webhook()
         webhook.with {
-            url = "https://webhook.site/d2a8d7bc-b292-4a74-94e8-1185858da15a"
+            url = "https://webhook.site/d5dce072-8795-4675-9516-d244be5911d9"
             nature = BudgetStatusEnum.warning
             webhook.client = loggedInClient
         }
         webhookGormService.save(webhook)
 
+        and:'this month first day'
+        final Date THIS_MONTH_FIRST_DAY = Date.from(ZonedDateTime.now().withDayOfMonth(2).toInstant())
+
+        and:'a saved transaction'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = account1
+            date = THIS_MONTH_FIRST_DAY
+            charge = true
+            description = 'RAPI'
+            category = category1
+            amount = 70.00
+        }
+
+        transactionGormService.save(transaction)
+
         and:'a command request body'
         TransactionCreateCommand cmd = new TransactionCreateCommand()
         cmd.with {
             accountId = account1.id
-            date = 1587567125458
+            date = new Date().getTime()
             charge = true
             description = "UBER EATS"
-            amount= 80.00
+            amount= 30.00
             categoryId = category1.id
         }
 
@@ -1012,8 +1028,86 @@ class TransactionControllerSpec extends Specification {
         rsp.status == HttpStatus.OK
         rsp.body.get().categoryId == category1.id
 
-        assert accountGormService.getById(account1.id).balance == 920.00F
+        assert accountGormService.getById(account1.id).balance == 970.00F
     }
+
+    def "Should update a transaction and warning with budget warning percentage exceeded"(){
+        given:'an saved Account '
+        User user1 = generateUser()
+
+        FinancialEntity entity = generateEntity()
+
+        Account account1 = new Account()
+        account1.with {
+            user = user1
+            financialEntity = entity
+            nature = 'TEST NATURE'
+            name = 'TEST NAME'
+            number = 123412341234
+            balance = 1000.00
+            chargeable = true
+        }
+        accountGormService.save(account1)
+
+        def user = account1.user
+
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
+        and:'a saved budget'
+        Budget budget1 = new Budget()
+        budget1.with {
+            budget1.user = user
+            category = category1
+            name = 'test budget'
+            warningPercentage = 0.7
+            amount = 100.00
+        }
+        budgetGormService.save(budget1)
+
+        and:'a saved webhook'
+        Webhook webhook = new Webhook()
+        webhook.with {
+            url = "https://webhook.site/d5dce072-8795-4675-9516-d244be5911d9"
+            nature = BudgetStatusEnum.warning
+            webhook.client = loggedInClient
+        }
+        webhookGormService.save(webhook)
+
+
+        and:'a saved transaction'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = account1
+            date = new Date()
+            charge = true
+            description = 'RAPI'
+            category = category1
+            amount = 70.00
+        }
+
+        transactionGormService.save(transaction)
+
+        and:'a command update request body'
+        TransactionUpdateCommand cmd = new TransactionUpdateCommand()
+        cmd.with {
+            amount = 170.00
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${TRANSACTION_ROOT}/${transaction.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request,  Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ErrorDto))
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+           assert amount.toFloat() == cmd.amount
+        }
+    }
+
 
     private static TransactionCreateCommand generateTransactionCommand(Account account1) {
         def date1 = new Date()

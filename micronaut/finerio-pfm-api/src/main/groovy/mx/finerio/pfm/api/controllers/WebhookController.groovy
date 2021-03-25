@@ -71,5 +71,4 @@ class WebhookController {
         HttpResponse.noContent()
     }
 
-
 }

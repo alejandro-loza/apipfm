@@ -2,7 +2,9 @@ package mx.finerio.pfm.api.services
 
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.Transaction
+import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.domain.Webhook
+import mx.finerio.pfm.api.dtos.resource.BudgetDto
 import mx.finerio.pfm.api.dtos.resource.WebhookDto
 import mx.finerio.pfm.api.enums.BudgetStatusEnum
 import mx.finerio.pfm.api.logging.Log
@@ -26,7 +28,7 @@ interface WebhookService {
     void delete(Webhook webhook)
 
     @Log
-    void alertUserClientWebHook(Client client )
+    void alertUserClientWebHook(User user, BudgetDto budgetDto)
 
     @Log
     void verifyAndAlertTransactionBudgetAmount(Transaction transaction)
