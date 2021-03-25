@@ -96,7 +96,9 @@ class TransactionController {
     @Put("/{id}")
     @Transactional
     Single<TransactionDto> edit(@Body TransactionUpdateCommand cmd, @NotNull Long id ) {
-        Single.just(transactionsService.generateTransactionDto(transactionsService.update(cmd, id)))
+        Transaction transaction = transactionsService.update(cmd, id)
+        webhookService.verifyAndAlertTransactionBudgetAmount(transaction)
+        Single.just(transactionsService.generateTransactionDto(transaction))
     }
 
     @Log

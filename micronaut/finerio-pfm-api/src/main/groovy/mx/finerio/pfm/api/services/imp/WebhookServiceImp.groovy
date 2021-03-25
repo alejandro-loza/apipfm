@@ -39,7 +39,13 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
     @Override
     Webhook create(WebHookCreateCommand cmd) {
         verifyBody(cmd)
-        return webhookGormService.save(new Webhook(cmd, getCurrentLoggedClient()))
+        Webhook webhook = new Webhook()
+        webhook.with {
+            url = cmd.url
+            nature = cmd.nature
+            client = getCurrentLoggedClient()
+        }
+        return webhookGormService.save(webhook)
     }
 
     @Override
@@ -49,7 +55,6 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
         Webhook webhook = find(id)
         webhook.with {
             url = cmd.url ?: url
-            nature = cmd.nature ?: nature
         }
         webhookGormService.save(webhook)
     }
@@ -68,8 +73,8 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
     }
 
     @Override
-    void alertUserClientWebHook(Client client, BudgetStatusEnum nature ) {
-        Webhook webhook =  webhookGormService.findByClientAndNatureAndDateDeletedIsNull(client, nature.toString())
+    void alertUserClientWebHook(Client client) {
+        Webhook webhook =  webhookGormService.findByClientAndDateDeletedIsNull(client)
         if (webhook){
             callbackRestService.post(webhook.url,["test":"test"])//todo change with correct payload
         }
@@ -79,7 +84,7 @@ class WebhookServiceImp extends ServiceTemplate implements WebhookService {
     void verifyAndAlertTransactionBudgetAmount(Transaction transaction){
         BudgetDto budgetDto = budgetService.findTransactionBudget(transaction)
         if(budgetDto && budgetDto.status != BudgetStatusEnum.ok){
-            alertUserClientWebHook(transaction.account.user.client, budgetDto.status)
+            alertUserClientWebHook(transaction.account.user.client)
         }
     }
 

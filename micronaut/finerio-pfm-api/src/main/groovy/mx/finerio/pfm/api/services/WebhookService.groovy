@@ -26,7 +26,7 @@ interface WebhookService {
     void delete(Webhook webhook)
 
     @Log
-    void alertUserClientWebHook(Client client, BudgetStatusEnum nature )
+    void alertUserClientWebHook(Client client )
 
     @Log
     void verifyAndAlertTransactionBudgetAmount(Transaction transaction)

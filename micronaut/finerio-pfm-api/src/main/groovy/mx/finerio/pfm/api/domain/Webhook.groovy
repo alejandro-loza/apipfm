@@ -12,7 +12,7 @@ class Webhook  implements GormEntity<Webhook> {
 
     Long id
     String url
-    BudgetStatusEnum nature
+    String nature
     Date dateCreated
     Date lastUpdated
     Date dateDeleted
@@ -22,19 +22,10 @@ class Webhook  implements GormEntity<Webhook> {
         url nullable:false
         nature nullable:false
         dateDeleted nullable:true
-        nature unique: true
     }
 
     static mapping = {
         autoTimestamp true
-    }
-
-    Webhook(){}
-
-    Webhook(WebHookCreateCommand cmd, Client client){
-        this.url = cmd.url
-        this.nature = cmd.nature
-        this.client = client
     }
 
 }

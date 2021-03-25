@@ -56,7 +56,7 @@ class WebhooksServiceSpec extends Specification {
         then:
 
         1 * webhookService.budgetService.findTransactionBudget(_ as Transaction) >> budgetDto
-        1 * webhookService.webhookGormService.findByClientAndNatureAndDateDeletedIsNull(_ as Client, _ as String ) >> webhook
+        1 * webhookService.webhookGormService.findByClientAndDateDeletedIsNull(_ as Client, _ as String ) >> webhook
         1 * webhookService.callbackRestService.post(_ as String, _ as Map)
 
     }

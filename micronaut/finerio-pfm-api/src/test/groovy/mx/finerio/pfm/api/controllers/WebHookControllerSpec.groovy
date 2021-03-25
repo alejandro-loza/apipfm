@@ -6,6 +6,7 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxStreamingHttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
@@ -17,6 +18,7 @@ import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.dtos.resource.WebhookDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.enums.BudgetStatusEnum
+import mx.finerio.pfm.api.enums.WebhookNatureEnum
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.WebhookGormService
 import mx.finerio.pfm.api.validation.UserCommand
@@ -73,7 +75,7 @@ class WebHookControllerSpec extends Specification {
         WebHookCreateCommand cmd = new WebHookCreateCommand()
         cmd.with {
             url = "www.test.com"
-            nature = BudgetStatusEnum.ok
+            nature = WebhookNatureEnum.budget_status
         }
 
         HttpRequest request = HttpRequest.POST(WEBHOOK_ROOT, cmd).bearerAuth(accessToken)
@@ -107,6 +109,32 @@ class WebHookControllerSpec extends Specification {
 
     }
 
+    def "Should not get an deleted webhook"(){
+        given:'a saved but deleted webhook'
+        Webhook webhook = new Webhook()
+        webhook.with {
+            url = "www.google.com"
+            nature = BudgetStatusEnum.ok
+            webhook.client = loggedInClient
+            dateDeleted = new Date()
+        }
+        webhookGormService.save(webhook)
+
+
+        and:'a client'
+        HttpRequest request = HttpRequest.GET("${WEBHOOK_ROOT}/${webhook.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(WebhookDto) as Argument<WebhookDto>, Argument.of(ErrorDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+        e.response.status.code == 404
+
+    }
+
+
     def "Should update an webhook"(){
         given:'a saved webhook'
         Webhook webhook =  generateWebhook()
@@ -130,6 +158,37 @@ class WebHookControllerSpec extends Specification {
         assert response.body().id == webhook.id
 
     }
+
+    def "Should not update an deleted webhook"(){
+        given:'a saved but deleted webhook'
+        Webhook webhook = new Webhook()
+        webhook.with {
+            url = "www.google.com"
+            nature = BudgetStatusEnum.ok
+            webhook.client = loggedInClient
+            dateDeleted = new Date()
+        }
+        webhookGormService.save(webhook)
+
+        and:'an user command to update data'
+        WebHookUpdateCommand cmd = new WebHookUpdateCommand()
+        cmd.with {
+            url = "www.fakeurl.com"
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${WEBHOOK_ROOT}/${webhook.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(WebhookDto) as Argument<WebhookDto>, Argument.of(ErrorDto))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+        e.response.status.code == 404
+
+    }
+
 
     def "Should delete a webhook"() {
         given:'a saved webhook'
