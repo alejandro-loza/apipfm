@@ -72,7 +72,7 @@ class ResumeServiceImp implements ResumeService{
         List<MovementsAnalysisDto> movementsAnalysisDtos = []
         Map<String, List<Transaction>> list =  transactionList.stream()
                 .collect( Collectors.groupingBy({ Transaction transaction ->
-                    new SimpleDateFormat("yyyy-MM").format(transaction.date)
+                    new SimpleDateFormat("yyyy-MM").format(transaction.executionDate)
                 })
                 )
         for ( Map.Entry<String, List<Transaction>> entry : list.entrySet() ) {

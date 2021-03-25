@@ -189,13 +189,15 @@ class BudgetControllerSpec extends Specification {
         def rsp = client.toBlocking().exchange(request, BudgetDto)
 
         then:
-        rsp.status == HttpStatus.OK
-        assert rsp.body().with {
-            assert cmd
-            assert id
-            assert dateCreated
-            assert lastUpdated
+        assert rsp.status == HttpStatus.OK
+        rsp.body().with {
+            assert name == cmd.name
+            assert spent == 0
+            assert leftToSpend == amount
+            assert status == BudgetDto.StatusEnum.ok
             assert warningPercentage == 0.7F
+            assert id
+            assert amount.floatValue() == cmd.amount.floatValue()
         }
 
     }
