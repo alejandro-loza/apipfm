@@ -5,5 +5,5 @@ import mx.finerio.pfm.api.dtos.resource.TransactionDto
 
 @ToString(includeNames = true, includePackage = false)
 class SubCategoryResumeDto extends BaseCategoryResumeDto {
-    List<TransactionDto> transactions
+    List<TransactionDto> transactionsByDate
 }

@@ -214,7 +214,10 @@ class ResumeControllerSpec extends Specification{
         assert userBody.expenses.size() == 4
         assert userBody.incomes.size() == 4
         assert userBody.balances.size() == 4
+        
+        assert userBody.incomes.every {!it.categories.isEmpty()}
 
+     //   assert ! groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(userBody))
 
         assert  userBody.balances*.incomes
         assert  userBody.balances*.expenses
@@ -471,7 +474,7 @@ class ResumeControllerSpec extends Specification{
             assert subcategories.size() == 1
             subcategories.first().with {
                 assert amount == 550.00F
-                transactions.with { List<TransactionsByDateDto> transactionsByDateDtos ->
+                transactionsByDate.with { List<TransactionsByDateDto> transactionsByDateDtos ->
                     assert size() == 1
                     transactionsByDateDtos.first().with {
                         assert date //TODO check for date integrity

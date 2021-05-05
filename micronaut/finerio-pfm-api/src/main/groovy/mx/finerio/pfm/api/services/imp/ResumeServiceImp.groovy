@@ -256,7 +256,7 @@ class ResumeServiceImp implements ResumeService{
     def generateSubCategoryResume =  { Long parentId, List<Transaction> transactions ->
         SubCategoryResumeDto subCategoryResumeDto = new SubCategoryResumeDto()
         subCategoryResumeDto.categoryId = parentId
-        subCategoryResumeDto.transactions = getTransactionsGroupByDay(transactions)
+        subCategoryResumeDto.transactionsByDate = getTransactionsGroupByDay(transactions)
         subCategoryResumeDto.amount = transactions*.amount.sum() as float
         subCategoryResumeDto
     }
