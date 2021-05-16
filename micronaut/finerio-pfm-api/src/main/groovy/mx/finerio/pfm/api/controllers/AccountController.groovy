@@ -38,7 +38,6 @@ class AccountController {
 
     @Log
     @Post("/")
-    @Transactional
     Single<AccountDto> save(@Body @Valid AccountCreateCommand cmd){
         Single.just(new AccountDto(accountService.create(cmd)))
     }

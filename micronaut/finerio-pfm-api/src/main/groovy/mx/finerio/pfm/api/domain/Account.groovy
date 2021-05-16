@@ -6,7 +6,6 @@ import mx.finerio.pfm.api.validation.AccountCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
-@ToString(includeNames = true, includePackage = false)
 class Account  implements GormEntity<Account> {
 
     Long id
@@ -15,7 +14,7 @@ class Account  implements GormEntity<Account> {
     String nature
     String name
     String cardNumber
-    float balance
+    BigDecimal balance
     Date dateCreated
     Date lastUpdated
     Date dateDeleted

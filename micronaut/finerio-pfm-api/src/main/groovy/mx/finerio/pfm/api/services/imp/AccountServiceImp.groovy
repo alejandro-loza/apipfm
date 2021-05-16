@@ -27,6 +27,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     FinancialEntityService financialEntityService
 
     @Override
+    @Transactional
     Account create(AccountCreateCommand cmd){
         verifyBody(cmd)
         User user = userService.getUser(cmd.userId)
