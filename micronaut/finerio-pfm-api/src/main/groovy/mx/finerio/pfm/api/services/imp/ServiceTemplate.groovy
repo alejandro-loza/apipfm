@@ -2,6 +2,7 @@ package mx.finerio.pfm.api.services.imp
 
 import io.micronaut.security.utils.SecurityService
 import mx.finerio.pfm.api.domain.Client
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.validation.ValidationCommand
 
@@ -24,8 +25,7 @@ class ServiceTemplate {
 
     void verifyBody(ValidationCommand cmd) {
         if (!cmd) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid')
+            throw new BadRequestException('request.body.invalid')
         }
     }
 
