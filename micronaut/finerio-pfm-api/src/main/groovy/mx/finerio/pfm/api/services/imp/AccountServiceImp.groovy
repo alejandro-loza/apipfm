@@ -3,6 +3,8 @@ package mx.finerio.pfm.api.services.imp
 import grails.gorm.transactions.Transactional
 import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.AccountDto
+import mx.finerio.pfm.api.enums.AccountNatureEnum
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.AccountService
 import mx.finerio.pfm.api.services.FinancialEntityService
@@ -30,10 +32,10 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Transactional
     Account create(AccountCreateCommand cmd){
         verifyBody(cmd)
+        verifyNature(cmd)
         User user = userService.getUser(cmd.userId)
         verifyLoggedClient(user.client)
-        accountGormService.save( new Account(cmd, user,
-                        financialEntityService.getById(cmd.financialEntityId)))
+        accountGormService.save( new Account(cmd, user, financialEntityService.getById(cmd.financialEntityId)))
     }
 
     @Override
@@ -123,6 +125,15 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     private void verifyLoggedClient(Client client) {
         if (client.id != getCurrentLoggedClient()?.id) {
             throw new ItemNotFoundException('account.notFound')
+        }
+    }
+
+    private void verifyNature(AccountCreateCommand cmd) {
+        try {
+            AccountNatureEnum.valueOf(cmd.nature.toString())
+        }
+        catch (IllegalArgumentException e) {
+            throw new BadRequestException('account.nature.invalid')
         }
     }
 
