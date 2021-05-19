@@ -40,7 +40,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
 
     @Override
     @Transactional
-    BudgetDto create(BudgetCreateCommand cmd){
+    Budget create(BudgetCreateCommand cmd){
         Budget budget = new Budget()
         User userToSet = userService.getUser(cmd.userId)
         budget.with {
@@ -50,7 +50,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
             warningPercentage = cmd.warningPercentage ?: DEFAULT_WARNING_PERCENTAGE
         }
         setCategoryOrSystemCategory(cmd, budget, userToSet)
-        crateBudgetDtoWithAnalysis(budgetGormService.save(budget) )
+        budgetGormService.save(budget)
     }
 
     @Override
@@ -125,6 +125,16 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     @Override
     Budget findByCategory(Category category) {
         budgetGormService.findByCategoryAndDateDeletedIsNull(category)
+    }
+
+    @Override
+    BudgetDto crateBudgetDtoWithAnalysis(Budget budget) {
+        List<Transaction> thisMonthTransactions = budget.systemCategory ?
+                getThisMonthUserAccountsSystemCategoryExpenses(budget)
+                : transactionService
+                .findAllByCategoryChargeAndDateFrom(budget.category, THIS_MONTH_FIRST_DAY, EXPENSE)
+
+        return generateBudgetDto(budget, thisMonthTransactions)
     }
 
     private List<BudgetDto> generateBudgetsDtos(User user, List<Budget> budgets) {
@@ -226,15 +236,6 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
                 budget.category = findCategoryToSet(categoryId, userToSet)
             }
         }
-    }
-
-    private BudgetDto crateBudgetDtoWithAnalysis(Budget budget) {
-        List<Transaction> thisMonthTransactions = budget.systemCategory ?
-                getThisMonthUserAccountsSystemCategoryExpenses(budget)
-                : transactionService
-                .findAllByCategoryChargeAndDateFrom(budget.category, THIS_MONTH_FIRST_DAY, EXPENSE)
-
-        return generateBudgetDto(budget, thisMonthTransactions)
     }
 
 }

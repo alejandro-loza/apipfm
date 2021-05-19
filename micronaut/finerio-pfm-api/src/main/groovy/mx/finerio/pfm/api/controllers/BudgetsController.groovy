@@ -35,7 +35,7 @@ class BudgetsController {
     @Post("/")
     Single<BudgetDto> save(@Body @Valid BudgetCreateCommand cmd){
         budgetService.verifyBody(cmd)
-        Single.just(budgetService.create(cmd))
+        Single.just(budgetService.crateBudgetDtoWithAnalysis(budgetService.create(cmd) ))
     }
 
     @Log

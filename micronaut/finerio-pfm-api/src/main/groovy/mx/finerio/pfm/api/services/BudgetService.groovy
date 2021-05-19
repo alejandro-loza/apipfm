@@ -15,7 +15,7 @@ interface BudgetService {
     void verifyBody(ValidationCommand cmd)
 
     @Log
-    BudgetDto create(BudgetCreateCommand cmd)
+    Budget create(BudgetCreateCommand cmd)
 
     @Log
     Budget find(Long id)
@@ -46,5 +46,8 @@ interface BudgetService {
 
     @Log
     Budget findByCategory(Category category)
+
+    @Log
+    BudgetDto crateBudgetDtoWithAnalysis(Budget budget)
 
 }
