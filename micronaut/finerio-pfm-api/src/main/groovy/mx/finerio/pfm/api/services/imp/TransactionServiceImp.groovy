@@ -229,12 +229,19 @@ class TransactionServiceImp  implements TransactionService {
     void setSystemCategoryOrCategory(TransactionCreateCommand cmd, Transaction transaction) {
         SystemCategory systemCategory = systemCategoryService.find(cmd.categoryId)
         if (systemCategory) {
+            verifySystemParentCategory(systemCategory)
             transaction.systemCategory = systemCategory
         }
         else {
             Category category = categoryService.getById(cmd.categoryId)
             verifyParentCategory(category)
             transaction.category = category
+        }
+    }
+
+    private void verifySystemParentCategory(SystemCategory systemCategory) {
+        if (!systemCategory?.parent) {
+            throw new BadRequestException('category.parentCategory.null')
         }
     }
 

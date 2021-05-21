@@ -163,6 +163,41 @@ class TransactionServiceSpec extends Specification {
         e.message == 'category.notFound'
     }
 
+    def 'Should not save an transaction on no system parent category'(){
+        given:'a transaction command request body'
+        SystemCategory category = new SystemCategory()
+        category.with {
+            name: 'sub category'
+            category.id = 666
+        }
+        category.parent = null
+
+        def account = new Account()
+        account.id = 666
+        def transaction = new Transaction()
+        transaction.account =  account
+
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId =  account.id
+            date =  new Date().getTime()
+            categoryId = category.id
+            amount = 100.50
+        }
+
+        when:
+
+        1 * transactionService.systemCategoryService.find( _ as Long) >> category
+        1 * transactionService.accountService.getAccount(_ as Long)
+        0 * transactionService.transactionGormService.save(_  as Transaction)
+
+        transactionService.create(cmd)
+
+        then:
+        BadRequestException e = thrown()
+        e.message == 'category.parentCategory.null'
+    }
+
     def "Should throw exception on null body"() {
 
         when:
