@@ -143,9 +143,12 @@ class ResumeServiceImp implements ResumeService{
             Closure baseCategoryResumeGenerator,
             Closure groupCollector){
 
+        transactionList = transactionList.findAll {Transaction transaction -> transaction.systemCategory.parent != null}
+
         List<BaseCategoryResumeDto> baseCategoryResumeDtos = []
         Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
                 .collect ( Collectors.groupingBy(groupCollector))
+
         for ( Map.Entry<Long, List<Transaction>> entry : transactionsGrouped.entrySet() ) {
             baseCategoryResumeDtos.add(baseCategoryResumeGenerator( entry.key, entry.value ) as BaseCategoryResumeDto)
         }

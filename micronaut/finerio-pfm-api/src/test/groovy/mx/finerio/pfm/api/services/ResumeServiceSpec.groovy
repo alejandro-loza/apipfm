@@ -5,6 +5,7 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.utilities.BalancesDto
 import mx.finerio.pfm.api.dtos.utilities.MovementsResumeDto
@@ -110,6 +111,42 @@ class ResumeServiceSpec extends Specification {
 
     }
 
+    def "Should Group by month dinn case"() {
+        given:
+        SystemCategory parent1 = new SystemCategory()
+        parent1.with {
+            name = 'transporte'
+            color = 'red'
+            id = 1
+        }
+
+        Date december20Date = new SimpleDateFormat("dd/MM/yyyy").parse("20/12/2020")
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd")
+        String strDate = "2021-04-23 06:32:45.0"
+
+        def t2 = new Transaction()
+        t2.with {
+            account = new Account()
+            charge = true
+            description = 'a custom rare case'
+            amount = 100.00
+            executionDate = sdf.parse(strDate)
+            systemCategory = parent1
+        }
+
+        when:
+        List<MovementsResumeDto> movementsByMonth = resumeService.resumeTransactionsGroupByMonth([t2])
+
+        then:
+        assert movementsByMonth.size() == 1
+        assert movementsByMonth.last().amount == 100
+        def date = new  Date(movementsByMonth.first().date)
+        assert date.month == 3
+        assert movementsByMonth.last().categories.isEmpty()
+
+    }
+
     def "Should get the balance"(){
         given:
 
@@ -195,4 +232,6 @@ class ResumeServiceSpec extends Specification {
         }
         transaction
     }
+
+
 }
