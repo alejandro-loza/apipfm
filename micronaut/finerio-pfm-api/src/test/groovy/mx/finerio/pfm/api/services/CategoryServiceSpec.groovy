@@ -105,7 +105,7 @@ class CategoryServiceSpec extends Specification {
         when:
         categoryService.create(null)
         then:
-        IllegalArgumentException e = thrown()
+        BadRequestException e = thrown()
         e.message ==
                 'request.body.invalid'
     }

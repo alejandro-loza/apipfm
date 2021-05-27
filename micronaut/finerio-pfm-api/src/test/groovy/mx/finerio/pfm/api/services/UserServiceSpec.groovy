@@ -66,7 +66,7 @@ class UserServiceSpec extends Specification {
         when:
         userService.create(null, new Client())
         then:
-        IllegalArgumentException e = thrown()
+        BadRequestException e = thrown()
         e.message ==
                 'request.body.invalid'
     }
@@ -76,7 +76,7 @@ class UserServiceSpec extends Specification {
         when:
         userService.update(null, 1L)
         then:
-        IllegalArgumentException e = thrown()
+        BadRequestException e = thrown()
         e.message ==
                 'request.body.invalid'
     }

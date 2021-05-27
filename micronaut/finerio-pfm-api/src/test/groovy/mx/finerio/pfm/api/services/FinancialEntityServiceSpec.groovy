@@ -110,9 +110,9 @@ class FinancialEntityServiceSpec extends Specification {
     def "Should throw exception on null body"() {
 
         when:
-        def response = financialEntityService.create(null)
+        financialEntityService.create(null)
         then:
-        IllegalArgumentException e = thrown()
+        BadRequestException e = thrown()
         e.message ==
                 'request.body.invalid'
     }

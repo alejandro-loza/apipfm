@@ -142,8 +142,8 @@ class ResumeServiceImp implements ResumeService{
             List<Transaction> transactionList,
             Closure baseCategoryResumeGenerator,
             Closure groupCollector){
+        if(transactionList.isEmpty()) return
 
-        transactionList = transactionList.findAll {Transaction transaction -> transaction.systemCategory.parent != null}
 
         List<BaseCategoryResumeDto> baseCategoryResumeDtos = []
         Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
@@ -204,16 +204,29 @@ class ResumeServiceImp implements ResumeService{
         MovementsResumeDto movementsDto = new MovementsResumeDto()
         movementsDto.date = generateFixedDate(stringDate).getTime()
 
-        movementsDto.categories.addAll( getTransactionsGroupByBaseCategory(
-                transactions.findAll {it.systemCategory != null},
-                generateSystemParentCategoryResume,
-                systemParentCategoryCollector()
-        ))
-        movementsDto.categories.addAll( getTransactionsGroupByBaseCategory(
-                transactions.findAll {it.category != null},
+        List<Transaction> systemCategoryTransactions = transactions.findAll {
+            it.systemCategory != null && it.systemCategory.parent != null }
+
+        if(!systemCategoryTransactions.isEmpty()){
+            movementsDto.categories.addAll( getTransactionsGroupByBaseCategory(
+                    systemCategoryTransactions,
+                    generateSystemParentCategoryResume,
+                    systemParentCategoryCollector()
+            ))
+        }
+
+        List<Transaction>  categoryTransactions = transactions.findAll {
+            it.category != null  && it.category.parent != null }
+
+        if(!categoryTransactions.isEmpty()){
+
+            movementsDto.categories.addAll( getTransactionsGroupByBaseCategory(
+                categoryTransactions,
                 generateParentCategoryResume,
                 parentCategoryCollector()
-        ))
+            ))
+        }
+
         movementsDto.amount = transactions*.amount.sum() as float
         movementsDto
     }

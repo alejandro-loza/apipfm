@@ -8,6 +8,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.imp.AccountServiceImp
@@ -39,7 +40,7 @@ class AccountServiceSpec extends Specification {
         cmd.with {
             userId = 111
             financialEntityId = 666
-            nature = 'No test'
+            nature = 'Debit'
             name = 'no test'
             number = 1234123412341234
             balance = 1000.00
@@ -68,7 +69,7 @@ class AccountServiceSpec extends Specification {
         cmd.with {
             userId = 111
             financialEntityId = 666
-            nature = 'No test'
+            nature = 'Debit'
             name = 'no test'
             number = 1234123412341234
             balance = 1000.00
@@ -97,7 +98,7 @@ class AccountServiceSpec extends Specification {
         when:
         accountService.create(null)
         then:
-        IllegalArgumentException e = thrown()
+        BadRequestException e = thrown()
         e.message ==
                 'request.body.invalid'
     }

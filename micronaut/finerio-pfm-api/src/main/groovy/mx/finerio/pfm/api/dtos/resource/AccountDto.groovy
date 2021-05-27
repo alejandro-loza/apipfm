@@ -3,6 +3,8 @@ package mx.finerio.pfm.api.dtos.resource
 import groovy.transform.ToString
 import mx.finerio.pfm.api.domain.Account
 
+import java.math.RoundingMode
+
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)
 class AccountDto  extends ResourceDto{
@@ -22,7 +24,7 @@ class AccountDto  extends ResourceDto{
         this.dateCreated = account.dateCreated
         this.lastUpdated = account.lastUpdated
         this.chargeable = account.chargeable
-        this.balance =  new BigDecimal(account.balance).setScale(2,BigDecimal.ROUND_HALF_UP)
+        this.balance = account.balance?.setScale(2, RoundingMode.HALF_EVEN)
     }
 
 }

@@ -25,7 +25,7 @@ class AccountCreateCommand extends ValidationCommand{
 
     @NotNull(message= 'account.number.null')
     @Size(min = 3, max =100, message= 'account.number.size')
-    String number
+    String number//todo verify card number format
 
     boolean chargeable
 

@@ -796,7 +796,7 @@ class TransactionControllerSpec extends Specification {
         transactionDtos.size() == 1
     }
 
-    def "Should get a list of transactions of an account on a filter"(){
+    def "Should get a list of transactions of an account on a filter"(){//todo set system category
 
         given:'a transaction list'
         Account account1 = generateAccount()

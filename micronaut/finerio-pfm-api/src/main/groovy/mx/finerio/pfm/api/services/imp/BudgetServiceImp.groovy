@@ -123,6 +123,11 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     }
 
     @Override
+    Budget findByUserAndSystemCategory(User user, SystemCategory category){
+        budgetGormService.findByUserAndSystemCategoryAndDateDeletedIsNull(user, category)
+    }
+
+    @Override
     Budget findByCategory(Category category) {
         budgetGormService.findByCategoryAndDateDeletedIsNull(category)
     }
@@ -228,13 +233,17 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
 
     void setCategoryOrSystemCategory(ValidationCommand cmd, Budget budget, User userToSet) {
         Long categoryId = cmd["categoryId"] as Long
-        if (categoryId) {
-            SystemCategory systemCategory = systemCategoryService.find(categoryId)
-            if (systemCategory) {
-                budget.systemCategory = systemCategory
-            } else {
-                budget.category = findCategoryToSet(categoryId, userToSet)
-            }
+        if (!categoryId)  return
+
+        SystemCategory systemCategory = systemCategoryService.find(categoryId)
+        if (systemCategory && this.findByUserAndSystemCategory(userToSet, systemCategory)) {
+            throw new BadRequestException('budget.category.nonUnique')
+        }
+        if (systemCategory){
+            budget.systemCategory = systemCategory
+        }
+        else {
+            budget.category = findCategoryToSet(categoryId, userToSet)
         }
     }
 

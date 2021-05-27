@@ -60,13 +60,7 @@ class BudgetServiceSpec extends Specification {
         def response = budgetService.create(cmd)
 
         then:
-        assert response
-        response.with {
-            assert amount == 100.00
-            assert spent == 0.00
-            assert status.toString() == 'ok'
-            assert categoryId == category1.id
-        }
+        assert response == budget
     }
 
     def 'Should save an budget with no category and system category'(){
@@ -88,18 +82,11 @@ class BudgetServiceSpec extends Specification {
         1 * budgetService.systemCategoryService.find(_ as Long) >> systemCategory1
         0 * budgetService.categoryService.getById(_ as Long)
         1 * budgetService.budgetGormService.save(_  as Budget) >> budget
-        1 * budgetService.accountService.findAllByUser(_ as User) >> []
 
         def response = budgetService.create(cmd)
 
         then:
-        assert response
-        response.with {
-            assert amount == 100.00
-            assert spent == 0.00
-            assert status.toString() == 'ok'
-            assert categoryId == systemCategory1.id
-        }
+        assert response == budget
     }
 
     def 'Should edit an budget with no category and system category'(){
