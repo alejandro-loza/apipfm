@@ -86,9 +86,10 @@ class TransactionServiceImp  implements TransactionService {
             amount = cmd.amount ?: transaction.amount
         }
         if(cmd.categoryId){
-            Category category = categoryService.getById(cmd.categoryId)
-            verifyParentCategory(category)
-            transaction.category = category
+            setSystemCategoryOrCategory(cmd, transaction)
+        }
+        else{
+            tryToSetSystemCategoryByCategorizer(cmd, transaction)
         }
         transactionGormService.save(transaction)
     }
@@ -189,7 +190,7 @@ class TransactionServiceImp  implements TransactionService {
     }
 
     @Override
-    TransactionDto generateTransactionDto(transaction) {
+    TransactionDto generateTransactionDto(Transaction transaction) {
         TransactionDto transactionDto = new TransactionDto()
         transactionDto.with {
             id = transaction.id
@@ -219,27 +220,28 @@ class TransactionServiceImp  implements TransactionService {
         }
     }
 
-    void tryToSetSystemCategoryByCategorizer(TransactionCreateCommand cmd, Transaction transaction) {
-        String categoryId = categorizerService.searchCategory(cmd.description)?.categoryId
+    void tryToSetSystemCategoryByCategorizer(ValidationCommand cmd, Transaction transaction) {
+        String categoryId = categorizerService.searchCategory(cmd["description"] as String)?.categoryId
         if(categoryId){
             transaction.systemCategory = systemCategoryService.findByFinerioConnectId(categoryId)
         }
     }
 
-    void setSystemCategoryOrCategory(TransactionCreateCommand cmd, Transaction transaction) {
-        SystemCategory systemCategory = systemCategoryService.find(cmd.categoryId)
+    void setSystemCategoryOrCategory(ValidationCommand cmd, Transaction transaction) {
+        Long categoryId = cmd["categoryId"] as Long
+        SystemCategory systemCategory = systemCategoryService.find(categoryId)
         if (systemCategory) {
             verifySystemParentCategory(systemCategory)
             transaction.systemCategory = systemCategory
         }
         else {
-            Category category = categoryService.getById(cmd.categoryId)
+            Category category = categoryService.getById(categoryId)
             verifyParentCategory(category)
             transaction.category = category
         }
     }
 
-    private void verifySystemParentCategory(SystemCategory systemCategory) {
+    private static void verifySystemParentCategory(SystemCategory systemCategory) {
         if (!systemCategory?.parent) {
             throw new BadRequestException('category.parentCategory.null')
         }

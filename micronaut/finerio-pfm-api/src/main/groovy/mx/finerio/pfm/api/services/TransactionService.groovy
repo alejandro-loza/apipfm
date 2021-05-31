@@ -59,5 +59,5 @@ interface TransactionService {
     void deleteAllByAccount(Account account)
 
     @Log
-    TransactionDto generateTransactionDto(transaction)
+    TransactionDto generateTransactionDto(Transaction transaction)
 }
