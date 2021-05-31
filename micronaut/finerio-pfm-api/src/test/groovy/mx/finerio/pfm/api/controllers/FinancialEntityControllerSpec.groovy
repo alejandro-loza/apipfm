@@ -590,6 +590,7 @@ class FinancialEntityControllerSpec extends Specification {
             cardNumber = 'test number'
             nature = 'test nature'
             user = awesomeUser
+            balance = 100.00
         }
         accountGormService.save(account)
 
