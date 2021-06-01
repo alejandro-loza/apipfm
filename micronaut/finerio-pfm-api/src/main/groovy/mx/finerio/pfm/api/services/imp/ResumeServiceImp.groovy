@@ -247,11 +247,13 @@ class ResumeServiceImp implements ResumeService{
         }
 
         List<Transaction>  categoryTransactions = transactions.findAll { it.category != null }
-        movementsAnalysisDto.categories.addAll( getTransactionsGroupByBaseCategory(
-                categoryTransactions,
-                generateParentCategoryAnalysis,
-                parentCategoryCollector()
-        ))
+        if(categoryTransactions) {
+            movementsAnalysisDto.categories.addAll(getTransactionsGroupByBaseCategory(
+                    categoryTransactions,
+                    generateParentCategoryAnalysis,
+                    parentCategoryCollector()
+            ))
+        }
         movementsAnalysisDto
     }
 
