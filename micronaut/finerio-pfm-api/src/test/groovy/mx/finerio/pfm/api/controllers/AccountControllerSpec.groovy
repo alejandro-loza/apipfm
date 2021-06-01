@@ -164,7 +164,7 @@ class AccountControllerSpec extends Specification {
         cmd.with {
             userId = user.id
             financialEntityId = entity.id
-            nature ='DEBIT'
+            nature ='Debit'
             name = 'awesome account'
             number = 1234123412341234
             balance = 100.00
@@ -227,7 +227,7 @@ class AccountControllerSpec extends Specification {
         cmd.with {
             userId = 666
             financialEntityId = 666
-            nature ='DEBIT'
+            nature ='Debit'
             name = 'awesome account'
             number = 1234123412341234
             balance = 0.1
@@ -251,7 +251,7 @@ class AccountControllerSpec extends Specification {
         cmd.with {
             userId = user.id
             financialEntityId = 666
-            nature ='DEBIT'
+            nature ='Debit'
             name = 'awesome account'
             number = 1234123412341234
             balance = 0.1

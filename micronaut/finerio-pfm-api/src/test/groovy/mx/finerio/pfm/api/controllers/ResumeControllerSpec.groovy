@@ -200,6 +200,7 @@ class ResumeControllerSpec extends Specification{
             new Date(it.date)
         }
 
+
         assert userBodyexpensesDates.find{it.month == thisMonth.month && it.year == thisMonth.year}
         assert userBodyexpensesDates.find{it.month == fiveMonthAgo.month && it.year == fiveMonthAgo.year}
         assert userBodyexpensesDates.find{it.month == sixMonthAgo.month && it.year == sixMonthAgo.year}
@@ -211,13 +212,12 @@ class ResumeControllerSpec extends Specification{
         assert userBodybalanceDates.find{it.month == fiveMonthAgo.month && it.year == fiveMonthAgo.year}
         assert userBodybalanceDates.find{it.month == oneMonthAgo.month && it.year == oneMonthAgo.year}
 
-        assert userBody.expenses.size() == 4
-        assert userBody.incomes.size() == 4
-        assert userBody.balances.size() == 4
+        assert userBody.expenses.size() == 3
+        assert userBody.incomes.size() == 3
+        assert userBody.balances.size() == 3
         
         assert userBody.incomes.every {!it.categories.isEmpty()}
 
-     //   assert ! groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(userBody))
 
         assert  userBody.balances*.incomes
         assert  userBody.balances*.expenses
@@ -256,9 +256,9 @@ class ResumeControllerSpec extends Specification{
         assert balanceDates.find{it.month == oneMonthAgo.month && it.year == oneMonthAgo.year}
 
 
-        assert body.expenses.size() == 3
+        assert body.expenses.size() == 2
         assert body.incomes.size() == 2
-        assert body.balances.size() == 4
+        assert body.balances.size() == 3
 
         and:
         HttpRequest fromRequest = HttpRequest.GET(
