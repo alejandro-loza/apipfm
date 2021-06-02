@@ -142,10 +142,11 @@ class ResumeServiceImp implements ResumeService{
             List<Transaction> transactionList,
             Closure baseCategoryResumeGenerator,
             Closure groupCollector){
-        if(transactionList.isEmpty()) return
-
-
         List<BaseCategoryResumeDto> baseCategoryResumeDtos = []
+
+        if(transactionList.isEmpty()) return []
+
+
         Map<Long, List<Transaction>> transactionsGrouped = transactionList.stream()
                 .collect ( Collectors.groupingBy(groupCollector))
 
@@ -345,9 +346,7 @@ class ResumeServiceImp implements ResumeService{
     }
 
     private static Date generateDate(String rawDate) {
-        Date.from(LocalDate.parse(rawDate).atStartOfDay(ZoneId.systemDefault()).toInstant())
+        Date.from(LocalDate.parse(rawDate).atStartOfDay(ZoneId.of('America/Mexico_City')).toInstant())
     }
-
-
 
 }
