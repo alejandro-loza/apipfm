@@ -736,6 +736,35 @@ class TransactionControllerSpec extends Specification {
         assert body.get("nextCursor") == null
     }
 
+    def "Should get a list of transactions by account and next cursor"() {
+
+        given:'a transaction list'
+        Account account1 = generateAccount()
+
+        101.times {
+            generateTransaction(account1)
+        }
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?accountId=${account1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
+
+
+        assert body.get("nextCursor") == transactionDtos.last().id - 1
+    }
+
+    private void generateTransaction(Account account1) {
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+    }
+
     def "Should not get a list of transactions by account"(){
 
         given:'a transaction list'

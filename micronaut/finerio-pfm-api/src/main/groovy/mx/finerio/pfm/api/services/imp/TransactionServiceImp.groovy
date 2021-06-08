@@ -17,9 +17,7 @@ import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 import mx.finerio.pfm.api.validation.ValidationCommand
 import javax.inject.Inject
 
-class TransactionServiceImp  implements TransactionService {
-
-    public static final int MAX_ROWS = 100
+class TransactionServiceImp extends ServiceTemplate implements TransactionService {
 
     @Inject
     TransactionGormService transactionGormService
@@ -205,13 +203,6 @@ class TransactionServiceImp  implements TransactionService {
                     : transaction?.systemCategory?.id
         }
         transactionDto
-    }
-
-    private static void verifyBody(ValidationCommand cmd) {
-        if (!cmd) {
-            throw new IllegalArgumentException(
-                    'request.body.invalid')
-        }
     }
 
     private static void verifyParentCategory(Category category) {
