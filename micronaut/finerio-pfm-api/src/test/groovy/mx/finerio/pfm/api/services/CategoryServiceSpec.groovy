@@ -42,7 +42,8 @@ class CategoryServiceSpec extends Specification {
 
         when:
         categoryService.securityService.getAuthentication() >> of(Principal)
-        1 * categoryService.categoryGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long ) >> null
+        categoryService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * categoryService.categoryGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client ) >> null
         0 * categoryService.userService.getUser(_ as Long)
         0 * categoryService.categoryGormService.save()
 
@@ -64,8 +65,9 @@ class CategoryServiceSpec extends Specification {
         category.parent = parentCategory
 
         when:
-        1 * categoryService.securityService.getAuthentication() >> of(Principal)
-        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull( _ as Long) >> parentCategory
+        categoryService.securityService.getAuthentication() >> of(Principal)
+        categoryService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * categoryService.categoryGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client ) >> parentCategory
         1 * categoryService.categoryGormService.save(_  as Category) >> category
 
         Category response = categoryService.create(cmd)
@@ -89,8 +91,9 @@ class CategoryServiceSpec extends Specification {
         category.parent = pseudoParentCategory
 
         when:
-        1 * categoryService.securityService.getAuthentication() >> of(Principal)
-        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull( _ as Long) >> pseudoParentCategory
+        categoryService.securityService.getAuthentication() >> of(Principal)
+        categoryService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * categoryService.categoryGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client ) >> pseudoParentCategory
         0 * categoryService.categoryGormService.save(_  as Category) >> category
 
         categoryService.create(cmd)
@@ -113,7 +116,9 @@ class CategoryServiceSpec extends Specification {
     def "Should get a category"(){
 
         when:
-        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long) >> new Category()
+        categoryService.securityService.getAuthentication() >> of(Principal)
+        categoryService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * categoryService.categoryGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client ) >> new Category()
 
         def result = categoryService.getById(1L)
 
@@ -124,7 +129,9 @@ class CategoryServiceSpec extends Specification {
     def "Should not get a category and throw exception"(){
 
         when:
-        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long) >> null
+        categoryService.securityService.getAuthentication() >> of(Principal)
+        categoryService.clientService.findByUsername(_ as String) >>  new Client()
+        1 * categoryService.categoryGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long, _ as Client ) >> null
         categoryService.getById(666)
 
         then:

@@ -203,7 +203,7 @@ class TransactionServiceSpec extends Specification {
         when:
         transactionService.create(null)
         then:
-        IllegalArgumentException e = thrown()
+        BadRequestException e = thrown()
         e.message ==
                 'request.body.invalid'
     }
