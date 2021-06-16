@@ -40,7 +40,8 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
 
     @Override
     Category getById(Long id) {
-        Optional.ofNullable(find(id))
+        def category = categoryGormService.findByIdAndClientAndDateDeletedIsNull(id, getCurrentLoggedClient())
+        Optional.ofNullable(category)
                 .orElseThrow({ -> new ItemNotFoundException('category.notFound') })
     }
 

@@ -41,8 +41,8 @@ class CategoryServiceSpec extends Specification {
         cmd.userId = user.id
 
         when:
-        1 * categoryService.securityService.getAuthentication() >> of(Principal)
-        1 * categoryService.categoryGormService.findByIdAndDateDeletedIsNull(_ as Long ) >> null
+        categoryService.securityService.getAuthentication() >> of(Principal)
+        1 * categoryService.categoryGormService.findByIdAndClientAndDateDeletedIsNull(_ as Long ) >> null
         0 * categoryService.userService.getUser(_ as Long)
         0 * categoryService.categoryGormService.save()
 

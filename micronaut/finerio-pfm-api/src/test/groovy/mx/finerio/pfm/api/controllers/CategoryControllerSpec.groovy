@@ -362,6 +362,40 @@ class CategoryControllerSpec extends Specification {
 
     }
 
+    def "Should not get a category id if it does not belong to the current logged in client"() {
+        given: 'a saved user'
+        mx.finerio.pfm.api.domain.Client client1  = clientService.register( 'categoryGetTestClient', 'elementary', ['ROLE_ADMIN'])
+        User user = userGormService.save(new User('spy user', client1))
+
+        and: 'a saved category'
+        Category category = new Category(generateCategoryCommand(user), client1)
+        category.user = user
+        categoryGormService.save(category)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET(CATEGORIES_ROOT + "/${category.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(getReq, Argument.of(CategoryDto) as Argument<CategoryDto>, Argument.of(ErrorsDto))
+
+        then:
+        def e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        Optional<ErrorsDto> jsonError = e.response.getBody(ErrorsDto)
+
+        then:
+        assert jsonError.isPresent()
+        jsonError.get().errors.first().with {
+            assert code == 'category.notFound'
+            assert title == 'Category not found.'
+            assert detail == 'The category ID you requested was not found.'
+        }
+
+
+    }
+
     def "Should not get a category and throw 404"() {
         given: 'a not found id request'
 

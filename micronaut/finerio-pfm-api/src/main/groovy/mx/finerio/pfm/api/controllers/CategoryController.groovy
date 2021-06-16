@@ -7,6 +7,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 import io.reactivex.Single
 import mx.finerio.pfm.api.domain.Category
+import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.dtos.resource.CategoryDto
 import mx.finerio.pfm.api.dtos.resource.ResourcesDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
@@ -50,6 +51,18 @@ class CategoryController {
     @Get("/{id}")
     @Transactional
     Single<CategoryDto> show(@NotNull Long id) {
+        SystemCategory systemCategory = systemCategoryService.find(id)
+        if(systemCategory){
+            CategoryDto dto = new CategoryDto()
+            dto.with {
+                dto.id = systemCategory.id
+                name = systemCategory.name
+                color = systemCategory.color
+                parentCategoryId = systemCategory?.parent?.id
+            }
+            return Single.just(dto)
+        }
+
         Single.just(new CategoryDto(categoryService.getById(id)))
     }
 
