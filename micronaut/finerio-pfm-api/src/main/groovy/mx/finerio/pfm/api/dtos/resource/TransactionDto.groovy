@@ -1,8 +1,10 @@
 package mx.finerio.pfm.api.dtos.resource
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.ToString
 import mx.finerio.pfm.api.domain.Transaction
 
+@JsonInclude(JsonInclude.Include.ALWAYS)
 @ToString(includeNames = true, includePackage = false,
     includeSuperProperties = true)
 class TransactionDto extends ResourceDto{
