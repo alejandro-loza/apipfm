@@ -19,7 +19,7 @@ databaseChangeLog:
                     nullable: false
                     primaryKey: true
   - changeSet:
-      id: client_sequence_pk
+      id: budget_sequence_pk
       author: alejandro.hernandez
       dbms: oracle
       changes:
@@ -90,7 +90,7 @@ databaseChangeLog:
                   referencedTableName: users
 
   - changeSet:
-      id: budget
+      id: budget_warning_percentage
       author: alejandro.hernandez
       changes:
       - addColumn:

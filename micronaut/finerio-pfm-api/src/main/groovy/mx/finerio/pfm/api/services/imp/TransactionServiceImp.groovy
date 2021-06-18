@@ -19,6 +19,7 @@ import javax.inject.Inject
 
 class TransactionServiceImp extends ServiceTemplate implements TransactionService {
 
+    public static final int NO_SYSTEM_CATEGORY = 92
     @Inject
     TransactionGormService transactionGormService
 
@@ -51,13 +52,9 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
             charge =  cmd.charge
             amount = cmd.amount as Float
         }
-        if(cmd.categoryId){
-            setSystemCategoryOrCategory(cmd, transaction)
-        }
-        else{
-            tryToSetSystemCategoryByCategorizer(cmd, transaction)
-        }
+        setTransactionCategory(cmd, transaction)
         transactionGormService.save(transaction)
+
         if(transactionAccount.chargeable) {
             accountService.updateBalanceByTransaction(transaction)
         }
@@ -240,6 +237,18 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
 
     private boolean isTransactionFiltersCommandNonEmpty(TransactionFiltersCommand cmd) {
         !transactionFilterService.generateProperties(cmd).isEmpty()
+    }
+
+
+    private void setTransactionCategory(TransactionCreateCommand cmd, Transaction transaction) {
+        if (cmd.categoryId) {
+            setSystemCategoryOrCategory(cmd, transaction)
+        } else {
+            tryToSetSystemCategoryByCategorizer(cmd, transaction)
+        }
+        if (!transaction.category && !transaction.systemCategory) {
+            transaction.systemCategory = systemCategoryService.find(NO_SYSTEM_CATEGORY)
+        }
     }
 
 }

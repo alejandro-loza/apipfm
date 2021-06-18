@@ -282,7 +282,7 @@ class TransactionControllerSpec extends Specification {
 
         then:
         rsp.status == HttpStatus.OK
-        assert  !body.get().categoryId
+        assert  body.get().categoryId == 92
     }
 
     def "Should not create a transaction and throw bad request on category without parent"(){

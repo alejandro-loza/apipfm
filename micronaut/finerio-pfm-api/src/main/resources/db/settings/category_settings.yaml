@@ -19,7 +19,7 @@ databaseChangeLog:
             defaultOnNull: false
             generationType: ALWAYS
             incrementBy: 1
-            startWith: 91
+            startWith: 1001
             tableName: category
   - changeSet:
         id: category_sequence_pk
@@ -34,7 +34,7 @@ databaseChangeLog:
               incrementBy: 1
               ordered: true
               sequenceName: category_seq
-              startValue: 91
+              startValue: 1001
   - changeSet:
       id: category_oracle_id_pk
       author: alejandro.hernandez

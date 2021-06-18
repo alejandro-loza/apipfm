@@ -228,6 +228,8 @@ class ResumeServiceImp implements ResumeService{
             ))
         }
 
+
+
         movementsDto.amount = transactions*.amount.sum() as float
         movementsDto
     }

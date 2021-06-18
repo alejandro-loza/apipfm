@@ -11,9 +11,6 @@ databaseChangeLog:
                   name: id
                   valueComputed: system_category_seq.NEXTVAL
               - column:
-                  name: id
-                  valueComputed: system_category_seq.NEXTVAL
-              - column:
                   name: version
                   value: 0
               - column:
@@ -1861,3 +1858,42 @@ databaseChangeLog:
               - column:
                   name: finerio_connect_id
                   value: '00000000-0000-0000-0000-00000000005a'
+        - insert:
+            tableName: system_category
+            columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Sin categoria'
+              - column:
+                  name: color
+                  value: '#FFFFFF'
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000000'
+        - insert:
+            tableName: system_category
+            columns:
+              - column:
+                  name: id
+                  valueComputed: system_category_seq.NEXTVAL
+              - column:
+                  name: version
+                  value: 0
+              - column:
+                  name: name
+                  value: 'Sin sub categoria'
+              - column:
+                  name: color
+                  value: '#FFFFFF'
+              - column:
+                  name: parent_id
+                  value: 91
+              - column:
+                  name: finerio_connect_id
+                  value: '00000000-0000-0000-0000-000000000000'
