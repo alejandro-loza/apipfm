@@ -21,12 +21,11 @@ micronaut:
     cors:
       enabled: true
 dataSource:
-  pooled: true
-  dbCreate: none
-  url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
-  driverClassName: ${JDBC_DRIVER:org.h2.Driver}
-  username: ${JDBC_USER:sa}
-  password: ${JDBC_PASSWORD:""}
+  url: jdbc:oracle:thin:@oracle-test.cnl1kw96ddli.us-east-2.rds.amazonaws.com:1521:ORCL
+  driverClassName: oracle.jdbc.driver.OracleDriver
+  username: admin
+  password: Dyb5kX3zf2as6ZGJcLw8Q7gRHVn7d
+  dialect: ORACLE
 liquibase:
   datasources:
     default:
@@ -35,3 +34,7 @@ categorizer:
   url: 'http://ec2-3-12-253-103.us-east-2.compute.amazonaws.com:8085'
   username: '9j7gnsHf9Nn6kWnmx5cEFtcHq962jyFzbSj7ULkYRXSadrhjSS'
   password: 'zehx6XCAZXpsxZAm2UBQhteabjUED86EvtqfL2j54qQzBawTeGz9m87dAjEeCuRzPcmstf96jDY6Fbap2NFaAz3YxkVMaDAZxQy8'
+endpoints:
+  health:
+    enabled: true
+    sensitive: true
