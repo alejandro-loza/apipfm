@@ -21,11 +21,12 @@ micronaut:
     cors:
       enabled: true
 dataSource:
-  url: jdbc:oracle:thin:@oracle-test.cnl1kw96ddli.us-east-2.rds.amazonaws.com:1521:ORCL
-  driverClassName: oracle.jdbc.driver.OracleDriver
-  username: admin
-  password: Dyb5kX3zf2as6ZGJcLw8Q7gRHVn7d
-  dialect: ORACLE
+  pooled: true
+  dbCreate: none
+  url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
+  driverClassName: ${JDBC_DRIVER:org.h2.Driver}
+  username: ${JDBC_USER:sa}
+  password: ${JDBC_PASSWORD:""}
 liquibase:
   datasources:
     default:
