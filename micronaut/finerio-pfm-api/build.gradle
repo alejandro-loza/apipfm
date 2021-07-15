@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.liquibase:liquibase-groovy-dsl:2.0.3'
     compile group: 'com.oracle.ojdbc', name: 'ojdbc8', version: '19.3.0.0'
 
-    annotationProcessor "io.micronaut:micronaut-security-annotations:2.0.0.BUILD-SNAPSHOT"
+    annotationProcessor "io.micronaut:micronaut-security-annotations:2.0.0.M2"
     implementation "io.micronaut:micronaut-security-jwt"
 
     implementation "org.springframework.security:spring-security-crypto:${springSecurityCryptoVersion}"
