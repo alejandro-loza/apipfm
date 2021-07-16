@@ -14,6 +14,7 @@ class Transaction implements GormEntity<Transaction> {
     Date executionDate
     boolean charge
     String description
+    String cleanedDescription
     float  amount
     Date dateCreated
     Date lastUpdated
@@ -37,6 +38,7 @@ class Transaction implements GormEntity<Transaction> {
         id generator: 'native', params:[sequence:'TRANSACTION_SEQ']
         executionDate nullable: false, blank:false
         description  nullable: false, blank:false
+        cleanedDescription  nullable: true
         amount nullable: false
         dateDeleted nullable:true
         category nullable:true
