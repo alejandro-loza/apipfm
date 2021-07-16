@@ -215,7 +215,7 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
             transaction.charge, false)?.categoryId
         if(categoryId){
             transaction.systemCategory = systemCategoryService.findByFinerioConnectId(categoryId)
-            transaction.cleanedDescription = cleanedDescription
+            transaction.description = cleanedDescription
         }
     }
 
