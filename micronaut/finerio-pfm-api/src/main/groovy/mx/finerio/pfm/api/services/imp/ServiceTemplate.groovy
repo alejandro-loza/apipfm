@@ -7,6 +7,7 @@ import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.validation.ValidationCommand
 
 import javax.inject.Inject
+import java.time.ZonedDateTime
 
 class ServiceTemplate {
 
@@ -31,6 +32,10 @@ class ServiceTemplate {
 
     Client getCurrentLoggedClient() {
         clientService.findByUsername(securityService.getAuthentication().get().name)
+    }
+
+    protected Date getFirstDayOfCurrentMonth() {
+        Date.from(ZonedDateTime.now().withDayOfMonth(1).toInstant())
     }
 
 }

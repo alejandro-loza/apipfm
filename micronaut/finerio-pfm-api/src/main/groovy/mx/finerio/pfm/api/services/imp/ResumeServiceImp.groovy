@@ -18,9 +18,8 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.stream.Collectors
 
-class ResumeServiceImp implements ResumeService{
+class ResumeServiceImp extends ServiceTemplate implements ResumeService{
 
-    public static final Date FROM_LIMIT = Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
     public static final boolean INCOME = false
     public static final boolean EXPENSE = true
 
@@ -34,7 +33,7 @@ class ResumeServiceImp implements ResumeService{
     @Transactional
     ResumeDto getResume(Long userId, ResumeFilterParamsCommand cmd) {
 
-        Date fromDate = cmd.dateFrom ? validateFromDate(cmd.dateFrom) : FROM_LIMIT
+        Date fromDate = cmd.dateFrom ? validateFromDate(cmd.dateFrom) : getFromLimit()
         Date toDate = cmd.dateTo ? validateToDate(cmd.dateTo , fromDate) : new Date()
 
         List<Account> accounts = cmd.accountId
@@ -89,13 +88,13 @@ class ResumeServiceImp implements ResumeService{
 
     @Override
     Date getFromLimit() {
-        FROM_LIMIT
+        return Date.from(ZonedDateTime.now().minusMonths(6).toInstant())
     }
 
     @Override
     Date validateFromDate(Long dateFrom) {
         Date from = new Date(dateFrom)
-        if(from.before(FROM_LIMIT)){
+        if(from.before(getFromLimit())){
             throw new BadRequestException("date.range.invalid")
         }
         from

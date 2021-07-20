@@ -75,7 +75,7 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
         Transaction transaction = find(id)
         transaction.with {
             account = cmd.accountId ? accountService.getAccount(cmd.accountId) : transaction.account
-            executionDate = cmd.date ? new Date(cmd.date) : new Date()
+            executionDate = cmd.date ? new Date(cmd.date) : transaction.executionDate
             description = cmd.description ?: transaction.description
             charge = cmd.charge != null? cmd.charge: transaction.charge
             amount = cmd.amount ?: transaction.amount
@@ -209,8 +209,8 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
     }
 
     void tryToSetSystemCategoryByCategorizer(ValidationCommand cmd, Transaction transaction) {
-        String cleanedDescription = categorizerService.cleanText(cmd["description"] as String,
-            transaction.charge).result
+        String cleanedDescription = categorizerService.cleanText(
+                cmd["description"] as String, transaction.charge)?.result
         String categoryId = categorizerService.searchCategory(cleanedDescription,
             transaction.charge, false)?.categoryId
         if(categoryId){

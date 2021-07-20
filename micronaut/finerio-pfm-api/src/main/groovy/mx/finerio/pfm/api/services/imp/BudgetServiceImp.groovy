@@ -17,7 +17,6 @@ import java.time.ZonedDateTime
 class BudgetServiceImp extends ServiceTemplate implements BudgetService {
 
     public static final BigDecimal DEFAULT_WARNING_PERCENTAGE = 0.7
-    public static final Date THIS_MONTH_FIRST_DAY = Date.from(ZonedDateTime.now().withDayOfMonth(1).toInstant())
     public static final boolean EXPENSE = true
 
     @Inject
@@ -137,7 +136,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         List<Transaction> thisMonthTransactions = budget.systemCategory ?
                 getThisMonthUserAccountsSystemCategoryExpenses(budget)
                 : transactionService
-                .findAllByCategoryChargeAndDateFrom(budget.category, THIS_MONTH_FIRST_DAY, EXPENSE)
+                .findAllByCategoryChargeAndDateFrom(budget.category, getFirstDayOfCurrentMonth(), EXPENSE)
 
         return generateBudgetDto(budget, thisMonthTransactions)
     }
@@ -190,7 +189,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         List<Transaction> thisMonthTransactions = []
         accountService.findAllByUser(user).each { Account account ->
             thisMonthTransactions.addAll(transactionService.findAllByAccountAndChargeAndDateRange(
-                    account, EXPENSE, THIS_MONTH_FIRST_DAY, new Date()))
+                    account, EXPENSE, getFirstDayOfCurrentMonth(), new Date()))
         }
         thisMonthTransactions
     }
@@ -199,7 +198,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
         List<Transaction> thisMonthTransactions = []
         accountService.findAllByUser(budget.user).each { Account account ->
             thisMonthTransactions.addAll(transactionService.findAllByAccountSystemCategoryChargeAndDateFrom(
-                    account, budget.systemCategory, THIS_MONTH_FIRST_DAY, EXPENSE))
+                    account, budget.systemCategory, getFirstDayOfCurrentMonth(), EXPENSE))
         }
         thisMonthTransactions
     }

@@ -8,6 +8,7 @@ import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.CategorizerDto
+import mx.finerio.pfm.api.dtos.resource.CleanerDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
@@ -62,6 +63,7 @@ class TransactionServiceSpec extends Specification {
             accountId = 666
             date =  new Date().getTime()
             amount = 100.50
+            description = 'the description'
         }
 
         CategorizerDto categorizerDto = new CategorizerDto()
@@ -69,10 +71,13 @@ class TransactionServiceSpec extends Specification {
             categoryId = 'uuid'
         }
 
-        when:
+        CleanerDto cleaner = new CleanerDto()
+        cleaner.result = 'result'
 
+        when:
         1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
-        1 * transactionService.categorizerService.searchCategory(_ ) >> categorizerDto
+        1 * transactionService.categorizerService.cleanText(_, _) >> cleaner
+        1 * transactionService.categorizerService.searchCategory(_ as String,  _ as Boolean,  _ as Boolean ) >> categorizerDto
         1 * transactionService.systemCategoryService.findByFinerioConnectId(_ as String) >> new SystemCategory()
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
 
@@ -92,11 +97,14 @@ class TransactionServiceSpec extends Specification {
             amount = 100.50
         }
 
+        CleanerDto cleaner = new CleanerDto()
+        cleaner.result = 'result'
 
         when:
 
         1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
-        1 * transactionService.categorizerService.searchCategory(_ ) >> new CategorizerDto()
+        1 * transactionService.categorizerService.cleanText(_, _) >> cleaner
+        1 * transactionService.categorizerService.searchCategory(_ as String,  _ as Boolean,  _ as Boolean ) >> new CategorizerDto()
         0 * transactionService.categoryService.getById(_ as Long)
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
 

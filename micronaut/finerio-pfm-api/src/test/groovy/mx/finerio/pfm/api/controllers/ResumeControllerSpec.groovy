@@ -73,8 +73,7 @@ class ResumeControllerSpec extends Specification{
     @Shared
     String accessToken
 
-    def setupSpec()
-    {
+    def setupSpec() {
         def generatedUserName = this.getClass().getCanonicalName()
         loggedInClient = clientService.register( generatedUserName, 'elementary', ['ROLE_ADMIN'])
         HttpRequest request = HttpRequest.POST(LOGIN_ROOT, [username:generatedUserName, password:'elementary'])
@@ -212,9 +211,9 @@ class ResumeControllerSpec extends Specification{
         assert userBodybalanceDates.find{it.month == fiveMonthAgo.month && it.year == fiveMonthAgo.year}
         assert userBodybalanceDates.find{it.month == oneMonthAgo.month && it.year == oneMonthAgo.year}
 
-        assert userBody.expenses.size() == 3
-        assert userBody.incomes.size() == 3
-        assert userBody.balances.size() == 3
+        assert userBody.expenses.size() == 4
+        assert userBody.incomes.size() == 4
+        assert userBody.balances.size() == 4
         
         assert userBody.incomes.every {!it.categories.isEmpty()}
 
@@ -256,9 +255,9 @@ class ResumeControllerSpec extends Specification{
         assert balanceDates.find{it.month == oneMonthAgo.month && it.year == oneMonthAgo.year}
 
 
-        assert body.expenses.size() == 2
+        assert body.expenses.size() == 3
         assert body.incomes.size() == 2
-        assert body.balances.size() == 3
+        assert body.balances.size() == 4
 
         and:
         HttpRequest fromRequest = HttpRequest.GET(
@@ -407,6 +406,7 @@ class ResumeControllerSpec extends Specification{
     def "Should get a list of transactions  of the account of the user on a range of dates using system categories"(){
 
         given:'a transaction list'
+
         User user1 = generateUser()
         Account account1 = generateAccount(user1)
         Account account2 = generateAccount(user1)
