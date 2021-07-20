@@ -523,7 +523,7 @@ class TransactionControllerSpec extends Specification {
         resp.body().with {
             assert date.getTime() == cmd.date
             assert charge == cmd.charge
-            assert description == 'UBER'
+            assert description == cmd.description
             amount == cmd.amount
         }
 
@@ -587,7 +587,7 @@ class TransactionControllerSpec extends Specification {
         then:
         resp.status == HttpStatus.OK
         resp.body().with {
-            assert description == cmd.description.toUpperCase()
+            assert description == cmd.description
             amount == cmd.amount
             assert charge == cmd.charge
         }
