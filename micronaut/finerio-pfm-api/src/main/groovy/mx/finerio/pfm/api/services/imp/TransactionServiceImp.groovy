@@ -210,9 +210,9 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
 
     void tryToSetSystemCategoryByCategorizer(ValidationCommand cmd, Transaction transaction) {
         String cleanedDescription = categorizerService.cleanText(cmd["description"] as String,
-            transaction.charge).result
+            !transaction.charge).result
         String categoryId = categorizerService.searchCategory(cleanedDescription,
-            transaction.charge, false)?.categoryId
+            !transaction.charge, false)?.categoryId
         if(categoryId){
             transaction.systemCategory = systemCategoryService.findByFinerioConnectId(categoryId)
             transaction.description = cleanedDescription
