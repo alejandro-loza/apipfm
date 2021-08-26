@@ -16,6 +16,11 @@ micronaut:
           secret:
             generator:
               secret: secret01234567890ABCDEFGHIJKLMNO
+    intercept-url-map:
+      - pattern: /health
+        http-method: GET
+        access:
+          - isAnonymous()
   server:
     port: 8080
     cors:
@@ -27,6 +32,7 @@ dataSource:
   driverClassName: ${JDBC_DRIVER:org.h2.Driver}
   username: ${JDBC_USER:sa}
   password: ${JDBC_PASSWORD:""}
+  validation-query: select 1 from dual
 liquibase:
   datasources:
     default:
