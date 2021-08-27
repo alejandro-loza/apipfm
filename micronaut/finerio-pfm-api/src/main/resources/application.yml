@@ -32,7 +32,7 @@ dataSource:
   driverClassName: ${JDBC_DRIVER:org.h2.Driver}
   username: ${JDBC_USER:sa}
   password: ${JDBC_PASSWORD:""}
-  validation-query: select 1 from dual
+  test-while-idle: true
 liquibase:
   datasources:
     default:
