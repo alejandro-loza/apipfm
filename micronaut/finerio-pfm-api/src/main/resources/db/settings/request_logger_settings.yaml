@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: request_logger_id_pk
+      author: alejandro.hernandez
+      dbms: mysql,h2
+      preConditions:
+        - or:
+            - dbms:
+                type:  mysql,h2
+      changes:
+        - addColumn:
+            tableName: request_logger
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+  - changeSet:
+        id: request_logger_sequence_pk
+        author: alejandro.hernandez
+        dbms: oracle
+        changes:
+          - createSequence:
+              cacheSize: 371717
+              cycle: true
+              dataType: int
+              maxValue: 10000000
+              incrementBy: 1
+              ordered: true
+              sequenceName: request_logger_seq
+              startValue: 1
+  - changeSet:
+      id: request_logger_oracle_id_pk
+      author: alejandro.hernandez
+      dbms: oracle
+      preConditions:
+        - or:
+            - dbms:
+                type: oracle
+      changes:
+        - addColumn:
+            tableName: request_logger
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  valueComputed: request_logger_seq.NEXTVAL
+                  constraints:
+                    nullable: false
+                    primaryKey: true
