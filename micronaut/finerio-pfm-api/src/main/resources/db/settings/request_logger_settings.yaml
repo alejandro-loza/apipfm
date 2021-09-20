@@ -51,3 +51,15 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+  - changeSet:
+      id: request_logger_user_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: request_logger
+            constraintName: fk_request_logger_user
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: users

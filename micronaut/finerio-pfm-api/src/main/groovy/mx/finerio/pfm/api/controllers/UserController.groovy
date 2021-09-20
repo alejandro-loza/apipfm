@@ -7,6 +7,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.utils.SecurityService
 import io.micronaut.validation.Validated
 import io.reactivex.Single
+import mx.finerio.pfm.api.logging.RequestLogger
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Category
 import mx.finerio.pfm.api.domain.Client
@@ -54,12 +55,12 @@ class UserController {
     @Inject
     NextCursorService nextCursorService
 
-    @Log
     @Post("/")
     Single<UserDto> save(@Body @Valid UserCommand cmd){
         just(new UserDto(userService.create(cmd, getCurrentLoggedClient())))
     }
 
+    @RequestLogger
     @Log
     @Get("/{id}")
     Single<UserDto> show(@NotNull Long id) {

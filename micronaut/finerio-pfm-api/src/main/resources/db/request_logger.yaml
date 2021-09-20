@@ -12,12 +12,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: userId
-                  type: java.sql.Types.VARCHAR(255)
+                  name: user_id
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
-                  name: type
+                  name: event_type
                   type: java.sql.Types.VARCHAR(255)
                   constraints:
                     nullable: false

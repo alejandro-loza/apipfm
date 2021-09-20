@@ -53,3 +53,5 @@ databaseChangeLog:
       file: db/data/system_category_oracle_data.yaml
   - include:
       file: db/request_logger.yaml
+  - include:
+      file: db/settings/request_logger_settings.yaml

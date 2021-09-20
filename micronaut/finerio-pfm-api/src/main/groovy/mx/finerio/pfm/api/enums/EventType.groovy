@@ -1,0 +1,16 @@
+package mx.finerio.pfm.api.enums
+
+enum EventType {
+    USER_CREATE,
+    USER_UPDATE,
+    USER_DELETE,
+    USER_GET,
+    ACCOUNT_CREATE,
+    ACCOUNT_UPDATE,
+    ACCOUNT_DELETE,
+    ACCOUNT_GET,
+    TRANSACTION_CREATE,
+    TRANSACTION_UPDATE,
+    TRANSACTION_DELETE,
+    TRANSACTION_GET
+}

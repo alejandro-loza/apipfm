@@ -4,6 +4,7 @@ import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.logging.Log
+import mx.finerio.pfm.api.logging.RequestLogger
 import mx.finerio.pfm.api.validation.UserCommand
 
 interface UserService {
@@ -11,7 +12,7 @@ interface UserService {
     @Log
     User getUser(long id)
 
-    @Log
+    @RequestLogger
     User create(UserCommand cmd, Client client)
 
     @Log

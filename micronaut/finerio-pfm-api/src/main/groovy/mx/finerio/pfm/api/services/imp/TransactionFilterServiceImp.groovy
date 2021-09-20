@@ -15,6 +15,7 @@ class TransactionFilterServiceImp implements TransactionFilterService {
                          "dateFrom": fromDateFilter,
                          "dateTo":toDateFilter,
                          "description": descriptionFilter]
+
         List<List<TransactionDto>> filterLists = generateProperties(cmd).collect {
             filterMap[it.key as String](transactionDtos, cmd)
         }

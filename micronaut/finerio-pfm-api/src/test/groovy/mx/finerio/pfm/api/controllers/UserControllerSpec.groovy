@@ -52,6 +52,10 @@ class UserControllerSpec extends Specification {
 
     @Inject
     @Shared
+    RequestLoggerGormService requestLoggerGormService
+
+    @Inject
+    @Shared
     FinancialEntityGormService financialEntityGormService
 
     @Inject
@@ -97,6 +101,11 @@ class UserControllerSpec extends Specification {
             categoryGormService.delete(category.id)
         }
 
+        List<RequestLogger> logs = requestLoggerGormService.findAll()
+        logs.each { log ->
+            requestLoggerGormService.delete(log.id)
+        }
+
         List<User> users = userGormService.findAll()
         users.each { user ->
             userGormService.delete(user.id)
@@ -132,7 +141,8 @@ class UserControllerSpec extends Specification {
         assert body.get("nextCursor") == null
     }
 
-    def "Should create and get user"(){
+    def "Should create an user"() {
+
         given:'an user'
         UserCommand cmd = new UserCommand()
         cmd.with {
@@ -423,7 +433,6 @@ class UserControllerSpec extends Specification {
 
         User user2 = generateUser()
 
-        User user3 =generateUser()
 
         and:
         HttpRequest getReq = HttpRequest.GET("${USER_ROOT}?cursor=${user2.id}").bearerAuth(accessToken)
