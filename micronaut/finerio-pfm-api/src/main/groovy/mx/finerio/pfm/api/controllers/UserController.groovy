@@ -55,16 +55,15 @@ class UserController {
     @Inject
     NextCursorService nextCursorService
 
+    @Log
     @Post("/")
     Single<UserDto> save(@Body @Valid UserCommand cmd){
         just(new UserDto(userService.create(cmd, getCurrentLoggedClient())))
     }
 
-    @RequestLogger
-    @Log
     @Get("/{id}")
     Single<UserDto> show(@NotNull Long id) {
-        just(new UserDto(userService.getUser(id)))
+        just(userService.getUser(id))
     }
 
     @Log
@@ -86,7 +85,7 @@ class UserController {
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
-        User user = userService.getUser(id)
+        User user = userService.findUser(id)
         deleteAllUserChildEntities(user)
         userService.delete(user)
         HttpResponse.noContent()

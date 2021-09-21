@@ -112,6 +112,142 @@ class UserControllerSpec extends Specification {
         }
     }
 
+    def "Should delete an user"() {
+        given:'a saved user'
+        User user = generateUser()
+        Long id = user.id
+
+        and:'a list of accounts'
+        Account account1 = generateAccount(user)
+        Account account2 = generateAccount(user)
+
+        and:
+        generateTransaction(account1)
+        generateTransaction(account2)
+
+        and:
+
+        Category parentCategory = new Category()
+        parentCategory.with {
+            parentCategory.user = user
+            parentCategory.client = loggedInClient
+            name = 'parent category name'
+        }
+
+        categoryGormService.save(parentCategory)
+
+        Category childCategory = new Category()
+        childCategory.with {
+            childCategory.user = user
+            childCategory.client = loggedInClient
+            name = 'child category name'
+            parent = parentCategory
+        }
+
+        categoryGormService.save(childCategory)
+
+
+        and:'a client request'
+        HttpRequest request = HttpRequest.DELETE("${USER_ROOT}/${id}").bearerAuth(accessToken)
+
+        when:
+        def response = client.toBlocking().exchange(request, UserDto)
+
+        then:
+        response.status == HttpStatus.NO_CONTENT
+        assert userGormService.findById(user.id).dateDeleted
+
+        when:
+        def accounts =  accountGormService.findAllByUserAndDateDeletedIsNull(user, [sort: 'id', order: 'desc'])
+
+        then:
+        assert accounts.isEmpty()
+        when:
+        def transactions1 =  transactionGormService.findAllByAccountAndDateDeletedIsNull(account1, [sort: 'id', order: 'desc'])
+
+        then:
+        assert transactions1.isEmpty()
+
+        when:
+        def transactions2 =  transactionGormService.findAllByAccountAndDateDeletedIsNull(account2, [sort: 'id', order: 'desc'])
+
+        then:
+        assert transactions2.isEmpty()
+
+        when:
+        List<Category> categories = categoryGormService.findAllByUserAndDateDeletedIsNull(user, [sort: 'id', order: 'desc'])
+
+        then:
+        assert categories.isEmpty()
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'UserServiceImp.delete'
+        assert  logEntry.dateCreated
+
+    }
+
+    def "Should update an user"(){
+
+        given:'a saved user'
+        User user =  generateUser()
+
+        and:'an user command to update data'
+        UserCommand cmd = new UserCommand()
+        cmd.with {
+            name = 'awesome name'
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${USER_ROOT}/${user.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, UserDto)
+
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().name == cmd.name
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'UserServiceImp.update'
+        assert  logEntry.dateCreated
+
+    }
+
+    def "Should get an user"(){
+        given:'a saved user'
+        User user =  generateUser()
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("${USER_ROOT}/${user.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Argument.of(UserDto) as Argument<UserDto>,
+                Argument.of(ErrorDto))
+
+        then:
+        rspGET.status == HttpStatus.OK
+        rspGET.body().name == user.name
+        rspGET.body().dateCreated
+        rspGET.body().id
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'UserServiceImp.getUser'
+        assert  logEntry.dateCreated
+
+    }
+
     def "Should get unauthorized"() {
 
         given:
@@ -157,6 +293,13 @@ class UserControllerSpec extends Specification {
         then:
         rsp.status == HttpStatus.OK
         rsp.body().name == cmd.name
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(rsp.body().id)
+
+        then:
+        assert  logEntry.eventType == 'UserServiceImp.create'
+        assert  logEntry.dateCreated
     }
 
     def 'Should throw exception on an username that already exist'(){
@@ -181,25 +324,6 @@ class UserControllerSpec extends Specification {
         e.response.status.code == 400
 
 
-
-    }
-
-    def "Should get an user"(){
-        given:'a saved user'
-        User user =  generateUser()
-
-        and:
-        HttpRequest getReq = HttpRequest.GET("${USER_ROOT}/${user.id}").bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, Argument.of(UserDto) as Argument<UserDto>,
-                Argument.of(ErrorDto))
-
-        then:
-        rspGET.status == HttpStatus.OK
-        rspGET.body().name == user.name
-        rspGET.body().dateCreated
-        rspGET.body().id
 
     }
 
@@ -271,28 +395,6 @@ class UserControllerSpec extends Specification {
             assert title == 'User not found.'
             assert detail == 'The user ID you requested was not found.'
         }
-
-    }
-
-    def "Should update an user"(){
-        given:'a saved user'
-        User user =  generateUser()
-
-        and:'an user command to update data'
-        UserCommand cmd = new UserCommand()
-        cmd.with {
-            name = 'awesome name'
-        }
-
-        and:'a client'
-        HttpRequest request = HttpRequest.PUT("${USER_ROOT}/${user.id}",  cmd).bearerAuth(accessToken)
-
-        when:
-        def resp = client.toBlocking().exchange(request, UserDto)
-
-        then:
-        resp.status == HttpStatus.OK
-        resp.body().name == cmd.name
 
     }
 
@@ -462,76 +564,6 @@ class UserControllerSpec extends Specification {
         then:
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
-
-    }
-
-    def "Should delete an user"() {
-        given:'a saved user'
-        User user = generateUser()
-        Long id = user.id
-
-        and:'a list of accounts'
-        Account account1 = generateAccount(user)
-        Account account2 = generateAccount(user)
-
-        and:
-        generateTransaction(account1)
-        generateTransaction(account2)
-
-        and:
-
-        Category parentCategory = new Category()
-        parentCategory.with {
-            parentCategory.user = user
-            parentCategory.client = loggedInClient
-            name = 'parent category name'
-        }
-
-        categoryGormService.save(parentCategory)
-
-        Category childCategory = new Category()
-        childCategory.with {
-            childCategory.user = user
-            childCategory.client = loggedInClient
-            name = 'child category name'
-            parent = parentCategory
-        }
-
-        categoryGormService.save(childCategory)
-
-
-        and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("${USER_ROOT}/${id}").bearerAuth(accessToken)
-
-        when:
-        def response = client.toBlocking().exchange(request, UserDto)
-
-        then:
-        response.status == HttpStatus.NO_CONTENT
-        assert userGormService.findById(user.id).dateDeleted
-
-        when:
-        def accounts =  accountGormService.findAllByUserAndDateDeletedIsNull(user, [sort: 'id', order: 'desc'])
-
-        then:
-        assert accounts.isEmpty()
-        when:
-        def transactions1 =  transactionGormService.findAllByAccountAndDateDeletedIsNull(account1, [sort: 'id', order: 'desc'])
-
-        then:
-        assert transactions1.isEmpty()
-
-        when:
-        def transactions2 =  transactionGormService.findAllByAccountAndDateDeletedIsNull(account2, [sort: 'id', order: 'desc'])
-
-        then:
-        assert transactions2.isEmpty()
-
-        when:
-        List<Category> categories = categoryGormService.findAllByUserAndDateDeletedIsNull(user, [sort: 'id', order: 'desc'])
-
-        then:
-        assert categories.isEmpty()
 
     }
 

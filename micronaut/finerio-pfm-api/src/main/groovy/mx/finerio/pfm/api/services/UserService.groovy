@@ -9,15 +9,22 @@ import mx.finerio.pfm.api.validation.UserCommand
 
 interface UserService {
 
+    @RequestLogger
     @Log
-    User getUser(long id)
+    UserDto getUser(long id)
+
+    @Log
+    User findUser(long id)
 
     @RequestLogger
+    @Log
     User create(UserCommand cmd, Client client)
 
+    @RequestLogger
     @Log
     User update(UserCommand cmd, Long id)
 
+    @RequestLogger
     @Log
     void delete(User user)
 

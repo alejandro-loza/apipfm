@@ -31,12 +31,10 @@ class RequestLogerInterceptor  extends ServiceTemplate
     Object intercept( MethodInvocationContext<Object, Object> context ) {
 
         Object returnValue = null
-
+        def rf = null
         try {
             returnValue = context.proceed()
-            if(returnValue){
-                requestLoggerService.create(context, returnValue)
-            }
+             rf = requestLoggerService.create(context, returnValue)
 
         } catch( Exception e ) {
             log.info( "{} >> {} - {}",

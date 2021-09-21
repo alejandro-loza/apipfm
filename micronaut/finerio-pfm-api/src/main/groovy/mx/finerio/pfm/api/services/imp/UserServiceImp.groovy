@@ -20,7 +20,12 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     UserGormService userGormService
 
     @Override
-    User getUser(long id) {
+    UserDto getUser(long id) {
+        new UserDto(findUser( id))
+    }
+
+    @Override
+    User findUser(long id) {
         Optional.ofNullable(userGormService.findByIdAndClientAndDateDeletedIsNull(id, getCurrentLoggedClient()))
                 .orElseThrow({ -> new ItemNotFoundException('user.notFound') })
     }
@@ -37,7 +42,7 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     User update(UserCommand cmd, Long id){
         verifyBody(cmd)
         verifyUnique(cmd, getCurrentLoggedClient())
-        User user = getUser(id)
+        User user = findUser(id)
         user.with {
             name = cmd.name
         }
@@ -45,7 +50,6 @@ class UserServiceImp extends ServiceTemplate implements UserService {
     }
 
     @Override
-    @Transactional
     void delete(User user){
         user.dateDeleted = new Date()
         userGormService.save(user)
