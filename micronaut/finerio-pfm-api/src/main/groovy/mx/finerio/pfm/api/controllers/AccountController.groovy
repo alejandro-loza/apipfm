@@ -46,7 +46,7 @@ class AccountController {
     @Get("/{id}")
     @Transactional
     Single<AccountDto> show(@NotNull Long id) {
-        Single.just(new AccountDto(accountService.getAccount(id)))
+        Single.just(accountService.getAccount(id))
     }
 
     @Log

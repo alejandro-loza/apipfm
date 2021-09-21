@@ -43,7 +43,7 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
     @CompileStatic
     Transaction create(TransactionCreateCommand cmd) {
         verifyBody(cmd)
-        Account transactionAccount = accountService.getAccount(cmd.accountId)
+        Account transactionAccount = accountService.findAccount(cmd.accountId)
         Transaction transaction = new Transaction()
         transaction.with {
             account = transactionAccount
@@ -74,7 +74,7 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
         verifyBody(cmd)
         Transaction transaction = find(id)
         transaction.with {
-            account = cmd.accountId ? accountService.getAccount(cmd.accountId) : transaction.account
+            account = cmd.accountId ? accountService.findAccount(cmd.accountId) : transaction.account
             executionDate = cmd.date ? new Date(cmd.date) : transaction.executionDate
             description = cmd.description ?: transaction.description
             charge = cmd.charge != null? cmd.charge: transaction.charge

@@ -11,6 +11,7 @@ import io.micronaut.test.annotation.MicronautTest
 import mx.finerio.pfm.api.Application
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.FinancialEntity
+import mx.finerio.pfm.api.domain.RequestLogger
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.AccountDto
@@ -21,6 +22,7 @@ import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.FinancialEntityGormService
+import mx.finerio.pfm.api.services.gorm.RequestLoggerGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.AccountCreateCommand
@@ -61,6 +63,10 @@ class AccountControllerSpec extends Specification {
     @Shared
     ClientService clientService
 
+    @Inject
+    @Shared
+    RequestLoggerGormService requestLoggerGormService
+
     @Shared
     String accessToken
 
@@ -93,6 +99,16 @@ class AccountControllerSpec extends Specification {
         List<FinancialEntity> entities = financialEntityGormService.findAll()
         entities.each { FinancialEntity entity ->
             financialEntityGormService.delete(entity.id)
+        }
+
+        List<RequestLogger> logs = requestLoggerGormService.findAll()
+        logs.each { log ->
+            requestLoggerGormService.delete(log.id)
+        }
+
+        List<User> users = userGormService.findAll()
+        users.each { user ->
+            userGormService.delete(user.id)
         }
 
     }
@@ -192,6 +208,14 @@ class AccountControllerSpec extends Specification {
 
         then:'verify'
         !account.dateDeleted
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.create'
+        assert  logEntry.dateCreated
     }
 
     def "Should not create an account and throw bad request on wrong params"(){
@@ -267,7 +291,7 @@ class AccountControllerSpec extends Specification {
         e.response.status == HttpStatus.NOT_FOUND
     }
 
-    def "Should get an account"(){
+    def "Should get an account"() {
         given:'a saved user'
         User user = generateUser()
 
@@ -303,6 +327,14 @@ class AccountControllerSpec extends Specification {
             assert balance == cmd.balance
         }
         !account.dateDeleted
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.getAccount'
+        assert  logEntry.dateCreated
 
     }
 
@@ -401,6 +433,14 @@ class AccountControllerSpec extends Specification {
             balance == cmd.balance
            assert chargeable == cmd.chargeable
         }
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(awesomeUser.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.update'
+        assert  logEntry.dateCreated
 
     }
 

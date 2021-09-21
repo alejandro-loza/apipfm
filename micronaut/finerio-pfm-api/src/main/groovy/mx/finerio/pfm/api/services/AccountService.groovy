@@ -6,23 +6,31 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.domain.User
 import mx.finerio.pfm.api.dtos.resource.AccountDto
 import mx.finerio.pfm.api.logging.Log
+import mx.finerio.pfm.api.logging.RequestLogger
 import mx.finerio.pfm.api.validation.AccountCreateCommand
 import mx.finerio.pfm.api.validation.AccountUpdateCommand
 
 interface AccountService {
 
+    @RequestLogger
     @Log
     Account create(AccountCreateCommand cmd)
 
+    @RequestLogger
     @Log
-    Account getAccount(Long id)
+    AccountDto getAccount(Long id)
 
+    @Log
+    Account findAccount(Long id)
+
+    @RequestLogger
     @Log
     Account update(AccountUpdateCommand cmd, Long id)
 
     @Log
     void updateBalanceByTransaction(Transaction transaction)
 
+    @RequestLogger
     @Log
     void delete(Account account)
 

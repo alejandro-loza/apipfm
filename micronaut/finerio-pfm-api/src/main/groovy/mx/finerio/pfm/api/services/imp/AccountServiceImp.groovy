@@ -33,13 +33,18 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     Account create(AccountCreateCommand cmd){
         verifyBody(cmd)
         verifyNature(cmd)
-        User user = userService.getUser(cmd.userId)
+        User user = userService.findUser(cmd.userId)
         verifyLoggedClient(user.client)
         accountGormService.save( new Account(cmd, user, financialEntityService.getById(cmd.financialEntityId)))
     }
 
     @Override
-    Account getAccount(Long id) {
+    AccountDto getAccount(Long id) {
+        new AccountDto(findAccount(id))
+    }
+
+    @Override
+    Account findAccount(Long id) {
         Account account = Optional.ofNullable(accountGormService.findByIdAndDateDeletedIsNull(id))
                 .orElseThrow({ -> new ItemNotFoundException('account.notFound') })
         verifyLoggedClient(account.user.client)
@@ -49,9 +54,9 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     @Override
     Account update(AccountUpdateCommand cmd, Long id){
         verifyBody(cmd)
-        Account account = getAccount(id)
+        Account account = findAccount(id)
         account.with {
-            user = cmd.userId ? userService.getUser(cmd.userId) : account.user
+            user = cmd.userId ? userService.findUser(cmd.userId) : account.user
             financialEntity = cmd.financialEntityId
                     ? financialEntityService.getById(cmd.financialEntityId)
                     : account.financialEntity
@@ -84,7 +89,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
 
     @Override
     List<AccountDto> findAllByUserAndCursor(Long userId, Long cursor) {
-        User user = userService.getUser(userId)
+        User user = userService.findUser(userId)
         verifyLoggedClient(user.client)
         accountGormService.findAllByUserAndDateDeletedIsNullAndIdLessThanEquals(
                 user,cursor,[max: MAX_ROWS, sort: 'id', order: 'desc'])
@@ -98,7 +103,7 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
 
     @Override
     List<Account> findAllByUserId(Long userId) {
-        User user = userService.getUser(userId)
+        User user = userService.findUser(userId)
         findAllByUserBoundedByMaxRows(user)
     }
 

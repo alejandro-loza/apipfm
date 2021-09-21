@@ -6,6 +6,8 @@ import mx.finerio.pfm.api.validation.AccountCreateCommand
 import org.grails.datastore.gorm.GormEntity
 
 @Entity
+@ToString(includeNames = true, includePackage = false,
+        includes = 'id, name, user')
 class Account  implements GormEntity<Account> {
 
     Long id
