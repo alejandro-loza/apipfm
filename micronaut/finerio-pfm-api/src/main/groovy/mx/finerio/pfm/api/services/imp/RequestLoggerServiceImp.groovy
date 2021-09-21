@@ -22,10 +22,10 @@ class RequestLoggerServiceImp implements RequestLoggerService{
     @Override
     RequestLogger create(MethodInvocationContext<Object, Object> context, returnValue) {
         def functionMap  = [
-               'UserServiceImp.create': userSaveFunction,
-               'UserServiceImp.delete': userSaveFunction,
-               'UserServiceImp.getUser': userSaveFunction,
-               'UserServiceImp.update': userSaveFunction,
+               'UserServiceImp.create': userResponseType,
+               'UserServiceImp.update': userResponseType,
+               'UserServiceImp.getUser': userDtoResponseType,
+               'UserServiceImp.delete': userDeleteResponseType
         ]
 
         String eventName = getFullMethodName(context.targetMethod)
@@ -47,15 +47,24 @@ class RequestLoggerServiceImp implements RequestLoggerService{
         return "${className}.${methodName}"
     }
 
-    def userSaveFunction = { Object object ->
+    def userResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof User) {
           return  object.returnValue
         }
+        return
+    }
+
+    def userDtoResponseType = { Object object ->
+
         if(object.returnValue != null && object.returnValue instanceof UserDto) {
             return  userGormService.findById(object.returnValue.id)
         }
-        if(object.parameters.values()[0]?.value instanceof User){
-            return object.parameters.values()[0].value
+        return
+    }
+
+    def userDeleteResponseType = { Object object ->
+        if(object.parameters.values().first()?.value instanceof User){
+            return object.parameters.values().first().value
         }
         return
     }
