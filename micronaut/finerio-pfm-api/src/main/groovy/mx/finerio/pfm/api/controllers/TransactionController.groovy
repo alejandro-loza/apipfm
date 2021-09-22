@@ -46,7 +46,7 @@ class TransactionController {
     @Get("/{id}")
     @Transactional
     Single<TransactionDto> show(@NotNull Long id) {
-        Single.just(transactionsService.generateTransactionDto(transactionsService.find(id)))
+        Single.just(transactionsService.getById(id))
     }
 
     @Log
@@ -73,7 +73,7 @@ class TransactionController {
          cmd.dateTo = dateTo
          cmd.description = description
 
-        Account account = accountService.getAccount(accountId)
+        Account account = accountService.findAccount(accountId)
 
         nextCursorService.generateResourcesDto( cursor ?
                 transactionsService.findAllByAccountAndCursor(account, cmd)
@@ -92,7 +92,7 @@ class TransactionController {
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
-        transactionsService.delete(id)
+        transactionsService.delete(transactionsService.find(id))
         HttpResponse.noContent()
     }
 
@@ -100,7 +100,7 @@ class TransactionController {
     @Delete
     @Transactional
     HttpResponse deleteAllByAccount( @QueryValue('accountId') Long accountId) {
-        transactionsService.deleteAllByAccount(accountService.getAccount(accountId))
+        transactionsService.deleteAllByAccount(accountService.findAccount(accountId))
         HttpResponse.noContent()
     }
 

@@ -6,23 +6,31 @@ import mx.finerio.pfm.api.domain.SystemCategory
 import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.logging.Log
+import mx.finerio.pfm.api.logging.RequestLogger
 import mx.finerio.pfm.api.validation.TransactionCreateCommand
 import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 import mx.finerio.pfm.api.validation.TransactionUpdateCommand
 
 interface TransactionService {
 
+    @RequestLogger
     @Log
     Transaction create(TransactionCreateCommand cmd)
 
     @Log
     Transaction find(Long id)
 
+    @RequestLogger
+    @Log
+    TransactionDto getById(Long id)
+
+    @RequestLogger
     @Log
     Transaction update(TransactionUpdateCommand cmd, Long id)
 
+    @RequestLogger
     @Log
-    void delete(Long id)
+    void delete(Transaction transaction)
 
     @Log
     List<TransactionDto> getAll()
@@ -30,9 +38,11 @@ interface TransactionService {
     @Log
     List<TransactionDto> findAllByCursor(Long cursor)
 
+    @RequestLogger
     @Log
     List<TransactionDto> findAllByAccountAndCursor(Account account, TransactionFiltersCommand cmd)
 
+    @RequestLogger
     @Log
     List<TransactionDto> findAllByAccountAndFilters(Account account, TransactionFiltersCommand cmd)
 
@@ -55,6 +65,7 @@ interface TransactionService {
     @Log
     List<Transaction> getAccountsTransactions(List<Account> accounts, Boolean charge, Date dateFrom, Date dateTo)
 
+    @RequestLogger
     @Log
     void deleteAllByAccount(Account account)
 

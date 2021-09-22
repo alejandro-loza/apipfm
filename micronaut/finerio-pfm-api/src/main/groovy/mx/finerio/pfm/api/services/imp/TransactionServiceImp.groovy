@@ -40,7 +40,6 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
 
     @Override
     @Transactional
-    @CompileStatic
     Transaction create(TransactionCreateCommand cmd) {
         verifyBody(cmd)
         Account transactionAccount = accountService.findAccount(cmd.accountId)
@@ -59,6 +58,12 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
             accountService.updateBalanceByTransaction(transaction)
         }
         return transaction
+    }
+
+    @Override
+    @Transactional
+    TransactionDto getById(Long id) {
+        new TransactionDto(find(id))
     }
 
     @Override
@@ -90,8 +95,7 @@ class TransactionServiceImp extends ServiceTemplate implements TransactionServic
     }
 
     @Override
-    void delete(Long id){
-        Transaction transaction = find(id)
+    void delete(Transaction transaction){
         transaction.dateDeleted = new Date()
         transactionGormService.save(transaction)
     }

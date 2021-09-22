@@ -4,11 +4,14 @@ import io.micronaut.aop.MethodInvocationContext
 import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.RequestLogger
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.AccountDto
+import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.services.RequestLoggerService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.RequestLoggerGormService
+import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 
 import javax.inject.Inject
@@ -25,6 +28,9 @@ class RequestLoggerServiceImp implements RequestLoggerService{
     @Inject
     AccountGormService accountGormService
 
+    @Inject
+    TransactionGormService transactionGormService
+
     @Override
     RequestLogger create(MethodInvocationContext<Object, Object> context, returnValue) {
         def functionMap  = [
@@ -37,7 +43,14 @@ class RequestLoggerServiceImp implements RequestLoggerService{
                'AccountServiceImp.update': accountResponseType,
                'AccountServiceImp.delete': accountDeleteResponseType,
                'AccountServiceImp.findAllByUserAndCursor': accountDtoListResponseType,
-               'AccountServiceImp.findAllAccountDtosByUser': accountDtoListResponseType
+               'AccountServiceImp.findAllAccountDtosByUser': accountDtoListResponseType,
+               'TransactionServiceImp.create': transactionResponseType,
+               'TransactionServiceImp.update': transactionResponseType,
+               'TransactionServiceImp.getById': transactionDtoResponseType,
+               'TransactionServiceImp.delete': transactionDeleteResponseType,
+               'TransactionServiceImp.deleteAllByAccount': transactionDeleteByAccountResponseType,
+               'TransactionServiceImp.findAllByAccountAndCursor': transactionDtoListType,
+               'TransactionServiceImp.findAllByAccountAndFilters': transactionDtoListType
         ]
 
         String eventName = getFullMethodName(context.targetMethod)
@@ -109,5 +122,38 @@ class RequestLoggerServiceImp implements RequestLoggerService{
         return
     }
 
+    def transactionResponseType = { Object object ->
+        if(object.returnValue != null && object.returnValue instanceof Transaction) {
+            return  object.returnValue.account.user
+        }
+        return
+    }
 
+    def transactionDtoResponseType = { Object object ->
+        if(object.returnValue != null && object.returnValue instanceof TransactionDto) {
+            return  transactionGormService.getById(object.returnValue.id).account.user
+        }
+        return
+    }
+
+    def transactionDeleteResponseType = { Object object ->
+        if(object.parameters.values().first()?.value instanceof Transaction){
+            return object.parameters.transaction.value.account.user
+        }
+        return
+    }
+
+    def transactionDeleteByAccountResponseType = { Object object ->
+        if(object.parameters.values().first()?.value instanceof Account){
+            return object.parameters.account.value.user
+        }
+        return
+    }
+
+    def transactionDtoListType = { Object object ->
+        if(object.returnValue != null && object.returnValue instanceof List<TransactionDto>) {
+           return object.parameters.account.value.user
+        }
+        return
+    }
 }
