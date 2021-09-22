@@ -70,7 +70,7 @@ class AccountController {
     @Delete("/{id}")
     @Transactional
     HttpResponse delete(@NotNull Long id) {
-        Account account = accountService.getAccount(id)
+        Account account = accountService.findAccount(id)
         if (transactionService.findAllByAccount(account)) {
             throw new BadRequestException('account.transaction.existence')
         }

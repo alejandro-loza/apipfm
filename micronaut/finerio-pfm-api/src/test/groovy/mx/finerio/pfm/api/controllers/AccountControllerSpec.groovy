@@ -113,6 +113,207 @@ class AccountControllerSpec extends Specification {
 
     }
 
+    def "Should create an account"() {
+        given:'an saved user and financial entity'
+        User user =  userGormService.save(new User('awesome user', loggedInClient))
+
+        FinancialEntity entity = generateEntity()
+
+        and:'a command request body'
+        AccountCreateCommand cmd = new AccountCreateCommand()
+        cmd.with {
+            userId = user.id
+            financialEntityId = entity.id
+            nature ='Debit'
+            name = 'awesome account'
+            number = 1234123412341234
+            balance = 100.00
+        }
+
+        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, AccountDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        rsp.body().with {
+            id
+            nature == cmd.nature
+            name == cmd.name
+            number == cmd.number
+            balance == 100.00
+            dateCreated
+        }
+        assert rsp.body().number instanceof  String
+
+        when:
+        Account account = accountGormService.getById(rsp.body().id)
+
+        then:'verify'
+        !account.dateDeleted
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.create'
+        assert  logEntry.dateCreated
+    }
+
+    def "Should delete an account"() {
+        given:'a saved user'
+        User user1 = generateUser()
+
+        and:'a saved entity'
+        FinancialEntity entity = generateEntity()
+
+        and:'a saved account'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            cardNumber = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account)
+
+        and:'a client request'
+        HttpRequest request = HttpRequest.DELETE("${ACCOUNT_ROOT}/${account.id}").bearerAuth(accessToken)
+
+        when:
+        def response = client.toBlocking().exchange(request, UserDto)
+
+        then:
+        response.status == HttpStatus.NO_CONTENT
+
+        and:
+        HttpRequest.GET("${ACCOUNT_ROOT}/${account.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user1.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.delete'
+        assert  logEntry.dateCreated
+
+    }
+
+    def "Should update an account"(){
+        given:'a saved user'
+        User awesomeUser = generateUser()
+
+        and:'a saved entity'
+        FinancialEntity entity1 = generateEntity()
+
+        and:'a saved account'
+        Account account = new Account()
+        account.with {
+            user = awesomeUser
+            financialEntity = entity1
+            nature = 'test'
+            name = 'test'
+            cardNumber = 1234123412341234
+            balance = 0.0
+            chargeable = true
+        }
+        accountGormService.save(account)
+
+        and:'an account command to update data'
+        AccountUpdateCommand cmd = new AccountUpdateCommand()
+        cmd.with {
+            userId = awesomeUser.id
+            financialEntityId = entity1.id
+            nature = 'No test'
+            name = 'no test'
+            number = 1234123412341234
+            balance = 1000.00
+            chargeable = false
+        }
+
+        and:'a client'
+        HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/${account.id}",  cmd).bearerAuth(accessToken)
+
+        when:
+        def resp = client.toBlocking().exchange(request, AccountDto)
+
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().with {
+            name == cmd.name
+            nature == cmd.nature
+            balance == cmd.balance
+            assert chargeable == cmd.chargeable
+        }
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(awesomeUser.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.update'
+        assert  logEntry.dateCreated
+
+    }
+
+    def "Should get an account"() {
+        given:'a saved user'
+        User user = generateUser()
+
+        and: 'a financial entity'
+        FinancialEntity entity = generateEntity()
+
+        and:'a account request command body'
+        AccountCreateCommand cmd = new AccountCreateCommand()
+        cmd.with {
+            userId  = user.id
+            financialEntityId = entity.id
+            nature = 'DEBIT'
+            name = 'awesome name'
+            number = '1234123412341234'
+        }
+
+        and:'a saved account'
+        Account account = new Account(cmd, user, entity)
+        accountGormService.save(account)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT+"/${account.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, AccountDto)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        rspGET.body().with {
+            assert nature == cmd.nature
+            assert name == cmd.name
+            assert number == cmd.number
+            assert balance == cmd.balance
+        }
+        !account.dateDeleted
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.getAccount'
+        assert  logEntry.dateCreated
+
+    }
+
     def "Should get unauthorized"() {
 
         given:
@@ -167,55 +368,6 @@ class AccountControllerSpec extends Specification {
             assert detail == 'The user ID you requested was not found.'
         }
 
-    }
-
-    def "Should create an account"(){
-        given:'an saved user and financial entity'
-        User user =  userGormService.save(new User('awesome user', loggedInClient))
-
-        FinancialEntity entity = generateEntity()
-
-        and:'a command request body'
-        AccountCreateCommand cmd = new AccountCreateCommand()
-        cmd.with {
-            userId = user.id
-            financialEntityId = entity.id
-            nature ='Debit'
-            name = 'awesome account'
-            number = 1234123412341234
-            balance = 100.00
-        }
-
-        HttpRequest request = HttpRequest.POST(ACCOUNT_ROOT, cmd).bearerAuth(accessToken)
-
-        when:
-        def rsp = client.toBlocking().exchange(request, AccountDto)
-
-        then:
-        rsp.status == HttpStatus.OK
-        rsp.body().with {
-            id
-            nature == cmd.nature
-            name == cmd.name
-            number == cmd.number
-            balance == 100.00
-            dateCreated
-        }
-        assert rsp.body().number instanceof  String
-
-        when:
-        Account account = accountGormService.getById(rsp.body().id)
-
-        then:'verify'
-        !account.dateDeleted
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.create'
-        assert  logEntry.dateCreated
     }
 
     def "Should not create an account and throw bad request on wrong params"(){
@@ -291,53 +443,6 @@ class AccountControllerSpec extends Specification {
         e.response.status == HttpStatus.NOT_FOUND
     }
 
-    def "Should get an account"() {
-        given:'a saved user'
-        User user = generateUser()
-
-        and: 'a financial entity'
-        FinancialEntity entity = generateEntity()
-
-        and:'a account request command body'
-        AccountCreateCommand cmd = new AccountCreateCommand()
-        cmd.with {
-            userId  = user.id
-            financialEntityId = entity.id
-            nature = 'DEBIT'
-            name = 'awesome name'
-            number = '1234123412341234'
-        }
-
-        and:'a saved account'
-        Account account = new Account(cmd, user, entity)
-        accountGormService.save(account)
-
-        and:
-        HttpRequest getReq = HttpRequest.GET(ACCOUNT_ROOT+"/${account.id}").bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, AccountDto)
-
-        then:
-        rspGET.status == HttpStatus.OK
-        rspGET.body().with {
-            assert nature == cmd.nature
-            assert name == cmd.name
-            assert number == cmd.number
-            assert balance == cmd.balance
-        }
-        !account.dateDeleted
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.getAccount'
-        assert  logEntry.dateCreated
-
-    }
-
     def "Should not get an account and throw 404"(){
         given:'a not found id request'
 
@@ -384,63 +489,6 @@ class AccountControllerSpec extends Specification {
             assert title == 'Malformed request body'
             assert detail == 'The JSON body request you sent is invalid.'
         }
-
-    }
-
-    def "Should update an account"(){
-        given:'a saved user'
-        User awesomeUser = generateUser()
-
-        and:'a saved entity'
-        FinancialEntity entity1 = generateEntity()
-
-        and:'a saved account'
-        Account account = new Account()
-        account.with {
-            user = awesomeUser
-            financialEntity = entity1
-            nature = 'test'
-            name = 'test'
-            cardNumber = 1234123412341234
-            balance = 0.0
-            chargeable = true
-        }
-        accountGormService.save(account)
-
-        and:'an account command to update data'
-        AccountUpdateCommand cmd = new AccountUpdateCommand()
-        cmd.with {
-            userId = awesomeUser.id
-            financialEntityId = entity1.id
-            nature = 'No test'
-            name = 'no test'
-            number = 1234123412341234
-            balance = 1000.00
-            chargeable = false
-        }
-
-        and:'a client'
-        HttpRequest request = HttpRequest.PUT("${ACCOUNT_ROOT}/${account.id}",  cmd).bearerAuth(accessToken)
-
-        when:
-        def resp = client.toBlocking().exchange(request, AccountDto)
-
-        then:
-        resp.status == HttpStatus.OK
-        resp.body().with {
-            name == cmd.name
-            nature == cmd.nature
-            balance == cmd.balance
-           assert chargeable == cmd.chargeable
-        }
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(awesomeUser.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.update'
-        assert  logEntry.dateCreated
 
     }
 
@@ -715,46 +763,6 @@ class AccountControllerSpec extends Specification {
             assert title == 'Account not found.'
             assert detail == 'The account ID you requested was not found.'
         }
-
-    }
-
-    def "Should delete an account"() {
-        given:'a saved user'
-        User user1 = generateUser()
-
-        and:'a saved entity'
-        FinancialEntity entity = generateEntity()
-
-        and:'a saved account'
-        Account account = new Account()
-        account.with {
-            user = user1
-            financialEntity = entity
-            nature = 'test'
-            name = 'test'
-            cardNumber = 1234123412341234
-            balance = 0.0
-        }
-        accountGormService.save(account)
-
-        and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("${ACCOUNT_ROOT}/${account.id}").bearerAuth(accessToken)
-
-        when:
-        def response = client.toBlocking().exchange(request, UserDto)
-
-        then:
-        response.status == HttpStatus.NO_CONTENT
-
-        and:
-        HttpRequest.GET("${ACCOUNT_ROOT}/${account.id}").bearerAuth(accessToken)
-
-        when:
-        client.toBlocking().exchange(request, Argument.of(AccountDto) as Argument<AccountDto>, Argument.of(ItemNotFoundException))
-
-        then:
-        def  e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.NOT_FOUND
 
     }
 

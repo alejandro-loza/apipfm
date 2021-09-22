@@ -33,8 +33,9 @@ class RequestLoggerServiceImp implements RequestLoggerService{
                'UserServiceImp.getUser': userDtoResponseType,
                'UserServiceImp.delete': userDeleteResponseType,
                'AccountServiceImp.create': accountResponseType,
-               'AccountServiceImp.getAccount': accountResponseType,
-               'AccountServiceImp.update': accountResponseType
+               'AccountServiceImp.getAccount': accountDtoResponseType,
+               'AccountServiceImp.update': accountResponseType,
+               'AccountServiceImp.delete': accountDeleteResponseType
         ]
 
         String eventName = getFullMethodName(context.targetMethod)
@@ -81,6 +82,20 @@ class RequestLoggerServiceImp implements RequestLoggerService{
     def accountResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof Account) {
             return  object.returnValue.user
+        }
+        return
+    }
+
+    def accountDtoResponseType = { Object object ->
+        if(object.returnValue != null && object.returnValue instanceof AccountDto) {
+            return  accountGormService.getById(object.returnValue.id).user
+        }
+        return
+    }
+
+    def accountDeleteResponseType = { Object object ->
+        if(object.parameters.values().first()?.value instanceof Account){
+            return object.parameters.values().first().value.user
         }
         return
     }
