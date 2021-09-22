@@ -113,6 +113,125 @@ class AccountControllerSpec extends Specification {
 
     }
 
+    def "Should get a list of accounts"(){
+
+        given:'a saved user'
+        User user1 =generateUser()
+
+        and:'a saved entity'
+        FinancialEntity entity = generateEntity()
+
+        and:'account list'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            cardNumber = 1234123412341234
+            balance = 0.0
+        }
+        account.dateDeleted = new Date()
+        accountGormService.save(account)
+
+        Account account2 = new Account()
+        account2.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            cardNumber = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account2)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<AccountDto> accounts = body.get("data") as List<AccountDto>
+        assert !(account.id in accounts.id)
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user1.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.findAllAccountDtosByUser'
+        assert  logEntry.dateCreated
+    }
+
+    def "Should get a list of accounts in a cursor point"(){
+
+        given:'a saved user'
+        User user1 =  generateUser()
+
+        and:'a saved entity'
+        FinancialEntity entity = generateEntity()
+
+        and:'a list of accounts'
+        Account account = new Account()
+        account.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            cardNumber = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account)
+
+        Account account2 = new Account()
+        account2.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            cardNumber = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account2)
+
+        Account account3 = new Account()
+        account3.with {
+            user = user1
+            financialEntity = entity
+            nature = 'test'
+            name = 'test'
+            cardNumber = 1234123412341234
+            balance = 0.0
+        }
+        accountGormService.save(account3)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=${user1.id}&cursor=${account2.id}")
+                .bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<AccountDto> accounts = body.get("data") as List<AccountDto>
+
+        assert accounts.first().id == account2.id
+
+        when:
+        RequestLogger logEntry = requestLoggerGormService.findByUserId(user1.id)
+
+        then:
+        assert  logEntry
+        assert  logEntry.eventType == 'AccountServiceImp.findAllByUserAndCursor'
+        assert  logEntry.dateCreated
+
+    }
+
     def "Should create an account"() {
         given:'an saved user and financial entity'
         User user =  userGormService.save(new User('awesome user', loggedInClient))
@@ -587,108 +706,6 @@ class AccountControllerSpec extends Specification {
             assert detail == 'The account ID you requested was not found.'
         }
 
-    }
-
-    def "Should get a list of accounts"(){
-
-        given:'a saved user'
-        User user1 =generateUser()
-
-        and:'a saved entity'
-        FinancialEntity entity = generateEntity()
-
-        and:'account list'
-        Account account = new Account()
-        account.with {
-            user = user1
-            financialEntity = entity
-            nature = 'test'
-            name = 'test'
-            cardNumber = 1234123412341234
-            balance = 0.0
-        }
-        account.dateDeleted = new Date()
-        accountGormService.save(account)
-
-        Account account2 = new Account()
-        account2.with {
-            user = user1
-            financialEntity = entity
-            nature = 'test'
-            name = 'test'
-            cardNumber = 1234123412341234
-            balance = 0.0
-        }
-        accountGormService.save(account2)
-
-        and:
-        HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=${user1.id}").bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, Map)
-
-        then:
-        rspGET.status == HttpStatus.OK
-        Map body = rspGET.getBody(Map).get()
-        List<AccountDto> accounts = body.get("data") as List<AccountDto>
-        assert !(account.id in accounts.id)
-    }
-
-    def "Should get a list of accounts in a cursor point"(){
-
-        given:'a saved user'
-        User user1 =  generateUser()
-
-        and:'a saved entity'
-        FinancialEntity entity = generateEntity()
-
-        and:'a list of accounts'
-        Account account = new Account()
-        account.with {
-            user = user1
-            financialEntity = entity
-            nature = 'test'
-            name = 'test'
-            cardNumber = 1234123412341234
-            balance = 0.0
-        }
-        accountGormService.save(account)
-
-        Account account2 = new Account()
-        account2.with {
-            user = user1
-            financialEntity = entity
-            nature = 'test'
-            name = 'test'
-            cardNumber = 1234123412341234
-            balance = 0.0
-        }
-        accountGormService.save(account2)
-
-        Account account3 = new Account()
-        account3.with {
-            user = user1
-            financialEntity = entity
-            nature = 'test'
-            name = 'test'
-            cardNumber = 1234123412341234
-            balance = 0.0
-        }
-        accountGormService.save(account3)
-
-        and:
-        HttpRequest getReq = HttpRequest.GET("${ACCOUNT_ROOT}?userId=${user1.id}&cursor=${account2.id}")
-                .bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, Map)
-
-        then:
-        rspGET.status == HttpStatus.OK
-        Map body = rspGET.getBody(Map).get()
-        List<AccountDto> accounts = body.get("data") as List<AccountDto>
-
-        assert accounts.first().id == account2.id
     }
 
     def "Should throw not found user "(){
