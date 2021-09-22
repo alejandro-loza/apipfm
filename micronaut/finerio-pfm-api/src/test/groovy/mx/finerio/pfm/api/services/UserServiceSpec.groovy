@@ -91,7 +91,7 @@ class UserServiceSpec extends Specification {
         def result = userService.getUser(1L)
 
         then:
-        result instanceof User
+        result instanceof UserDto
     }
 
     def "Should not get a user and throw exception"(){

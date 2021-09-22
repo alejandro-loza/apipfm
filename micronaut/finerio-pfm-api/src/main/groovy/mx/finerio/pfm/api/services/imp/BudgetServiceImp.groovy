@@ -41,7 +41,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     @Transactional
     Budget create(BudgetCreateCommand cmd){
         Budget budget = new Budget()
-        User userToSet = userService.getUser(cmd.userId)
+        User userToSet = userService.findUser(cmd.userId)
         budget.with {
             user = userToSet
             name = cmd.name
@@ -93,7 +93,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
 
     @Override
     List<BudgetDto> findAllByUserAndCursor(Long userId, Long cursor) {
-        User user = userService.getUser(userId)
+        User user = userService.findUser(userId)
         verifyLoggedClient(user.client)
         List<Budget> budgets = budgetGormService
                 .findAllByUserAndIdLessThanEqualsAndDateDeletedIsNull(

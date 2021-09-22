@@ -8,6 +8,7 @@ import mx.finerio.pfm.api.domain.Account
 import mx.finerio.pfm.api.domain.Client
 import mx.finerio.pfm.api.domain.FinancialEntity
 import mx.finerio.pfm.api.domain.User
+import mx.finerio.pfm.api.dtos.resource.AccountDto
 import mx.finerio.pfm.api.exceptions.BadRequestException
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.gorm.AccountGormService
@@ -51,7 +52,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.userService.findUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.financialEntityService.getById(_ as Long) >> new FinancialEntity()
@@ -80,7 +81,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.userService.findUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
         0 * accountService.financialEntityService.getById(_ as Long) >> new FinancialEntity()
@@ -115,7 +116,7 @@ class AccountServiceSpec extends Specification {
 
         def result = accountService.getAccount(1L)
         then:
-        result instanceof Account
+        result instanceof AccountDto
     }
 
     def "Should throw not found account on a different query client "(){
@@ -152,7 +153,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.userService.findUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.accountGormService.findAllByUserAndDateDeletedIsNull(_ as User, _ as Map) >> [account]
@@ -169,7 +170,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.userService.findUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  new Client()
         0 * accountService.accountGormService.findAllByUserAndDateDeletedIsNull(_ as User, _ as Map)
@@ -187,7 +188,7 @@ class AccountServiceSpec extends Specification {
         Account account = generateAccount(client)
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.userService.findUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.accountGormService
@@ -222,7 +223,7 @@ class AccountServiceSpec extends Specification {
         }
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.userService.findUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account
@@ -255,7 +256,7 @@ class AccountServiceSpec extends Specification {
         }
 
         when:
-        1 * accountService.userService.getUser(_ as Long) >> account.user
+        1 * accountService.userService.findUser(_ as Long) >> account.user
         1 * accountService.securityService.getAuthentication() >> of(Principal)
         1 * accountService.clientService.findByUsername(_ as String) >>  client
         1 * accountService.accountGormService.findByIdAndDateDeletedIsNull(_ as Long) >> account

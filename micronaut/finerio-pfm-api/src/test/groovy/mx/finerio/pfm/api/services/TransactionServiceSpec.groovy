@@ -29,6 +29,7 @@ class TransactionServiceSpec extends Specification {
         transactionService.accountService = Mock(AccountService)
         transactionService.categorizerService = Mock(CategorizerService)
         transactionService.systemCategoryService = Mock(SystemCategoryService)
+        transactionService.transactionFilterService = Mock(TransactionFilterService)
     }
 
     def 'Should save an transaction'(){
@@ -43,10 +44,16 @@ class TransactionServiceSpec extends Specification {
             amount = 100.50
         }
 
+        Account account = new Account()
+        account.with {
+            chargeable = false
+        }
+
+
         when:
 
         1 * transactionService.categoryService.getById( _ as Long) >> category
-        1 * transactionService.accountService.getAccount( _ as Long) >> new Account()
+        1 * transactionService.accountService.findAccount( _ as Long) >> account
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
 
         def response = transactionService.create(cmd)
@@ -74,12 +81,18 @@ class TransactionServiceSpec extends Specification {
         CleanerDto cleaner = new CleanerDto()
         cleaner.result = 'result'
 
+        Account account = new Account()
+        account.with {
+            chargeable = true
+        }
+
         when:
-        1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
+        1 * transactionService.accountService.findAccount(_ as Long) >> account
         1 * transactionService.categorizerService.cleanText(_, _) >> cleaner
         1 * transactionService.categorizerService.searchCategory(_ as String,  _ as Boolean,  _ as Boolean ) >> categorizerDto
         1 * transactionService.systemCategoryService.findByFinerioConnectId(_ as String) >> new SystemCategory()
         1 * transactionService.transactionGormService.save( _  as Transaction) >> new Transaction()
+        1 * transactionService.accountService.updateBalanceByTransaction(_ as Transaction)
 
         def response = transactionService.create(cmd)
 
@@ -100,9 +113,14 @@ class TransactionServiceSpec extends Specification {
         CleanerDto cleaner = new CleanerDto()
         cleaner.result = 'result'
 
+        Account account = new Account()
+        account.with {
+            chargeable = false
+        }
+
         when:
 
-        1 * transactionService.accountService.getAccount(_ as Long) >> new Account()
+        1 * transactionService.accountService.findAccount(_ as Long) >> account
         1 * transactionService.categorizerService.cleanText(_, _) >> cleaner
         1 * transactionService.categorizerService.searchCategory(_ as String,  _ as Boolean,  _ as Boolean ) >> new CategorizerDto()
         0 * transactionService.categoryService.getById(_ as Long)
@@ -140,7 +158,7 @@ class TransactionServiceSpec extends Specification {
         when:
 
         1 * transactionService.categoryService.getById( _ as Long) >> category
-        1 * transactionService.accountService.getAccount(_ as Long)
+        1 * transactionService.accountService.findAccount(_ as Long)
         0 * transactionService.transactionGormService.save(_  as Transaction)
 
         transactionService.create(cmd)
@@ -161,7 +179,7 @@ class TransactionServiceSpec extends Specification {
         }
         when:
         1 * transactionService.categoryService.getById(_ as Long) >> {throw new ItemNotFoundException('category.notFound') }
-        1 * transactionService.accountService.getAccount(_ as Long)
+        1 * transactionService.accountService.findAccount(_ as Long)
         0 * transactionService.transactionGormService.save(_  as Transaction)
 
         transactionService.create(cmd)
@@ -193,10 +211,12 @@ class TransactionServiceSpec extends Specification {
             amount = 100.50
         }
 
+
+
         when:
 
         1 * transactionService.systemCategoryService.find( _ as Long) >> category
-        1 * transactionService.accountService.getAccount(_ as Long)
+        1 * transactionService.accountService.findAccount(_ as Long)
         0 * transactionService.transactionGormService.save(_  as Transaction)
 
         transactionService.create(cmd)

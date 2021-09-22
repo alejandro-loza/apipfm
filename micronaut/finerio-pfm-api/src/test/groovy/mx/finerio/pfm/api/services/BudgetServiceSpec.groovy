@@ -52,7 +52,7 @@ class BudgetServiceSpec extends Specification {
         }
 
         when:
-        1 * budgetService.userService.getUser(_ as Long) >> user1
+        1 * budgetService.userService.findUser(_ as Long) >> user1
         1 * budgetService.systemCategoryService.find(_ as Long) >> null
         1 * budgetService.categoryService.getById(_ as Long) >> category1
         1 * budgetService.budgetGormService.save(_  as Budget) >> budget
@@ -78,7 +78,7 @@ class BudgetServiceSpec extends Specification {
         }
 
         when:
-        1 * budgetService.userService.getUser(_ as Long) >> user1
+        1 * budgetService.userService.findUser(_ as Long) >> user1
         1 * budgetService.systemCategoryService.find(_ as Long) >> systemCategory1
         0 * budgetService.categoryService.getById(_ as Long)
         1 * budgetService.budgetGormService.save(_  as Budget) >> budget
@@ -221,7 +221,7 @@ class BudgetServiceSpec extends Specification {
         user.client = client
 
         when:
-        1 * budgetService.userService.getUser(_ as Long) >> user
+        1 * budgetService.userService.findUser(_ as Long) >> user
         1 * budgetService.securityService.getAuthentication() >> of(Principal)
         1 * budgetService.clientService.findByUsername(_ as String) >>  client
         1 * budgetService.budgetGormService.findAllByUserAndIdLessThanEqualsAndDateDeletedIsNull(_ as User,_ as Long, _ as Map) >> [budget]
