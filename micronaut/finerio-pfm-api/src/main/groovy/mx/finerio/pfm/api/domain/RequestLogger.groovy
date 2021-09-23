@@ -13,7 +13,7 @@ class RequestLogger implements GormEntity<RequestLogger> {
 
     Long id
     User user
-    String eventType
+    EventType eventType
     Date dateCreated
 
     static constraints = {

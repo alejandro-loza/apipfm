@@ -34,6 +34,9 @@ interface AccountService {
     @Log
     void delete(Account account)
 
+    @Log
+    void deleteById(Long id)
+
     @RequestLogger
     @Log
     List<AccountDto> findAllByUserAndCursor(Long userId, Long cursor)

@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.enums.EventType
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.*
@@ -110,6 +111,247 @@ class TransactionControllerSpec extends Specification {
 
     }
 
+    def "Should delete a list of transactions by account"(){
+
+        given:'a transaction list'
+        User user = generateUser()
+        Account account1 = generateAccount(user)
+        Account account2 = generateAccount(user)
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account2), account2)
+        transactionGormService.save(transaction2)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction3)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction4)
+
+        and:
+        HttpRequest getReq = HttpRequest.DELETE("${TRANSACTION_ROOT}?accountId=${account1.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.NO_CONTENT
+
+        and:
+        List<Transaction> transactions = transactionGormService.findAllByAccount(account1)
+        assert transactions.every {it.dateDeleted}
+
+    }
+
+    def "Should delete an transaction"() {
+        given:'a transaction'
+        User user = generateUser()
+
+        Account account1 = generateAccount(user)
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction1)
+
+        and:'a client request'
+        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${transaction1.id}").bearerAuth(accessToken)
+
+        when:
+        def response = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        response.status == HttpStatus.NO_CONTENT
+
+        and:
+        HttpRequest.GET("${TRANSACTION_ROOT}/${transaction1.id}").bearerAuth(accessToken)
+
+        when:
+        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
+                Argument.of(ItemNotFoundException))
+
+        then:
+        def  e = thrown HttpClientResponseException
+        e.response.status == HttpStatus.NOT_FOUND
+
+    }
+
+    def "Should get an transaction"(){
+        given:'a saved account'
+        User user = generateUser()
+        Account account1 = generateAccount(user)
+
+        and:'a saved transaction'
+        Transaction transaction = new Transaction()
+        transaction.with {
+            account = account1
+            executionDate = new Date()
+            charge = false
+            description = 'RAPI'
+        }
+
+        transactionGormService.save(transaction)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT+"/${transaction.id}").bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, TransactionDto)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        rspGET.body().with {
+            assert id == transaction.id
+            assert charge == transaction.charge
+            assert description == transaction.description
+            assert amount == transaction.amount
+        }
+        !transaction.dateDeleted
+
+    }
+
+    def "Should get a list of transactions of an account on a cursor point"(){
+
+        given:'a transaction list'
+        User user = generateUser()
+        Account account1 = generateAccount(user)
+        Account account2 = generateAccount(user)
+
+        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
+        transactionGormService.save(transaction1)
+        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
+        transaction2.dateDeleted = new Date()
+        transactionGormService.save(transaction2)
+        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction3)
+        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
+        transactionGormService.save(transaction4)
+
+        and:
+        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?accountId=${account1.id}&cursor=${transaction3.id}")
+                .bearerAuth(accessToken)
+
+        when:
+        def rspGET = client.toBlocking().exchange(getReq, Map)
+
+        then:
+        rspGET.status == HttpStatus.OK
+        Map body = rspGET.getBody(Map).get()
+        List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
+        assert !(transaction1.id in transactionDtos.id)
+        assert !(transaction2.id in transactionDtos.id)
+        assert !(transaction4.id in transactionDtos.id)
+        transactionDtos.size() == 1
+
+    }
+
+    def "Should create a transaction and charge the account an decrement it's balance "(){
+        given:'an saved Account '
+        User user1 = generateUser()
+
+        FinancialEntity entity = generateEntity()
+
+        Account account1 = new Account()
+        account1.with {
+            user = user1
+            financialEntity = entity
+            nature = 'TEST NATURE'
+            name = 'TEST NAME'
+            cardNumber = 123412341234
+            balance = 1000.00
+            chargeable = true
+        }
+        accountGormService.save(account1)
+
+        def user = account1.user
+
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = "UBER EATS"
+            amount= 600.00
+            categoryId = category1.id
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        rsp.body.get().categoryId == category1.id
+
+        assert accountGormService.getById(account1.id).balance == 400.00F
+
+    }
+
+    def "Should create a transaction and increment the account balance on account's chargeable activated and charge false"(){
+        given:'an saved Account '
+        User user = generateUser()
+        Account account1 = generateAccount(user)
+        account1.chargeable = true
+        account1.balance = 1000
+        accountGormService.save(account1)
+
+
+        Category category1 = generateCategory(user)
+        category1.parent = generateCategory(user)
+        categoryGormService.save(category1)
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = false
+            description = "UBER EATS"
+            amount= 600
+            categoryId = category1.id
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+        rsp.body.get().categoryId == category1.id
+
+        assert accountGormService.getById(account1.id).balance ==1600.00F
+
+    }
+
+    def "Should create a transaction with no category and categorise it"(){
+        given:'an saved Account '
+        User user = generateUser()
+        Account account1 = generateAccount(user)
+
+        and:'a command request body'
+        TransactionCreateCommand cmd = new TransactionCreateCommand()
+        cmd.with {
+            accountId = account1.id
+            date = 1587567125458
+            charge = true
+            description = "UBER EATS"
+            amount= 1234.56
+        }
+
+        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
+
+        when:
+        def rsp = client.toBlocking().exchange(request, TransactionDto)
+
+        then:
+        rsp.status == HttpStatus.OK
+
+    }
+
     def "Should not get a list of transactions by account"(){
 
         given:'a transaction list'
@@ -171,14 +413,6 @@ class TransactionControllerSpec extends Specification {
             amount == cmd.amount
         }
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.update'
-        assert  logEntry.dateCreated
-
     }
 
     def "Should get a list of transactions of an account on a filter"(){//todo set system category
@@ -238,14 +472,6 @@ class TransactionControllerSpec extends Specification {
         assert  transactionDtos.find {it.id == transaction3.id}
         assert transactionDtos.size() == 2
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.findAllByAccountAndFilters'
-        assert  logEntry.dateCreated
-
     }
 
     def "Should partially update an transaction"(){
@@ -287,176 +513,6 @@ class TransactionControllerSpec extends Specification {
             assert charge == cmd.charge
         }
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.update'
-        assert  logEntry.dateCreated
-
-    }
-
-    def "Should delete a list of transactions by account"(){
-
-        given:'a transaction list'
-        User user = generateUser()
-        Account account1 = generateAccount(user)
-        Account account2 = generateAccount(user)
-
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
-        transactionGormService.save(transaction1)
-        Transaction transaction2 = new Transaction(generateTransactionCommand(account2), account2)
-        transactionGormService.save(transaction2)
-        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
-        transactionGormService.save(transaction3)
-        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
-        transactionGormService.save(transaction4)
-
-        and:
-        HttpRequest getReq = HttpRequest.DELETE("${TRANSACTION_ROOT}?accountId=${account1.id}").bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, Map)
-
-        then:
-        rspGET.status == HttpStatus.NO_CONTENT
-
-        and:
-        List<Transaction> transactions = transactionGormService.findAllByAccount(account1)
-        assert transactions.every {it.dateDeleted}
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.deleteAllByAccount'
-        assert  logEntry.dateCreated
-
-    }
-
-    def "Should delete an transaction"() {
-        given:'a transaction'
-        User user = generateUser()
-
-        Account account1 = generateAccount(user)
-
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account1), account1)
-        transactionGormService.save(transaction1)
-
-        and:'a client request'
-        HttpRequest request = HttpRequest.DELETE("${TRANSACTION_ROOT}/${transaction1.id}").bearerAuth(accessToken)
-
-        when:
-        def response = client.toBlocking().exchange(request, TransactionDto)
-
-        then:
-        response.status == HttpStatus.NO_CONTENT
-
-        and:
-        HttpRequest.GET("${TRANSACTION_ROOT}/${transaction1.id}").bearerAuth(accessToken)
-
-        when:
-        client.toBlocking().exchange(request, Argument.of(TransactionDto) as Argument<TransactionDto>,
-                Argument.of(ItemNotFoundException))
-
-        then:
-        def  e = thrown HttpClientResponseException
-        e.response.status == HttpStatus.NOT_FOUND
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.delete'
-        assert  logEntry.dateCreated
-
-    }
-
-    def "Should get an transaction"(){
-        given:'a saved account'
-        User user = generateUser()
-        Account account1 = generateAccount(user)
-
-        and:'a saved transaction'
-        Transaction transaction = new Transaction()
-        transaction.with {
-            account = account1
-            executionDate = new Date()
-            charge = false
-            description = 'RAPI'
-        }
-
-        transactionGormService.save(transaction)
-
-        and:
-        HttpRequest getReq = HttpRequest.GET(TRANSACTION_ROOT+"/${transaction.id}").bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, TransactionDto)
-
-        then:
-        rspGET.status == HttpStatus.OK
-        rspGET.body().with {
-            assert id == transaction.id
-            assert charge == transaction.charge
-            assert description == transaction.description
-            assert amount == transaction.amount
-        }
-        !transaction.dateDeleted
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.getById'
-        assert  logEntry.dateCreated
-
-    }
-
-    def "Should get a list of transactions of an account on a cursor point"(){
-
-        given:'a transaction list'
-        User user = generateUser()
-        Account account1 = generateAccount(user)
-        Account account2 = generateAccount(user)
-
-        Transaction transaction1 = new Transaction(generateTransactionCommand(account2), account2)
-        transactionGormService.save(transaction1)
-        Transaction transaction2 = new Transaction(generateTransactionCommand(account1), account1)
-        transaction2.dateDeleted = new Date()
-        transactionGormService.save(transaction2)
-        Transaction transaction3 = new Transaction(generateTransactionCommand(account1), account1)
-        transactionGormService.save(transaction3)
-        Transaction transaction4 = new Transaction(generateTransactionCommand(account1), account1)
-        transactionGormService.save(transaction4)
-
-        and:
-        HttpRequest getReq = HttpRequest.GET("${TRANSACTION_ROOT}?accountId=${account1.id}&cursor=${transaction3.id}")
-                .bearerAuth(accessToken)
-
-        when:
-        def rspGET = client.toBlocking().exchange(getReq, Map)
-
-        then:
-        rspGET.status == HttpStatus.OK
-        Map body = rspGET.getBody(Map).get()
-        List<TransactionDto> transactionDtos = body.get("data") as List<TransactionDto>
-        assert !(transaction1.id in transactionDtos.id)
-        assert !(transaction2.id in transactionDtos.id)
-        assert !(transaction4.id in transactionDtos.id)
-        transactionDtos.size() == 1
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.findAllByAccountAndCursor'
-        assert  logEntry.dateCreated
     }
 
     def "Should get unauthorized"() {
@@ -526,144 +582,6 @@ class TransactionControllerSpec extends Specification {
 
         assert accountGormService.getById(account1.id).balance == 0.00F
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.create'
-        assert  logEntry.dateCreated
-    }
-
-    def "Should create a transaction and charge the account an decrement it's balance "(){
-        given:'an saved Account '
-        User user1 = generateUser()
-
-        FinancialEntity entity = generateEntity()
-
-        Account account1 = new Account()
-        account1.with {
-            user = user1
-            financialEntity = entity
-            nature = 'TEST NATURE'
-            name = 'TEST NAME'
-            cardNumber = 123412341234
-            balance = 1000.00
-            chargeable = true
-        }
-        accountGormService.save(account1)
-
-        def user = account1.user
-
-        Category category1 = generateCategory(user)
-        category1.parent = generateCategory(user)
-        categoryGormService.save(category1)
-
-        and:'a command request body'
-        TransactionCreateCommand cmd = new TransactionCreateCommand()
-        cmd.with {
-            accountId = account1.id
-            date = 1587567125458
-            charge = true
-            description = "UBER EATS"
-            amount= 600.00
-            categoryId = category1.id
-        }
-
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
-
-        when:
-        def rsp = client.toBlocking().exchange(request, TransactionDto)
-
-        then:
-        rsp.status == HttpStatus.OK
-        rsp.body.get().categoryId == category1.id
-
-        assert accountGormService.getById(account1.id).balance == 400.00F
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.create'
-        assert  logEntry.dateCreated
-    }
-
-    def "Should create a transaction and increment the account balance on account's chargeable activated and charge false"(){
-        given:'an saved Account '
-        User user = generateUser()
-        Account account1 = generateAccount(user)
-        account1.chargeable = true
-        account1.balance = 1000
-        accountGormService.save(account1)
-
-
-        Category category1 = generateCategory(user)
-        category1.parent = generateCategory(user)
-        categoryGormService.save(category1)
-
-        and:'a command request body'
-        TransactionCreateCommand cmd = new TransactionCreateCommand()
-        cmd.with {
-            accountId = account1.id
-            date = 1587567125458
-            charge = false
-            description = "UBER EATS"
-            amount= 600
-            categoryId = category1.id
-        }
-
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
-
-        when:
-        def rsp = client.toBlocking().exchange(request, TransactionDto)
-
-        then:
-        rsp.status == HttpStatus.OK
-        rsp.body.get().categoryId == category1.id
-
-        assert accountGormService.getById(account1.id).balance ==1600.00F
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.create'
-        assert  logEntry.dateCreated
-    }
-
-    def "Should create a transaction with no category and categorise it"(){
-        given:'an saved Account '
-        User user = generateUser()
-        Account account1 = generateAccount(user)
-
-        and:'a command request body'
-        TransactionCreateCommand cmd = new TransactionCreateCommand()
-        cmd.with {
-            accountId = account1.id
-            date = 1587567125458
-            charge = true
-            description = "UBER EATS"
-            amount= 1234.56
-        }
-
-        HttpRequest request = HttpRequest.POST(TRANSACTION_ROOT, cmd).bearerAuth(accessToken)
-
-        when:
-        def rsp = client.toBlocking().exchange(request, TransactionDto)
-
-        then:
-        rsp.status == HttpStatus.OK
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'TransactionServiceImp.create'
-        assert  logEntry.dateCreated
     }
 
     @Ignore

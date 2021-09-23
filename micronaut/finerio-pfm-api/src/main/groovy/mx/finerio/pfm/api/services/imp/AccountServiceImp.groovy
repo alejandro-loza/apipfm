@@ -88,6 +88,13 @@ class AccountServiceImp extends ServiceTemplate implements AccountService {
     }
 
     @Override
+    void deleteById(Long id){
+        Account account = findAccount(id)
+        account.dateDeleted = new Date()
+        accountGormService.save(account)
+    }
+
+    @Override
     List<AccountDto> findAllByUserAndCursor(Long userId, Long cursor) {
         User user = userService.findUser(userId)
         verifyLoggedClient(user.client)

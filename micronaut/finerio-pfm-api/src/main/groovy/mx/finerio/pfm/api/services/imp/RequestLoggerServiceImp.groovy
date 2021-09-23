@@ -8,16 +8,18 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.AccountDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.resource.UserDto
+import mx.finerio.pfm.api.enums.EventType
 import mx.finerio.pfm.api.services.RequestLoggerService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
 import mx.finerio.pfm.api.services.gorm.RequestLoggerGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
+import mx.finerio.pfm.api.validation.RequestLoggerFiltersCommand
 
 import javax.inject.Inject
 import java.lang.reflect.Method
 
-class RequestLoggerServiceImp implements RequestLoggerService{
+class RequestLoggerServiceImp extends  ServiceTemplate implements RequestLoggerService{
 
     @Inject
     RequestLoggerGormService requestLoggerGormService
@@ -48,18 +50,15 @@ class RequestLoggerServiceImp implements RequestLoggerService{
                'TransactionServiceImp.update': transactionResponseType,
                'TransactionServiceImp.getById': transactionDtoResponseType,
                'TransactionServiceImp.delete': transactionDeleteResponseType,
-               'TransactionServiceImp.deleteAllByAccount': transactionDeleteByAccountResponseType,
                'TransactionServiceImp.findAllByAccountAndCursor': transactionDtoListType,
                'TransactionServiceImp.findAllByAccountAndFilters': transactionDtoListType
         ]
 
         String eventName = getFullMethodName(context.targetMethod)
-        RequestLogger request = new RequestLogger()
-
-        request.with {
-            user = functionMap[eventName](['returnValue' :returnValue, 'parameters': context.parameters]) as User
-            request.eventType = eventName
-        }
+        RequestLogger request = functionMap[eventName](
+                ['returnValue' :returnValue,
+                 'parameters': context.parameters,
+                 'eventType': eventTypeMap[eventName]]) as RequestLogger
         return requestLoggerGormService.save(request)
     }
 
@@ -74,7 +73,12 @@ class RequestLoggerServiceImp implements RequestLoggerService{
 
     def userResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof User) {
-          return  object.returnValue
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user = object.returnValue as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
@@ -82,78 +86,141 @@ class RequestLoggerServiceImp implements RequestLoggerService{
     def userDtoResponseType = { Object object ->
 
         if(object.returnValue != null && object.returnValue instanceof UserDto) {
-            return  userGormService.findById(object.returnValue.id)
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user = userGormService.findById(object.returnValue.id) as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def userDeleteResponseType = { Object object ->
         if(object.parameters.values().first()?.value instanceof User){
-            return object.parameters.values().first().value
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user =  object.parameters.values().first().value as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def accountResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof Account) {
-            return  object.returnValue.user
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user = object.returnValue.user as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def accountDtoResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof AccountDto) {
-            return  accountGormService.getById(object.returnValue.id).user
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user = accountGormService.getById(object.returnValue.id).user as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def accountDeleteResponseType = { Object object ->
         if(object.parameters.values().first()?.value instanceof Account){
-            return object.parameters.values().first().value.user
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user = object.parameters.values().first().value.user as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def accountDtoListResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof List<AccountDto>) {
-            return userGormService.findById(object.parameters.userId.value)
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user = userGormService.findById(object.parameters.userId.value) as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def transactionResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof Transaction) {
-            return  object.returnValue.account.user
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user =  object.returnValue.account.user as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def transactionDtoResponseType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof TransactionDto) {
-            return  transactionGormService.getById(object.returnValue.id).account.user
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user =  transactionGormService.getById(object.returnValue.id).account.user as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def transactionDeleteResponseType = { Object object ->
         if(object.parameters.values().first()?.value instanceof Transaction){
-            return object.parameters.transaction.value.account.user
-        }
-        return
-    }
-
-    def transactionDeleteByAccountResponseType = { Object object ->
-        if(object.parameters.values().first()?.value instanceof Account){
-            return object.parameters.account.value.user
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user = object.parameters.transaction.value.account.user as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
 
     def transactionDtoListType = { Object object ->
         if(object.returnValue != null && object.returnValue instanceof List<TransactionDto>) {
-           return object.parameters.account.value.user
+            RequestLogger request = new RequestLogger()
+            request.with {
+                user =  object.parameters.account.value.user as User
+                request.eventType = object.eventType
+            }
+            return request
         }
         return
     }
+
+    def eventTypeMap =
+            [
+                    'UserServiceImp.create': EventType.USER_CREATE,
+                    'UserServiceImp.update': EventType.USER_UPDATE,
+                    'UserServiceImp.getUser': EventType.USER_GET,
+                    'UserServiceImp.delete': EventType.USER_DELETE,
+                    'AccountServiceImp.create': EventType.ACCOUNT_CREATE,
+                    'AccountServiceImp.getAccount': EventType.ACCOUNT_GET,
+                    'AccountServiceImp.update': EventType.ACCOUNT_UPDATE,
+                    'AccountServiceImp.delete': EventType.ACCOUNT_DELETE,
+                    'AccountServiceImp.findAllByUserAndCursor': EventType.ACCOUNT_LIST,
+                    'AccountServiceImp.findAllAccountDtosByUser': EventType.ACCOUNT_LIST,
+                    'TransactionServiceImp.create': EventType.TRANSACTION_CREATE,
+                    'TransactionServiceImp.update': EventType.TRANSACTION_UPDATE,
+                    'TransactionServiceImp.getById': EventType.TRANSACTION_GET,
+                    'TransactionServiceImp.delete': EventType.TRANSACTION_DELETE,
+                    'TransactionServiceImp.findAllByAccountAndCursor': EventType.TRANSACTION_LIST,
+                    'TransactionServiceImp.findAllByAccountAndFilters': EventType.TRANSACTION_LIST
+            ]
 }

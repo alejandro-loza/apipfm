@@ -14,6 +14,7 @@ import mx.finerio.pfm.api.domain.*
 import mx.finerio.pfm.api.dtos.resource.UserDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorDto
 import mx.finerio.pfm.api.dtos.utilities.ErrorsDto
+import mx.finerio.pfm.api.enums.EventType
 import mx.finerio.pfm.api.exceptions.ItemNotFoundException
 import mx.finerio.pfm.api.services.ClientService
 import mx.finerio.pfm.api.services.gorm.*
@@ -185,7 +186,7 @@ class UserControllerSpec extends Specification {
 
         then:
         assert  logEntry
-        assert  logEntry.eventType == 'UserServiceImp.delete'
+        assert  logEntry.eventType == EventType.USER_DELETE
         assert  logEntry.dateCreated
 
     }
@@ -216,7 +217,7 @@ class UserControllerSpec extends Specification {
 
         then:
         assert  logEntry
-        assert  logEntry.eventType == 'UserServiceImp.update'
+        assert  logEntry.eventType == EventType.USER_UPDATE
         assert  logEntry.dateCreated
 
     }
@@ -243,7 +244,7 @@ class UserControllerSpec extends Specification {
 
         then:
         assert  logEntry
-        assert  logEntry.eventType == 'UserServiceImp.getUser'
+        assert  logEntry.eventType == EventType.USER_GET
         assert  logEntry.dateCreated
 
     }
@@ -298,7 +299,8 @@ class UserControllerSpec extends Specification {
         RequestLogger logEntry = requestLoggerGormService.findByUserId(rsp.body().id)
 
         then:
-        assert  logEntry.eventType == 'UserServiceImp.create'
+        assert logEntry
+        assert  logEntry.eventType == EventType.USER_CREATE
         assert  logEntry.dateCreated
     }
 

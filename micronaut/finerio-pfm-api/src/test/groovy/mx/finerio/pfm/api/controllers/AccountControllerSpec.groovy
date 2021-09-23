@@ -157,13 +157,6 @@ class AccountControllerSpec extends Specification {
         List<AccountDto> accounts = body.get("data") as List<AccountDto>
         assert !(account.id in accounts.id)
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user1.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.findAllAccountDtosByUser'
-        assert  logEntry.dateCreated
     }
 
     def "Should get a list of accounts in a cursor point"(){
@@ -221,15 +214,6 @@ class AccountControllerSpec extends Specification {
         List<AccountDto> accounts = body.get("data") as List<AccountDto>
 
         assert accounts.first().id == account2.id
-
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user1.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.findAllByUserAndCursor'
-        assert  logEntry.dateCreated
-
     }
 
     def "Should create an account"() {
@@ -272,13 +256,6 @@ class AccountControllerSpec extends Specification {
         then:'verify'
         !account.dateDeleted
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.create'
-        assert  logEntry.dateCreated
     }
 
     def "Should delete an account"() {
@@ -319,13 +296,6 @@ class AccountControllerSpec extends Specification {
         def  e = thrown HttpClientResponseException
         e.response.status == HttpStatus.NOT_FOUND
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user1.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.delete'
-        assert  logEntry.dateCreated
 
     }
 
@@ -376,13 +346,6 @@ class AccountControllerSpec extends Specification {
             assert chargeable == cmd.chargeable
         }
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(awesomeUser.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.update'
-        assert  logEntry.dateCreated
 
     }
 
@@ -423,13 +386,6 @@ class AccountControllerSpec extends Specification {
         }
         !account.dateDeleted
 
-        when:
-        RequestLogger logEntry = requestLoggerGormService.findByUserId(user.id)
-
-        then:
-        assert  logEntry
-        assert  logEntry.eventType == 'AccountServiceImp.getAccount'
-        assert  logEntry.dateCreated
 
     }
 

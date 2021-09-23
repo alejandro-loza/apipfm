@@ -65,7 +65,6 @@ interface TransactionService {
     @Log
     List<Transaction> getAccountsTransactions(List<Account> accounts, Boolean charge, Date dateFrom, Date dateTo)
 
-    @RequestLogger
     @Log
     void deleteAllByAccount(Account account)
 
