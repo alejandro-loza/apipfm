@@ -59,8 +59,8 @@ interface TransactionService {
     List<Transaction> findAllByAccountSystemCategoryChargeAndDateFrom(
             Account account, SystemCategory systemCategory, Date dateFrom, Boolean charge)
 
-    @ Log
-    List < Transaction > findAllByAccountAndChargeAndDateRange(Account account, Boolean charge, Date from, Date to)
+    @Log
+    List <Transaction> findAllByAccountAndChargeAndDateRange(Account account, Boolean charge, Date from, Date to)
 
     @Log
     List<Transaction> getAccountsTransactions(List<Account> accounts, Boolean charge, Date dateFrom, Date dateTo)

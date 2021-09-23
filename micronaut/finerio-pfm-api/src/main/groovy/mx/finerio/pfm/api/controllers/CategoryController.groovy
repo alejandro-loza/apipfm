@@ -74,7 +74,7 @@ class CategoryController {
         clientCategories.addAll( categoryService.findAllByCurrentLoggedClientAndUserNull() )
 
         if(userId) {
-            clientCategories.addAll( categoryService.findAllCategoryDtosByUser(userService.getUser(userId)))
+            clientCategories.addAll( categoryService.findAllCategoryDtosByUser(userService.findUser(userId)))
         }
 
         clientCategories = clientCategories.sort { c1, c2 -> c2.id <=> c1.id }

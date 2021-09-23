@@ -37,7 +37,7 @@ class ResumeServiceImp extends ServiceTemplate implements ResumeService{
         Date toDate = cmd.dateTo ? validateToDate(cmd.dateTo , fromDate) : new Date()
 
         List<Account> accounts = cmd.accountId
-                ? [accountService.getAccount(cmd.accountId)]
+                ? [accountService.findAccount(cmd.accountId)]
                 : accountService.findAllByUserId(userId)
 
         List<MovementsResumeDto> incomesResult = resumeTransactionsGroupByMonth(

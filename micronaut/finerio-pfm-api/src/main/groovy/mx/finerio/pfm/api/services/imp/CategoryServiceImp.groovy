@@ -54,7 +54,7 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
         verifyBody(cmd)
         Category category = getById(id)
         category.with {
-            user = cmd.userId ?userService.getUser(cmd.userId) : category.user
+            user = cmd.userId ?userService.findUser(cmd.userId) : category.user
             name = cmd.name ?: category.name
             color = cmd.color ?: category.color
         }
@@ -106,6 +106,6 @@ class CategoryServiceImp extends ServiceTemplate implements CategoryService {
     }
 
     private User findUser(CategoryCreateCommand cmd) {
-        !cmd.userId ? null : userService.getUser(cmd.userId)
+        !cmd.userId ? null : userService.findUser(cmd.userId)
     }
 }

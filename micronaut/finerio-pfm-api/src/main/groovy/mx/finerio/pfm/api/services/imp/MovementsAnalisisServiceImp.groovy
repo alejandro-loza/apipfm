@@ -29,7 +29,7 @@ class MovementsAnalisisServiceImp implements MovementsAnalysisService {
         Date fromDate = cmd.dateFrom ? resumeService.validateFromDate(cmd.dateFrom) : resumeService.getFromLimit()
         Date toDate = cmd.dateTo ? resumeService.validateToDate(cmd.dateTo , fromDate) : new Date()
         List<Transaction> transactions = transactionService.getAccountsTransactions(
-                accountService.findAllByUser(userService.getUser(userId)),
+                accountService.findAllByUser(userService.findUser(userId)),
                 EXPENSE, fromDate, toDate)
 
         resumeService.analysisTransactionsGroupByMonth(transactions)
