@@ -8,6 +8,7 @@ import mx.finerio.pfm.api.domain.Transaction
 import mx.finerio.pfm.api.dtos.resource.AccountDto
 import mx.finerio.pfm.api.dtos.resource.TransactionDto
 import mx.finerio.pfm.api.dtos.resource.UserDto
+import mx.finerio.pfm.api.dtos.utilities.RequestLoggerDto
 import mx.finerio.pfm.api.enums.EventType
 import mx.finerio.pfm.api.services.RequestLoggerService
 import mx.finerio.pfm.api.services.gorm.AccountGormService
@@ -15,6 +16,7 @@ import mx.finerio.pfm.api.services.gorm.RequestLoggerGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.RequestLoggerFiltersCommand
+import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 
 import javax.inject.Inject
 import java.lang.reflect.Method
@@ -54,6 +56,7 @@ class RequestLoggerServiceImp extends  ServiceTemplate implements RequestLoggerS
                'TransactionServiceImp.findAllByAccountAndFilters': transactionDtoListType
         ]
 
+
         String eventName = getFullMethodName(context.targetMethod)
         RequestLogger request = functionMap[eventName](
                 ['returnValue' :returnValue,
@@ -69,6 +72,83 @@ class RequestLoggerServiceImp extends  ServiceTemplate implements RequestLoggerS
         def className = clazz.simpleName
         def methodName = method.name
         return "${className}.${methodName}"
+    }
+
+    @Override
+    List<RequestLoggerDto> findByFilters(RequestLoggerFiltersCommand args){
+
+        def filterMap =    [
+                "userId": userIdFilter,
+                "eventType": eventTypeFilter,
+                "dateFrom": fromDateFilter,
+                "dateTo": toDateFilter]
+
+        List<RequestLoggerDto> requestLoggers = []
+        if(args.cursor){
+            requestLoggers = requestLoggerGormService.findAllByIdLessThanEquals(args.cursor,
+                            [max: MAX_ROWS, sort: 'id', order: 'desc'] )
+                    .collect{generateRequestLoggerDto(it)}
+        }
+        else {
+            requestLoggers = requestLoggerGormService.findAll(
+                    [max: MAX_ROWS, sort: 'id', order: 'desc'] )
+                    .collect{generateRequestLoggerDto(it)}
+        }
+
+        def filtersCommandProperties = generateProperties(args)
+
+        if(filtersCommandProperties && requestLoggers){
+            List<List<RequestLoggerDto>> filterLists = filtersCommandProperties.collect {
+                filterMap[it.key as String](requestLoggers, args)
+            }
+            return filterLists ? intersectResultList(filterLists): []
+        }
+
+        requestLoggers
+    }
+
+    private static List<RequestLoggerDto> intersectResultList(List<List<RequestLoggerDto>> filterLists) {
+        List<RequestLoggerDto> resultSet = filterLists?.first()
+        filterLists.each {
+            resultSet = resultSet.intersect(it)
+        }
+        resultSet
+    }
+
+    static RequestLoggerDto generateRequestLoggerDto(RequestLogger requestLogger){
+        RequestLoggerDto dto = new RequestLoggerDto()
+        dto.with {
+            id = requestLogger.id
+            userId = requestLogger.user?.id
+            eventType = requestLogger.eventType
+            dateCreated = requestLogger.dateCreated
+        }
+        dto
+    }
+
+
+    private Map<Object, Object> generateProperties(RequestLoggerFiltersCommand cmd) {
+        cmd.properties.findAll {
+            if (it.getValue() != null && it.getKey() != 'class' && it.getKey() != 'cursor') {
+                return it
+            }
+        }
+    }
+
+    def userIdFilter = { List<RequestLoggerDto> logDtos, RequestLoggerFiltersCommand cmd ->
+        logDtos.findAll {it.userId == cmd.userId }
+    }
+
+    def eventTypeFilter = { List<RequestLoggerDto> logDtos, RequestLoggerFiltersCommand cmd ->
+        logDtos.findAll {it.eventType.toString() == cmd.eventType }
+    }
+
+    def fromDateFilter = {List<RequestLoggerDto> loggerDtos, RequestLoggerFiltersCommand cmd ->
+        loggerDtos.findAll {it.dateCreated >= new Date(cmd.dateFrom)}
+    }
+
+    def toDateFilter = {List<RequestLoggerDto> loggerDtos, RequestLoggerFiltersCommand cmd ->
+        loggerDtos.findAll {it.dateCreated <=  new Date(cmd.dateTo)}
     }
 
     def userResponseType = { Object object ->

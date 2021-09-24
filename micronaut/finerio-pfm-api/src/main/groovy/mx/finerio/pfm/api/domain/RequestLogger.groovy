@@ -19,7 +19,7 @@ class RequestLogger implements GormEntity<RequestLogger> {
     static constraints = {
         id generator: 'native', params:[sequence:'REQUEST_LOGGER_SEQ']
         user nullable: false
-        eventType nullable: false, blank:false
+        eventType nullable: false
     }
 
     static mapping = {
