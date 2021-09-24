@@ -16,7 +16,6 @@ import mx.finerio.pfm.api.services.gorm.RequestLoggerGormService
 import mx.finerio.pfm.api.services.gorm.TransactionGormService
 import mx.finerio.pfm.api.services.gorm.UserGormService
 import mx.finerio.pfm.api.validation.RequestLoggerFiltersCommand
-import mx.finerio.pfm.api.validation.TransactionFiltersCommand
 
 import javax.inject.Inject
 import java.lang.reflect.Method
@@ -37,25 +36,6 @@ class RequestLoggerServiceImp extends  ServiceTemplate implements RequestLoggerS
 
     @Override
     RequestLogger create(MethodInvocationContext<Object, Object> context, returnValue) {
-        def functionMap  = [
-               'UserServiceImp.create': userResponseType,
-               'UserServiceImp.update': userResponseType,
-               'UserServiceImp.getUser': userDtoResponseType,
-               'UserServiceImp.delete': userDeleteResponseType,
-               'AccountServiceImp.create': accountResponseType,
-               'AccountServiceImp.getAccount': accountDtoResponseType,
-               'AccountServiceImp.update': accountResponseType,
-               'AccountServiceImp.delete': accountDeleteResponseType,
-               'AccountServiceImp.findAllByUserAndCursor': accountDtoListResponseType,
-               'AccountServiceImp.findAllAccountDtosByUser': accountDtoListResponseType,
-               'TransactionServiceImp.create': transactionResponseType,
-               'TransactionServiceImp.update': transactionResponseType,
-               'TransactionServiceImp.getById': transactionDtoResponseType,
-               'TransactionServiceImp.delete': transactionDeleteResponseType,
-               'TransactionServiceImp.findAllByAccountAndCursor': transactionDtoListType,
-               'TransactionServiceImp.findAllByAccountAndFilters': transactionDtoListType
-        ]
-
 
         String eventName = getFullMethodName(context.targetMethod)
         RequestLogger request = functionMap[eventName](
@@ -77,23 +57,7 @@ class RequestLoggerServiceImp extends  ServiceTemplate implements RequestLoggerS
     @Override
     List<RequestLoggerDto> findByFilters(RequestLoggerFiltersCommand args){
 
-        def filterMap =    [
-                "userId": userIdFilter,
-                "eventType": eventTypeFilter,
-                "dateFrom": fromDateFilter,
-                "dateTo": toDateFilter]
-
-        List<RequestLoggerDto> requestLoggers = []
-        if(args.cursor){
-            requestLoggers = requestLoggerGormService.findAllByIdLessThanEquals(args.cursor,
-                            [max: MAX_ROWS, sort: 'id', order: 'desc'] )
-                    .collect{generateRequestLoggerDto(it)}
-        }
-        else {
-            requestLoggers = requestLoggerGormService.findAll(
-                    [max: MAX_ROWS, sort: 'id', order: 'desc'] )
-                    .collect{generateRequestLoggerDto(it)}
-        }
+        List<RequestLoggerDto> requestLoggers = args.cursor ? findRequestByCursor(args) : findAllRequest()
 
         def filtersCommandProperties = generateProperties(args)
 
@@ -105,6 +69,18 @@ class RequestLoggerServiceImp extends  ServiceTemplate implements RequestLoggerS
         }
 
         requestLoggers
+    }
+
+    private List<RequestLoggerDto> findAllRequest() {
+        requestLoggerGormService.findAll(
+                [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect { generateRequestLoggerDto(it) }
+    }
+
+    private List<RequestLoggerDto> findRequestByCursor(RequestLoggerFiltersCommand args) {
+        requestLoggerGormService.findAllByIdLessThanEquals(args.cursor,
+                [max: MAX_ROWS, sort: 'id', order: 'desc'])
+                .collect { generateRequestLoggerDto(it) }
     }
 
     private static List<RequestLoggerDto> intersectResultList(List<List<RequestLoggerDto>> filterLists) {
@@ -303,4 +279,28 @@ class RequestLoggerServiceImp extends  ServiceTemplate implements RequestLoggerS
                     'TransactionServiceImp.findAllByAccountAndCursor': EventType.TRANSACTION_LIST,
                     'TransactionServiceImp.findAllByAccountAndFilters': EventType.TRANSACTION_LIST
             ]
+    def filterMap =    [
+            "userId": userIdFilter,
+            "eventType": eventTypeFilter,
+            "dateFrom": fromDateFilter,
+            "dateTo": toDateFilter]
+
+    def functionMap  = [
+            'UserServiceImp.create': userResponseType,
+            'UserServiceImp.update': userResponseType,
+            'UserServiceImp.getUser': userDtoResponseType,
+            'UserServiceImp.delete': userDeleteResponseType,
+            'AccountServiceImp.create': accountResponseType,
+            'AccountServiceImp.getAccount': accountDtoResponseType,
+            'AccountServiceImp.update': accountResponseType,
+            'AccountServiceImp.delete': accountDeleteResponseType,
+            'AccountServiceImp.findAllByUserAndCursor': accountDtoListResponseType,
+            'AccountServiceImp.findAllAccountDtosByUser': accountDtoListResponseType,
+            'TransactionServiceImp.create': transactionResponseType,
+            'TransactionServiceImp.update': transactionResponseType,
+            'TransactionServiceImp.getById': transactionDtoResponseType,
+            'TransactionServiceImp.delete': transactionDeleteResponseType,
+            'TransactionServiceImp.findAllByAccountAndCursor': transactionDtoListType,
+            'TransactionServiceImp.findAllByAccountAndFilters': transactionDtoListType
+    ]
 }
