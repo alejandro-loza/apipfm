@@ -66,7 +66,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
     @Override
     BudgetDto update(BudgetUpdateCommand cmd, Budget budget){
 
-        User userToSet = cmd.userId ? userService.getUser(cmd.userId) : budget.user
+        User userToSet = cmd.userId ? userService.findUser(cmd.userId) : budget.user
         budget.with {
             user = userToSet
             name = cmd.name ?: budget.name
@@ -104,7 +104,7 @@ class BudgetServiceImp extends ServiceTemplate implements BudgetService {
 
     @Override
     List<BudgetDto> findAllByUserId(Long userId) {
-        findAllByUser(userService.getUser(userId))
+        findAllByUser(userService.findUser(userId))
     }
 
     @Override
